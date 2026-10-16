@@ -293,72 +293,91 @@ table.grid td.act { white-space: nowrap; text-align: right; }
 }
 .board-empty[hidden] { display: none; }
 
-/* SVG */
-.grid-minor { stroke: #e9edf2; fill: none; }
-.grid-major { stroke: #d6dde6; fill: none; }
+/* SVG: schema topologico formale */
+.grid-dot { fill: #c3cbd6; }
+.grid-dot-major { fill: #9aa7b6; }
 .g-frame { pointer-events: none; }
-.g-frame rect.g-box { fill-opacity: .045; stroke-width: 1.4; stroke-opacity: .55; }
-.g-frame rect.g-band { fill-opacity: .13; }
+.g-frame .g-box { fill-opacity: .03; stroke-width: 1; stroke-opacity: .55; }
+.g-frame .g-band { fill-opacity: .09; }
+.g-frame .g-band-line { stroke-opacity: .35; stroke-width: .8; }
+.g-title { font-size: 11px; font-weight: 700; letter-spacing: .02em; }
 .g-handle { cursor: move; pointer-events: all; }
 .g-handle rect { fill: transparent; }
-.g-title { font-size: 12px; font-weight: 700; }
-.g-frame.selected rect.g-box { stroke-width: 2.6; stroke-opacity: .9; }
+.g-frame.selected .g-box { stroke-width: 2; stroke-opacity: .95; }
 .comp { cursor: move; }
 .comp-body { fill: #fff; }
-.comp-outline { fill: none; stroke: #8794a5; stroke-width: 1.2; pointer-events: none; }
-.comp:hover .comp-outline { stroke: #4f5e72; }
-.comp.selected .comp-outline { stroke: var(--primary); stroke-width: 2.6; }
-.comp.focus-dim { opacity: .5; }
-.comp-head { fill: #eef3f9; }
-.comp-name { font-size: 13px; font-weight: 700; fill: #111b28; }
-.comp-meta { font-size: 11px; fill: #44515f; }
-.comp-meta-k { fill: #7b8696; }
-.comp-idb rect { fill: var(--navy-800); }
-.comp-idb text { fill: #fff; font: 700 11px var(--mono); }
-.comp-sep { stroke: #d3dae3; }
+.comp-head { fill: #eef2f6; }
+.comp-outline { fill: none; stroke: #3f4b59; stroke-width: 1.1; pointer-events: none; }
+.comp:hover .comp-outline { stroke: #18222e; }
+.comp.selected .comp-outline { stroke: var(--primary); stroke-width: 2.4; }
+.comp-name { font-size: 12.5px; font-weight: 700; fill: #111b28; }
+.comp-meta { font-size: 10.5px; fill: #445264; }
+.comp-meta-k { fill: #808b99; font-weight: 600; }
+.comp-idb rect { fill: #fff; stroke: #3f4b59; stroke-width: 1; }
+.comp-idb text { fill: #14202d; font: 700 10.5px var(--mono); }
+.comp-sep { stroke: #3f4b59; stroke-width: .9; }
 .port-row { fill: transparent; }
-.port:hover .port-row { fill: #eef4fc; }
+.port-row.alt { fill: #f6f8fa; }
+.port:hover .port-row { fill: #e9f1fb; }
 .port.hl .port-row { fill: #fff0dc; }
-.port-text { font-size: 11.5px; fill: #1c2735; }
-.port-id { font-weight: 700; font-family: var(--mono); font-size: 11px; }
-.port-sep { fill: #9aa5b3; }
-.port-type { font: 700 9.5px var(--mono); fill: #6d7887; }
+.port-text { font-size: 11px; fill: #1c2735; }
+.port-id { font-weight: 700; font-family: var(--mono); font-size: 10.5px; }
+.port-type { font: 600 9px var(--mono); fill: #6d7887; letter-spacing: .02em; }
 .port-none { font-size: 11px; fill: #8a94a2; font-style: italic; }
-.port-dot { fill: #fff; stroke: #7d8a9a; stroke-width: 1.4; }
-.port-dot.on-if { fill: var(--primary); stroke: #0f4597; }
-.port-dot.on-cbl { fill: var(--cable); stroke: #17212c; }
-.port-dot.on-ghost { fill: #fff; stroke: #8b96a3; stroke-dasharray: 2 2; }
+.port-sq { fill: #fff; stroke: #5d6a79; stroke-width: 1.1; }
+.port-sq.on-if { fill: var(--primary); stroke: #0f4597; }
+.port-sq.on-cbl { fill: #2b3640; stroke: #111a22; }
+.port-sq.on-ghost { fill: #fff; stroke: #8b96a3; stroke-dasharray: 2 1.5; }
 .pin { cursor: crosshair; }
 .pin-hit { fill: transparent; }
-.pin:hover .port-dot, .pin.target .port-dot { stroke: var(--accent); stroke-width: 2.6; }
+.pin:hover .port-sq, .pin.target .port-sq { stroke: var(--accent); stroke-width: 2.2; }
 .link-g { cursor: pointer; }
-.link-hit { fill: none; stroke: transparent; stroke-width: 13; }
-.link-if { fill: none; stroke: var(--primary); stroke-width: 3; stroke-dasharray: 9 6; }
-.link-cbl { fill: none; stroke: var(--cable); stroke-width: 1.7; }
-.link-ghost { fill: none; stroke: #a5afbb; stroke-width: 1.4; stroke-dasharray: 2 5; }
-.link-halo { fill: none; stroke-width: 11; stroke-linecap: round; }
-.link-g:hover .link-if { stroke-width: 4.2; }
-.link-g:hover .link-cbl { stroke-width: 2.6; }
-.link-g.selected .link-if { stroke: #0b3d8f; stroke-width: 4.4; }
-.link-g.selected .link-cbl { stroke: #c45a00; stroke-width: 2.8; }
-.link-g.selected .link-halo { stroke: rgba(29,95,191,.16); }
+.link-hit { fill: none; stroke: transparent; stroke-width: 12; stroke-linejoin: round; }
+.seg-hit { stroke: transparent; stroke-width: 9; }
+.seg-hit.v { cursor: ew-resize; }
+.seg-hit.h { cursor: ns-resize; }
+#board.seg-v, #board.seg-v * { cursor: ew-resize !important; }
+#board.seg-h, #board.seg-h * { cursor: ns-resize !important; }
+.link-if { fill: none; stroke: var(--primary); stroke-width: 2.3; stroke-dasharray: 8 4; }
+.link-cbl { fill: none; stroke: #2b3640; stroke-width: 1.35; }
+.link-ghost { fill: none; stroke: #a5afbb; stroke-width: 1.3; stroke-dasharray: 2 4; }
+.link-halo { fill: none; stroke-width: 9; stroke-linejoin: round; stroke-linecap: round; }
+.link-g:hover .link-if { stroke-width: 3.1; }
+.link-g:hover .link-cbl { stroke-width: 2.1; }
+.link-g.selected .link-if { stroke: #0b3d8f; stroke-width: 3.2; }
+.link-g.selected .link-cbl { stroke: #c45a00; stroke-width: 2.3; }
+.link-g.selected .link-halo { stroke: rgba(29,95,191,.13); }
 .link-g.related .link-if { stroke: #0b3d8f; }
-.link-g.related .link-cbl { stroke: #0d1822; stroke-width: 2.2; }
-.link-g.dim, .lbl.dim { opacity: .2; }
+.link-g.related .link-cbl { stroke: #0d1822; stroke-width: 1.8; }
+.link-g.dim, .lbl.dim { opacity: .18; }
 .lbl { cursor: pointer; }
-.lbl rect { fill: #fff; stroke-width: 1; }
-.lbl text { font-size: 11px; font-weight: 600; }
-.lbl.if rect { stroke: #98b8e6; }
+.lbl rect { fill: #fff; stroke-width: .9; }
+.lbl text { font-size: 10.5px; font-weight: 600; }
+.lbl .lbl-id { font: 700 10px var(--mono); }
+.lbl.if rect { stroke: #8fb1e3; }
 .lbl.if text { fill: #123f80; }
-.lbl.cbl rect { stroke: #b4bec9; }
+.lbl.cbl rect { stroke: #aab4bf; }
 .lbl.cbl text { fill: #1f2b38; }
 .lbl.ghost rect { stroke: #d0d6de; stroke-dasharray: 2 2; }
 .lbl.ghost text { fill: #6f7a88; font-style: italic; font-weight: 500; }
-.lbl.selected rect { stroke-width: 2; stroke: #c45a00; }
+.lbl.selected rect { stroke-width: 1.8; stroke: #c45a00; }
 .lbl.if.selected rect { stroke: #0b3d8f; }
-.lbl:hover rect { stroke-width: 1.8; }
-.lbl-leader { stroke: #9aa5b1; stroke-width: 1; stroke-dasharray: 2 2; fill: none; }
-.temp-link { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 4; fill: none; pointer-events: none; }
+.lbl:hover rect { stroke-width: 1.6; }
+.lbl-leader { stroke: #7d8896; stroke-width: .9; stroke-dasharray: 2 2; fill: none; }
+.lbl-sep { stroke: #e1e5ea; stroke-width: .8; }
+.lbl .lbl-row-hit { fill: transparent; stroke: none; }
+.lbl .lbl-row:hover .lbl-row-hit { fill: #edf2f8; }
+.lbl-row.selected text { fill: #c45a00; }
+.lbl-row.dim { opacity: .35; }
+.temp-link { stroke: var(--accent); stroke-width: 1.8; stroke-dasharray: 6 4; fill: none; pointer-events: none; }
+.board-tools {
+  position: absolute; top: 10px; right: 12px; display: flex; align-items: center; gap: 6px; z-index: 2;
+  background: rgba(255,255,255,.97); border: 1px solid var(--border); border-radius: 6px; padding: 5px 6px 5px 10px;
+  box-shadow: 0 1px 4px rgba(10,30,60,.08);
+}
+.board-tools .bt-title { font-size: 10.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); margin-right: 2px; }
+.board-legend .lg-stats { margin-top: 5px; padding-top: 5px; border-top: 1px solid var(--border); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.board-legend .lg-err { color: #a11d1d; }
 
 /* ---------- Side panel ---------- */
 .side-panel {
@@ -593,25 +612,31 @@ table.n2 td .chip { margin: 1px; }
       <svg id="board" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Schema di interfacciamento">
         <defs>
           <pattern id="gridPattern" width="100" height="100" patternUnits="userSpaceOnUse">
-            <path class="grid-minor" d="M20 0V100M40 0V100M60 0V100M80 0V100M0 20H100M0 40H100M0 60H100M0 80H100"/>
-            <path class="grid-major" d="M0 0V100M0 0H100"/>
+            <g id="gridDots"></g>
+            <circle class="grid-dot-major" cx="50" cy="50" r="1.5"/>
           </pattern>
-          <filter id="compShadow" x="-10%" y="-10%" width="120%" height="130%">
-            <feDropShadow dx="0" dy="1.2" stdDeviation="1.6" flood-color="#0b2140" flood-opacity="0.16"/>
-          </filter>
         </defs>
         <rect id="gridBg" x="0" y="0" width="100%" height="100%" fill="url(#gridPattern)"/>
         <g id="viewport">
           <g id="layerGroups"></g>
           <g id="layerLinks"></g>
           <g id="layerComps"></g>
+          <g id="layerPorts"></g>
           <g id="layerLabels"></g>
           <g id="layerTemp"></g>
         </g>
       </svg>
       <div class="board-empty" id="boardEmpty" hidden>Nessun componente. Usa “+ Componente” per iniziare.</div>
+      <div class="board-tools" id="boardTools" role="toolbar" aria-label="Strumenti di instradamento">
+        <span class="bt-title">Instradamento</span>
+        <button type="button" class="btn sm primary" id="btnReroute" title="Ricalcola tutti i percorsi della vista corrente: linee ortogonali, meno incroci e meno piegature. Le modifiche manuali vengono sostituite (Ctrl+Z per annullare).">↻ Auto-Rerouting</button>
+        <button type="button" class="btn sm" id="btnBoardUndo">↶ Annulla</button>
+        <button type="button" class="btn sm" id="btnBoardRedo">↷ Ripeti</button>
+        <span class="tb-sep"></span>
+        <button type="button" class="btn sm" id="btnExportSvg" title="Esporta lo schema in formato SVG vettoriale, con cartiglio">Esporta SVG</button>
+      </div>
       <div class="board-legend" id="boardLegend"></div>
-      <div class="board-hint" id="boardHint">Trascina i blocchi per spostarli · trascina da un punto porta a un altro per collegare · rotella = zoom · trascina lo sfondo per spostare la vista</div>
+      <div class="board-hint" id="boardHint">Trascina i blocchi per spostarli · trascina un tratto di linea per modificarne il percorso (doppio clic: torna automatico) · trascina da una porta a un’altra per collegare · rotella = zoom</div>
     </div>
   </section>
 
@@ -850,11 +875,11 @@ function buildDemo() {
     port('J1', '28 VDC POWER', 'Power', 'Input'),
     port('J2', 'RS-422 CONTROL', 'Serial', 'Bidirectional'),
     port('J3', 'VIDEO INPUT', 'Video', 'Input')]);
-  const GPS = comp('GPS', 'GPS Receiver', 'Ricevitore GNSS per posizione, velocità e tempo.', 'Navigazione', 'Navigation Integration', 'Fornitore D', 'Proposta', 40, 300, gNav, [
+  const GPS = comp('GPS', 'GPS Receiver', 'Ricevitore GNSS per posizione, velocità e tempo.', 'Navigazione', 'Navigation Integration', 'Fornitore D', 'Proposta', 40, 312, gNav, [
     port('J1', '28 VDC POWER', 'Power', 'Input'),
     port('J2', 'SERIAL DATA', 'Serial', 'Output'),
     port('J3', 'RF ANTENNA', 'RF', 'Input')]);
-  const RAD = comp('RAD', 'Tactical Radio', 'Radio tattica V/UHF con interfaccia dati IP.', 'C3/Comunicazioni', 'C3 Integration', 'Supplier Radio', 'Da verificare', 940, 300, gC3, [
+  const RAD = comp('RAD', 'Tactical Radio', 'Radio tattica V/UHF con interfaccia dati IP.', 'C3/Comunicazioni', 'C3 Integration', 'Supplier Radio', 'Da verificare', 940, 334, gC3, [
     port('J1', '28 VDC POWER', 'Power', 'Input'),
     port('J2', 'ETHERNET DATA', 'Ethernet', 'Bidirectional'),
     port('J3', 'RF ANTENNA', 'RF', 'Bidirectional'),
@@ -916,7 +941,8 @@ function buildDemo() {
     components: [PDU, VCU, HMI, GPS, RAD],
     interfaces: [IF_CTRL, IF_GPS, IF_RAD, IF_PV, IF_PH, IF_PR],
     cables,
-    requirements
+    requirements,
+    routing: { interfaces: {}, cables: {} }
   };
 }
 
@@ -1075,30 +1101,33 @@ function loadModel() {
   }
   return { data: buildDemo(), source: 'demo' };
 }
-function pushHistory(snap) {
-  history.past.push(snap);
+/* Storico: ogni voce conserva lo stato completo (inclusi i percorsi) e una descrizione */
+function pushHistory(snap, label) {
+  history.past.push({ s: snap, label: label || 'Modifica' });
   if (history.past.length > history.max) history.past.shift();
   history.future.length = 0;
 }
 function undo() {
   if (!history.past.length) return;
-  history.future.push(snapshot());
-  state = JSON.parse(history.past.pop());
+  const e = history.past.pop();
+  history.future.push({ s: snapshot(), label: e.label });
+  state = JSON.parse(e.s);
   closePanel(true);
   afterChange();
-  toast('Modifica annullata', 'info');
+  toast('Annullato: ' + e.label, 'info');
 }
 function redo() {
   if (!history.future.length) return;
-  history.past.push(snapshot());
-  state = JSON.parse(history.future.pop());
+  const e = history.future.pop();
+  history.past.push({ s: snapshot(), label: e.label });
+  state = JSON.parse(e.s);
   closePanel(true);
   afterChange();
-  toast('Modifica ripristinata', 'info');
+  toast('Ripristinato: ' + e.label, 'info');
 }
 /* Tutte le modifiche passano da qui: snapshot per l'annullamento, mutazione,
    ricostruzione indici, validazione, salvataggio e ridisegno di tutte le viste. */
-function commit(mutator, message) {
+function commit(mutator, message, label) {
   const snap = snapshot();
   try {
     mutator(state);
@@ -1109,13 +1138,13 @@ function commit(mutator, message) {
     reportError(err);
     return false;
   }
-  pushHistory(snap);
+  pushHistory(snap, label || message);
   afterChange();
   if (message) toast(message, 'ok');
   return true;
 }
 function replaceState(newState, message) {
-  pushHistory(snapshot());
+  pushHistory(snapshot(), message);
   state = newState;
   ui.selected = null;
   closePanel(true);
@@ -1124,6 +1153,7 @@ function replaceState(newState, message) {
 }
 function afterChange() {
   rebuildIndex();
+  syncRoutes();
   computeIssues();
   saveModel();
   renderAll();
@@ -1245,40 +1275,54 @@ function computeIssues() {
 function issueCount(cat) { return issues.filter((i) => i.cat === cat).length; }
 
 /* =====================================================================
-   8. LAVAGNA (SVG)
+   8. LAVAGNA (SVG): geometria dei blocchi
    ===================================================================== */
-const BG = { HEAD: 66, ROW: 20, PADB: 8, MINW: 230, MAXW: 400, SNAP: 10, GAP: 24 };
+const BG = { HEAD: 58, ROW: 22, PADB: 6, MINW: 230, MAXW: 400, SNAP: 10, GAP: 44 };
 const F = {
-  name: '700 13px ' + FONT_STACK,
-  meta: '11px ' + FONT_STACK,
-  idb: '700 11px ' + MONO_STACK,
-  portId: '700 11px ' + MONO_STACK,
-  port: '11.5px ' + FONT_STACK,
-  ptype: '700 9.5px ' + MONO_STACK,
-  label: '600 11px ' + FONT_STACK,
-  group: '700 12px ' + FONT_STACK
+  name: '700 12.5px ' + FONT_STACK,
+  meta: '10.5px ' + FONT_STACK,
+  idb: '700 10.5px ' + MONO_STACK,
+  portId: '700 10.5px ' + MONO_STACK,
+  port: '11px ' + FONT_STACK,
+  ptype: '600 9px ' + MONO_STACK,
+  lblId: '700 10px ' + MONO_STACK,
+  label: '600 10.5px ' + FONT_STACK,
+  group: '700 11px ' + FONT_STACK
 };
-let B = null;          // riferimenti agli elementi della lavagna
-let lastGeom = null;   // geometria dell'ultimo disegno
-let drag = null;       // operazione di trascinamento in corso
+let B = null;            // riferimenti agli elementi della lavagna
+let lastGeom = null;     // geometria dell'ultimo disegno
+let lastItems = new Map(); // percorsi visualizzati nell'ultimo disegno (chiave → item)
+let lastRouteStats = { crossings: 0, bends: 0, manual: 0, links: 0 };
+let drag = null;         // operazione di trascinamento in corso
+let dragRoute = null;    // percorso in modifica manuale (anteprima durante il trascinamento)
 let renderQueued = false;
+let transientCache = { sig: null, res: null };
+let linkClickTimer = 0;   // apertura ritardata al clic su un collegamento, per riconoscere il doppio clic
+function openLinkSoon(kind, uid) {
+  clearTimeout(linkClickTimer);
+  linkClickTimer = setTimeout(() => openObject(kind, uid), 260);
+}
 
-function compGeom(c) {
-  const idW = textW(c.id || '?', F.idb) + 14;
+function compGeom(c, showPorts) {
+  if (showPorts === undefined) showPorts = ui.showPorts;
+  const idW = textW(c.id || '?', F.idb) + 12;
   let w = Math.max(textW(c.name || '(senza nome)', F.name) + idW + 34,
     textW(c.domain || '', F.meta) + 40, textW('Owner: ' + (c.owner || ''), F.meta) + 30);
   const portY = new Map();
-  if (ui.showPorts) {
+  if (showPorts) {
     c.ports.forEach((p, i) => {
-      const tag = portTag(p);
-      w = Math.max(w, textW(p.id, F.portId) + textW(' | ' + (p.label || ''), F.port) + textW(tag, F.ptype) + 56);
-      portY.set(p.uid, BG.HEAD + 4 + i * BG.ROW + BG.ROW / 2);
+      w = Math.max(w, textW(p.id, F.portId) + textW('  ' + (p.label || ''), F.port) + textW(portTag(p), F.ptype) + 60);
+      portY.set(p.uid, BG.HEAD + 3 + i * BG.ROW + BG.ROW / 2);
     });
   }
   w = clamp(Math.ceil(w / 10) * 10, BG.MINW, BG.MAXW);
-  let hgt = BG.HEAD;
-  if (ui.showPorts) hgt = BG.HEAD + 4 + Math.max(c.ports.length, c.ports.length ? 0 : 1) * BG.ROW + BG.PADB;
-  return { uid: c.uid, x: Number(c.x) || 0, y: Number(c.y) || 0, w, h: hgt, idW, portY };
+  const hgt = showPorts ? BG.HEAD + 3 + Math.max(c.ports.length, 1) * BG.ROW + BG.PADB : BG.HEAD;
+  return { uid: c.uid, x: Number(c.x) || 0, y: Number(c.y) || 0, w, h: hgt, idW, portY, showPorts };
+}
+function geomMap(showPorts) {
+  const m = new Map();
+  state.components.forEach((c) => m.set(c.uid, compGeom(c, showPorts)));
+  return m;
 }
 function portTag(p) {
   const a = PORT_ABBR[p.type] || (p.type ? String(p.type).slice(0, 3).toUpperCase() : '');
@@ -1290,7 +1334,7 @@ function anchorPoint(geom, portUid, side) {
   if (!e) return null;
   const g = geom.get(e.comp.uid);
   if (!g) return null;
-  const y = ui.showPorts && g.portY.has(portUid) ? g.y + g.portY.get(portUid) : g.y + BG.HEAD / 2;
+  const y = g.showPorts && g.portY.has(portUid) ? g.y + g.portY.get(portUid) : g.y + BG.HEAD / 2;
   return { x: side === 'R' ? g.x + g.w : g.x, y };
 }
 function sidesFor(gA, gB) {
@@ -1298,87 +1342,765 @@ function sidesFor(gA, gB) {
   if (gB.x + gB.w + BG.GAP <= gA.x) return ['L', 'R'];
   return null;
 }
-function makeCurve(p0, s0, p1, s1, off, sameSide) {
-  const dx = Math.abs(p1.x - p0.x), dy = Math.abs(p1.y - p0.y);
-  const k = sameSide ? Math.max(60, dx + 46 + dy * 0.12) : Math.max(40, dx * 0.45);
-  let nx = p0.y - p1.y, ny = p1.x - p0.x;
-  const len = Math.hypot(nx, ny) || 1;
-  nx /= len; ny /= len;
-  return {
-    p0, p1,
-    c0: { x: p0.x + s0 * k + nx * off, y: p0.y + ny * off },
-    c1: { x: p1.x + s1 * k + nx * off, y: p1.y + ny * off }
-  };
-}
-function bezAt(b, t) {
-  const u = 1 - t, a = u * u * u, bb = 3 * u * u * t, c = 3 * u * t * t, d = t * t * t;
-  return { x: a * b.p0.x + bb * b.c0.x + c * b.c1.x + d * b.p1.x, y: a * b.p0.y + bb * b.c0.y + c * b.c1.y + d * b.p1.y };
+function linkRects(geom) {
+  const out = [];
+  geom.forEach((g) => out.push({ x0: g.x, y0: g.y, x1: g.x + g.w, y1: g.y + g.h, uid: g.uid }));
+  return out;
 }
 const r1 = (v) => Math.round(v * 10) / 10;
-function bezPath(b) {
-  return 'M' + r1(b.p0.x) + ',' + r1(b.p0.y) + ' C' + r1(b.c0.x) + ',' + r1(b.c0.y) + ' ' + r1(b.c1.x) + ',' + r1(b.c1.y) + ' ' + r1(b.p1.x) + ',' + r1(b.p1.y);
-}
+const q2 = (v) => Math.round(v * 2) / 2;
 
-/* Calcolo dei collegamenti da disegnare per la modalità corrente. */
-function layoutLinks(geom) {
-  const items = [];
-  const pushItem = (kind, obj, pA, pB) => {
+/* =====================================================================
+   8b. INSTRADAMENTO ORTOGONALE AUTOMATICO
+   - griglia ortogonale sparsa: bordi dei blocchi (con distanza di rispetto),
+     linee mediane dei canali fra i blocchi, quote delle porte e dei percorsi esistenti;
+   - ricerca A* con costi per lunghezza, piegature, incroci, sovrapposizioni
+     e linee troppo vicine ai blocchi;
+   - percorsi dello stesso fascio (cavi della stessa interfaccia) affiancati;
+   - separazione dei segmenti paralleli (nudging) nell'ordine che minimizza gli incroci;
+   - ventaglio ordinato dei collegamenti che terminano sulla stessa porta;
+   - salti di linea (hop) agli incroci inevitabili.
+   ===================================================================== */
+// M: distanza minima dai blocchi · costi: piegatura, incrocio, sovrapposizione, preferenza per l'asse dei canali
+const RT = { M: 18, BEND: 36, CROSS: 160, OVERLAP: 0.6, SIDE_ALT: 110, MAXEXP: 150000, SP_IF: 10, SP_CBL: 7, R: 5, HOP: 4.5,
+  PEN_EDGE: 0.45, PEN_LANE: 0.07, PEN_RING: 0.2, LANE: 36 };
+
+/* Collegamenti della vista: interfacce, oppure cavi + interfacce senza cavi (fantasma) */
+function modeLinks(mode) {
+  const out = [];
+  const add = (key, kind, obj, pA, pB, bundle) => {
     const eA = portEntry(pA), eB = portEntry(pB);
     if (!eA || !eB || pA === pB) return;
-    if (!geom.has(eA.comp.uid) || !geom.has(eB.comp.uid)) return;
-    items.push({ kind, obj, pA, pB, cA: eA.comp.uid, cB: eB.comp.uid });
+    out.push({ key, kind, obj, pA, pB, cA: eA.comp.uid, cB: eB.comp.uid, bundle });
   };
-  if (ui.mode === 'interfaces') {
-    state.interfaces.forEach((f) => pushItem('interface', f, f.portA, f.portB));
-  } else {
-    state.cables.forEach((c) => pushItem('cable', c, c.portA, c.portB));
-    state.interfaces.forEach((f) => { if (!(idx.cablesByIface.get(f.uid) || []).length) pushItem('ghost', f, f.portA, f.portB); });
+  if (mode === 'interfaces') state.interfaces.forEach((f) => add(f.uid, 'interface', f, f.portA, f.portB, f.uid));
+  else {
+    state.cables.forEach((c) => add(c.uid, 'cable', c, c.portA, c.portB, 'b:' + (c.ifaceUid || c.uid)));
+    state.interfaces.forEach((f) => {
+      if (!(idx.cablesByIface.get(f.uid) || []).length) add('g:' + f.uid, 'ghost', f, f.portA, f.portB, 'b:' + f.uid);
+    });
   }
-  // lati di uscita: verso il componente opposto; se i blocchi si sovrappongono in X,
-  // si usa il lato meno affollato (anello sullo stesso lato)
-  const count = new Map();
-  const inc = (c, s) => { const o = count.get(c) || { L: 0, R: 0 }; o[s]++; count.set(c, o); };
-  const pending = [];
+  return out;
+}
+/* Formato memorizzato: {sA, sB, pts:[[x,y],...], manual} */
+function sanitizeRoute(r) {
+  if (!r || typeof r !== 'object' || Array.isArray(r)) return null;
+  if ((r.sA !== 'L' && r.sA !== 'R') || (r.sB !== 'L' && r.sB !== 'R')) return null;
+  if (!Array.isArray(r.pts) || r.pts.length < 2 || r.pts.length > 400) return null;
+  const pts = [];
+  for (const p of r.pts) {
+    if (!Array.isArray(p) || p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1])) return null;
+    pts.push([p[0], p[1]]);
+  }
+  const out = { sA: r.sA, sB: r.sB, pts };
+  if (r.manual) out.manual = true;
+  return out;
+}
+function parseRoute(r) {
+  const s = sanitizeRoute(r);
+  return s ? { sA: s.sA, sB: s.sB, manual: !!s.manual, pts: s.pts.map((p) => ({ x: p[0], y: p[1] })) } : null;
+}
+function serializeRoute(r) {
+  const o = { sA: r.sA, sB: r.sB, pts: r.pts.map((p) => [r1(p.x), r1(p.y)]) };
+  if (r.manual) o.manual = true;
+  return o;
+}
+function simplifyPts(pts) {
+  const out = [];
+  pts.forEach((p) => {
+    const q = { x: p.x, y: p.y };
+    const last = out[out.length - 1];
+    if (last && Math.abs(last.x - q.x) < 0.05 && Math.abs(last.y - q.y) < 0.05) return;
+    if (out.length >= 2) {
+      const a = out[out.length - 2], b = last;
+      const colX = Math.abs(a.x - b.x) < 0.05 && Math.abs(b.x - q.x) < 0.05;
+      const colY = Math.abs(a.y - b.y) < 0.05 && Math.abs(b.y - q.y) < 0.05;
+      if (colX || colY) { out[out.length - 1] = q; return; }
+    }
+    out.push(q);
+  });
+  return out;
+}
+function segHitsRects(p, q, rects) {
+  const x0 = Math.min(p.x, q.x), x1 = Math.max(p.x, q.x), y0 = Math.min(p.y, q.y), y1 = Math.max(p.y, q.y);
+  for (const r of rects) {
+    if (x1 > r.x0 + 0.5 && x0 < r.x1 - 0.5 && y1 > r.y0 + 0.5 && y0 < r.y1 - 0.5) return true;
+  }
+  return false;
+}
+/* Un percorso memorizzato resta valido se termina sulle porte giuste, è ortogonale,
+   esce dai blocchi in orizzontale e non attraversa alcun blocco. */
+function routeValid(r, L, geom, rects) {
+  const pts = r.pts, n = pts.length;
+  if (n < 2) return false;
+  const a = anchorPoint(geom, L.pA, r.sA), b = anchorPoint(geom, L.pB, r.sB);
+  if (!a || !b) return false;
+  const tol = BG.ROW / 2 - 1;
+  if (Math.abs(pts[0].x - a.x) > 0.6 || Math.abs(pts[0].y - a.y) > tol) return false;
+  if (Math.abs(pts[n - 1].x - b.x) > 0.6 || Math.abs(pts[n - 1].y - b.y) > tol) return false;
+  for (let k = 0; k < n - 1; k++) {
+    if (Math.abs(pts[k].x - pts[k + 1].x) > 0.05 && Math.abs(pts[k].y - pts[k + 1].y) > 0.05) return false;
+  }
+  const sgA = r.sA === 'R' ? 1 : -1, sgB = r.sB === 'R' ? 1 : -1;
+  if (Math.abs(pts[1].y - pts[0].y) > 0.05 || (pts[1].x - pts[0].x) * sgA < 4) return false;
+  if (Math.abs(pts[n - 2].y - pts[n - 1].y) > 0.05 || (pts[n - 2].x - pts[n - 1].x) * sgB < 4) return false;
+  for (let k = 0; k < n - 1; k++) if (segHitsRects(pts[k], pts[k + 1], rects)) return false;
+  return true;
+}
+function lowerBound(arr, v) {
+  let lo = 0, hi = arr.length;
+  while (lo < hi) { const m = (lo + hi) >> 1; if (arr[m] < v) lo = m + 1; else hi = m; }
+  return lo;
+}
+/* Griglia ortogonale sparsa (variante della griglia di Hanan) con nodi e archi bloccati dai blocchi */
+function buildGrid(rects, extraXs, extraYs) {
+  const M = RT.M;
+  const obs = rects.map((r) => ({ x0: q2(r.x0 - M), y0: q2(r.y0 - M), x1: q2(r.x1 + M), y1: q2(r.y1 + M) }));
+  // linee candidate con penalità per unità di lunghezza: asse dei canali (0) < corsie (bassa) < bordo di rispetto dei blocchi (alta)
+  const xsP = new Map(), ysP = new Map();
+  const put = (m, v, pen) => { v = q2(v); const o = m.get(v); if (o === undefined || pen < o) m.set(v, pen); };
+  const hx = new Set(), hy = new Set();
+  let bx0 = Infinity, by0 = Infinity, bx1 = -Infinity, by1 = -Infinity;
+  obs.forEach((o) => {
+    hx.add(o.x0); hx.add(o.x1); hy.add(o.y0); hy.add(o.y1);
+    bx0 = Math.min(bx0, o.x0); by0 = Math.min(by0, o.y0); bx1 = Math.max(bx1, o.x1); by1 = Math.max(by1, o.y1);
+  });
+  if (!isFinite(bx0)) { bx0 = 0; by0 = 0; bx1 = 100; by1 = 100; }
+  const channels = (set, m) => {
+    const a = [...set].sort((p, q) => p - q);
+    for (let i = 0; i < a.length - 1; i++) {
+      const gap = a[i + 1] - a[i];
+      if (gap <= 8) continue;
+      put(m, (a[i] + a[i + 1]) / 2, 0);
+      const n = Math.floor(gap / RT.LANE);
+      for (let k = 1; k < n; k++) put(m, a[i] + (gap * k) / n, RT.PEN_LANE);
+    }
+  };
+  hx.forEach((v) => put(xsP, v, RT.PEN_EDGE)); hy.forEach((v) => put(ysP, v, RT.PEN_EDGE));
+  channels(hx, xsP); channels(hy, ysP);
+  [bx0 - 30, bx1 + 30].forEach((v) => put(xsP, v, RT.PEN_RING));
+  [by0 - 30, by1 + 30].forEach((v) => put(ysP, v, RT.PEN_RING));
+  extraXs.forEach((v) => put(xsP, v, RT.PEN_LANE));
+  extraYs.forEach((v) => put(ysP, v, RT.PEN_LANE));
+  const xs = Float64Array.from([...xsP.keys()].sort((a, b) => a - b));
+  const ys = Float64Array.from([...ysP.keys()].sort((a, b) => a - b));
+  const nx = xs.length, ny = ys.length, NN = nx * ny;
+  const nBlk = new Uint8Array(NN), hBlk = new Uint8Array(NN), vBlk = new Uint8Array(NN);
+  obs.forEach((o) => {
+    const i0 = lowerBound(xs, o.x0), i1 = lowerBound(xs, o.x1);
+    const j0 = lowerBound(ys, o.y0), j1 = lowerBound(ys, o.y1);
+    for (let i = i0 + 1; i < i1; i++) for (let j = j0 + 1; j < j1; j++) nBlk[i * ny + j] = 1;
+    for (let i = i0; i < i1; i++) for (let j = j0 + 1; j < j1; j++) hBlk[i * ny + j] = 1;
+    for (let i = i0 + 1; i < i1; i++) for (let j = j0; j < j1; j++) vBlk[i * ny + j] = 1;
+  });
+  const penX = new Float32Array(nx), penY = new Float32Array(ny);
+  const xi = new Map(), yi = new Map();
+  for (let i = 0; i < nx; i++) { penX[i] = xsP.get(xs[i]); xi.set(xs[i], i); }
+  for (let j = 0; j < ny; j++) { penY[j] = ysP.get(ys[j]); yi.set(ys[j], j); }
+  return { xs, ys, nx, ny, nBlk, hBlk, vBlk, penX, penY, xi, yi };
+}
+/* Occupazione: per ogni arco della griglia si precalcolano gli incroci con i segmenti
+   perpendicolari già tracciati e la lunghezza sovrapposta a segmenti collineari.
+   I percorsi esistenti non devono stare sulle linee della griglia: la griglia resta piccola
+   e la ricerca A* consulta l'occupazione in tempo costante. */
+function makeOcc(G) {
+  const NN = G.nx * G.ny;
+  return { hCross: new Float32Array(NN), vCross: new Float32Array(NN), hOver: new Float32Array(NN), vOver: new Float32Array(NN), byKey: new Map() };
+}
+function occSegs(pts) {
+  const out = [];
+  for (let k = 0; k < pts.length - 1; k++) {
+    const a = pts[k], b = pts[k + 1];
+    if (Math.abs(a.x - b.x) < 0.05 && Math.abs(a.y - b.y) > 0.05) out.push({ o: 'V', c: a.x, lo: Math.min(a.y, b.y), hi: Math.max(a.y, b.y) });
+    else if (Math.abs(a.y - b.y) < 0.05 && Math.abs(a.x - b.x) > 0.05) out.push({ o: 'H', c: a.y, lo: Math.min(a.x, b.x), hi: Math.max(a.x, b.x) });
+  }
+  return out;
+}
+function occMark(G, occ, segs, sign) {
+  const ny = G.ny, xs = G.xs, ys = G.ys;
+  segs.forEach((s) => {
+    const V = s.o === 'V';
+    const cs = V ? xs : ys, os = V ? ys : xs;
+    // arco perpendicolare attraversato: intervallo (cs[k], cs[k+1]] che contiene la coordinata del segmento
+    const k = lowerBound(cs, s.c - 0.01) - 1;
+    const exact = k + 1 < cs.length && Math.abs(cs[k + 1] - s.c) < 0.01 ? k + 1 : -1;
+    const m0 = lowerBound(os, s.lo - 0.01), m1 = lowerBound(os, s.hi + 0.01) - 1;
+    if (k >= 0 && k + 1 < cs.length) {
+      for (let m = m0; m <= m1; m++) {
+        if (V) occ.hCross[k * ny + m] += sign; else occ.vCross[m * ny + k] += sign;
+      }
+    }
+    if (exact >= 0) {
+      for (let m = m0; m < m1; m++) {
+        const len = Math.min(s.hi, os[m + 1]) - Math.max(s.lo, os[m]);
+        if (len <= 0) continue;
+        if (V) occ.vOver[exact * ny + m] += sign * len; else occ.hOver[m * ny + exact] += sign * len;
+      }
+    }
+  });
+}
+function occAdd(G, occ, key, bundle, pts) {
+  const segs = occSegs(pts);
+  occ.byKey.set(key, { bundle, segs, on: true });
+  occMark(G, occ, segs, 1);
+}
+function occRemove(G, occ, key) {
+  const e = occ.byKey.get(key);
+  if (!e) return;
+  if (e.on) occMark(G, occ, e.segs, -1);
+  occ.byKey.delete(key);
+}
+function occToggle(G, occ, key, on) {
+  const e = occ.byKey.get(key);
+  if (!e || e.on === on) return;
+  occMark(G, occ, e.segs, on ? 1 : -1);
+  e.on = on;
+}
+
+let AS = { size: 0 };
+function astarBuffers(N) {
+  if (AS.size < N) AS = { size: N, g: new Float64Array(N), stamp: new Int32Array(N), closed: new Int32Array(N), par: new Int32Array(N), gen: 0 };
+  AS.gen++;
+  if (AS.gen > 2000000000) { AS.stamp.fill(0); AS.closed.fill(0); AS.gen = 1; }
+  return AS;
+}
+/* A* su stati (nodo, direzione): direzioni 0:+x 1:-x 2:+y 3:-y */
+function astar(G, occ, sIdx, sDir, tIdx, tDir) {
+  const xs = G.xs, ys = G.ys, nx = G.nx, ny = G.ny, nBlk = G.nBlk, hBlk = G.hBlk, vBlk = G.vBlk, penX = G.penX, penY = G.penY;
+  const S = astarBuffers(nx * ny * 4), gen = S.gen;
+  const tx = xs[(tIdx / ny) | 0], ty = ys[tIdx % ny];
+  const hf = [], hs = [];
+  const push = (f, s) => {
+    let i = hf.length;
+    hf.push(f); hs.push(s);
+    while (i > 0) {
+      const p = (i - 1) >> 1;
+      if (hf[p] <= f) break;
+      hf[i] = hf[p]; hs[i] = hs[p]; i = p;
+    }
+    hf[i] = f; hs[i] = s;
+  };
+  const pop = () => {
+    const top = hs[0];
+    const lf = hf.pop(), ls = hs.pop();
+    const n = hf.length;
+    if (n) {
+      let i = 0;
+      for (;;) {
+        let c = 2 * i + 1;
+        if (c >= n) break;
+        if (c + 1 < n && hf[c + 1] < hf[c]) c++;
+        if (hf[c] >= lf) break;
+        hf[i] = hf[c]; hs[i] = hs[c]; i = c;
+      }
+      hf[i] = lf; hs[i] = ls;
+    }
+    return top;
+  };
+  const start = sIdx * 4 + sDir;
+  S.g[start] = 0; S.stamp[start] = gen; S.par[start] = -1;
+  push(Math.abs(xs[(sIdx / ny) | 0] - tx) + Math.abs(ys[sIdx % ny] - ty), start);
+  let best = Infinity, bestS = -1, exp = 0;
+  while (hf.length) {
+    if (hf[0] >= best) break;
+    const s = pop();
+    if (S.closed[s] === gen) continue;
+    S.closed[s] = gen;
+    if (++exp > RT.MAXEXP) break;
+    const n = s >> 2, d = s & 3, g = S.g[s];
+    if (n === tIdx) {
+      const tot = g + (d === tDir ? 0 : RT.BEND);
+      if (tot < best) { best = tot; bestS = s; }
+      continue;
+    }
+    const i = (n / ny) | 0, j = n - i * ny;
+    for (let nd = 0; nd < 4; nd++) {
+      if (nd === (d ^ 1)) continue;
+      let ni = i, nj = j;
+      if (nd === 0) { if (i + 1 >= nx || hBlk[n]) continue; ni = i + 1; }
+      else if (nd === 1) { if (i === 0 || hBlk[n - ny]) continue; ni = i - 1; }
+      else if (nd === 2) { if (j + 1 >= ny || vBlk[n]) continue; nj = j + 1; }
+      else { if (j === 0 || vBlk[n - 1]) continue; nj = j - 1; }
+      const nn = ni * ny + nj;
+      if (nBlk[nn] && nn !== tIdx) continue;
+      let cost;
+      if (nd < 2) {
+        const e = (nd === 0 ? i : ni) * ny + j;
+        cost = Math.abs(xs[ni] - xs[i]) * (1 + penY[j]) + RT.OVERLAP * occ.hOver[e] + RT.CROSS * occ.hCross[e];
+      } else {
+        const e = i * ny + (nd === 2 ? j : nj);
+        cost = Math.abs(ys[nj] - ys[j]) * (1 + penX[i]) + RT.OVERLAP * occ.vOver[e] + RT.CROSS * occ.vCross[e];
+      }
+      if (nd !== d) cost += RT.BEND;
+      const ns = nn * 4 + nd;
+      if (S.closed[ns] === gen) continue;
+      const ng = g + cost;
+      if (S.stamp[ns] !== gen || ng < S.g[ns]) {
+        S.stamp[ns] = gen; S.g[ns] = ng; S.par[ns] = s;
+        push(ng + Math.abs(xs[ni] - tx) + Math.abs(ys[nj] - ty), ns);
+      }
+    }
+  }
+  if (bestS < 0) return null;
+  const nodes = [];
+  for (let s = bestS; s >= 0; s = S.par[s]) nodes.push(s >> 2);
+  nodes.reverse();
+  return { pts: nodes.map((n) => ({ x: xs[(n / ny) | 0], y: ys[n % ny] })), cost: best };
+}
+function fallbackPts(a, sA, sB, b, sides) {
+  if (sides[0] !== sides[1]) {
+    const mx = (sA.x + sB.x) / 2;
+    return [a, sA, { x: mx, y: sA.y }, { x: mx, y: sB.y }, sB, b];
+  }
+  const ex = sides[0] === 'R' ? Math.max(sA.x, sB.x) : Math.min(sA.x, sB.x);
+  return [a, { x: ex, y: a.y }, { x: ex, y: b.y }, b];
+}
+function routeWithSides(G, occ, a, b, sides) {
+  const sgA = sides[0] === 'R' ? 1 : -1, sgB = sides[1] === 'R' ? 1 : -1;
+  const sA = { x: q2(a.x + sgA * RT.M), y: q2(a.y) }, sB = { x: q2(b.x + sgB * RT.M), y: q2(b.y) };
+  const si = G.xi.get(sA.x), sj = G.yi.get(sA.y), ti = G.xi.get(sB.x), tj = G.yi.get(sB.y);
+  if (si !== undefined && sj !== undefined && ti !== undefined && tj !== undefined) {
+    const res = astar(G, occ, si * G.ny + sj, sgA > 0 ? 0 : 1, ti * G.ny + tj, sgB > 0 ? 1 : 0);
+    if (res) return { pts: simplifyPts([a].concat(res.pts, [b])), cost: res.cost };
+  }
+  return { pts: simplifyPts(fallbackPts(a, sA, sB, b, sides)), cost: 1e7, fallback: true };
+}
+function sideOptions(geom, L, exhaustive) {
+  const opp = (s) => (s === 'R' ? 'L' : 'R');
+  const f = L.cA !== L.cB ? sidesFor(geom.get(L.cA), geom.get(L.cB)) : null;
+  if (f) {
+    const o = [{ sides: f, pen: 0 }];
+    if (exhaustive) o.push({ sides: [f[0], opp(f[1])], pen: RT.SIDE_ALT }, { sides: [opp(f[0]), f[1]], pen: RT.SIDE_ALT });
+    return o;
+  }
+  const o = [{ sides: ['R', 'R'], pen: 0 }, { sides: ['L', 'L'], pen: 0 }];
+  if (exhaustive && L.cA !== L.cB) o.push({ sides: ['R', 'L'], pen: RT.SIDE_ALT / 2 }, { sides: ['L', 'R'], pen: RT.SIDE_ALT / 2 });
+  return o;
+}
+function routeLink(G, occ, geom, L, options) {
+  let best = null;
+  options.forEach((opt) => {
+    const a = anchorPoint(geom, L.pA, opt.sides[0]), b = anchorPoint(geom, L.pB, opt.sides[1]);
+    if (!a || !b) return;
+    const r = routeWithSides(G, occ, a, b, opt.sides);
+    const cost = r.cost + opt.pen;
+    if (!best || cost < best.cost) best = { sA: opt.sides[0], sB: opt.sides[1], pts: r.pts, cost, manual: false };
+  });
+  return best;
+}
+/* Calcola i percorsi della vista: riusa quelli memorizzati ancora validi e traccia
+   quelli mancanti o non più validi. opts.full = ricalcolo globale (Auto-Rerouting). */
+function computeRoutes(mode, geom, opts) {
+  opts = opts || {};
+  const links = modeLinks(mode).filter((L) => geom.has(L.cA) && geom.has(L.cB));
+  const rects = linkRects(geom);
+  const routes = new Map();
+  const todo = [];
+  links.forEach((L) => {
+    const pr = !opts.full && opts.stored && opts.stored[L.key] ? parseRoute(opts.stored[L.key]) : null;
+    if (pr && routeValid(pr, L, geom, rects)) routes.set(L.key, pr);
+    else todo.push(L);
+  });
+  if (!todo.length) return { links, routes, rerouted: [] };
+  const optimize = !opts.noOptimize && (opts.full || routes.size === 0);
+  const exhaustive = optimize && links.length <= 90;
+  const extraY = [];
+  links.forEach((L) => {
+    const a = anchorPoint(geom, L.pA, 'L'), b = anchorPoint(geom, L.pB, 'L');
+    extraY.push(a.y, b.y);
+  });
+  const G = buildGrid(rects, [], extraY);
+  const occ = makeOcc(G);
+  const bundleOf = new Map(links.map((L) => [L.key, L.bundle]));
+  routes.forEach((r, key) => occAdd(G, occ, key, bundleOf.get(key), r.pts));
+  const dist = (L) => {
+    const a = anchorPoint(geom, L.pA, 'L'), b = anchorPoint(geom, L.pB, 'L');
+    return Math.abs(a.x - b.x) + Math.abs(a.y - b.y);
+  };
+  todo.sort((a, b) => dist(a) - dist(b) || cmpNat(a.key, b.key));
+  const routeIt = (L) => {
+    const mates = [];
+    occ.byKey.forEach((v, k) => { if (v.bundle === L.bundle && k !== L.key) mates.push(k); });
+    mates.forEach((k) => occToggle(G, occ, k, false));
+    const r = routeLink(G, occ, geom, L, sideOptions(geom, L, exhaustive));
+    mates.forEach((k) => occToggle(G, occ, k, true));
+    return r;
+  };
+  // durante il trascinamento si rispetta un budget di tempo: oltre, percorso provvisorio semplice
+  const t0 = performance.now();
+  todo.forEach((L) => {
+    let r;
+    if (opts.budgetMs && performance.now() - t0 > opts.budgetMs) {
+      const sd = sideOptions(geom, L, false)[0].sides;
+      const a = anchorPoint(geom, L.pA, sd[0]), b = anchorPoint(geom, L.pB, sd[1]);
+      const sA = { x: a.x + (sd[0] === 'R' ? RT.M : -RT.M), y: a.y }, sB = { x: b.x + (sd[1] === 'R' ? RT.M : -RT.M), y: b.y };
+      r = { sA: sd[0], sB: sd[1], pts: simplifyPts(fallbackPts(a, sA, sB, b, sd)), cost: 1e7, manual: false, provisional: true };
+    } else r = routeIt(L);
+    if (r) { routes.set(L.key, r); occAdd(G, occ, L.key, L.bundle, r.pts); }
+  });
+  if (optimize) {
+    const passes = links.length <= 60 ? 2 : (links.length <= 150 ? 1 : 0);
+    for (let p = 0; p < passes; p++) {
+      todo.forEach((L) => {
+        occRemove(G, occ, L.key);
+        const r = routeIt(L);
+        if (r) routes.set(L.key, r);
+        if (routes.has(L.key)) occAdd(G, occ, L.key, L.bundle, routes.get(L.key).pts);
+      });
+    }
+  }
+  return { links, routes, rerouted: todo.map((L) => L.key) };
+}
+/* Mantiene coerenti i percorsi memorizzati nel modello (per entrambe le viste):
+   chiamata dopo ogni modifica, prima del salvataggio, nella stessa voce dello storico. */
+function syncRoutes() {
+  if (!state.routing || typeof state.routing !== 'object') state.routing = { interfaces: {}, cables: {} };
+  const geom = geomMap(true);
+  ['interfaces', 'cables'].forEach((mode) => {
+    const stored = state.routing[mode] || {};
+    const res = computeRoutes(mode, geom, { stored });
+    const out = {};
+    res.links.forEach((L) => {
+      const r = res.routes.get(L.key);
+      if (!r) return;
+      out[L.key] = res.rerouted.includes(L.key) ? serializeRoute(r) : stored[L.key];
+    });
+    state.routing[mode] = out;
+  });
+  transientCache = { sig: null, res: null };
+}
+
+/* ---------- Separazione dei segmenti paralleli (nudging) ---------- */
+function pairCost(s, t) {
+  // s posizionato prima di t (coordinata minore): incroci generati dai segmenti collegati
+  let n = 0;
+  s.att.forEach((a) => { if (a.dir > 0 && a.at > t.lo + 0.5 && a.at < t.hi - 0.5) n++; });
+  t.att.forEach((a) => { if (a.dir < 0 && a.at > s.lo + 0.5 && a.at < s.hi - 0.5) n++; });
+  return n;
+}
+function bestOrder(list) {
+  const base = list.slice().sort((a, b) => cmpNat(a.it.bundle, b.it.bundle) || cmpNat(a.it.key, b.it.key));
+  const n = base.length;
+  const C = base.map((s) => base.map((t) => (s === t ? 0 : pairCost(s, t))));
+  const evalOrd = (ord) => {
+    let c = 0;
+    for (let i = 0; i < n; i++) for (let j = i + 1; j < n; j++) c += C[ord[i]][ord[j]];
+    for (let i = 0; i < n - 1; i++) if (base[ord[i]].it.bundle !== base[ord[i + 1]].it.bundle) c += 0.001;
+    return c;
+  };
+  let bestOrd = base.map((_, i) => i), bestC = evalOrd(bestOrd);
+  if (n <= 6) {
+    const a = bestOrd.slice(), c = new Array(n).fill(0);
+    let i = 0;
+    while (i < n) {
+      if (c[i] < i) {
+        const k = i % 2 ? c[i] : 0;
+        const t = a[k]; a[k] = a[i]; a[i] = t;
+        const v = evalOrd(a);
+        if (v < bestC - 1e-9) { bestC = v; bestOrd = a.slice(); }
+        c[i]++; i = 0;
+      } else { c[i] = 0; i++; }
+    }
+  } else {
+    for (let guard = 0, improved = true; improved && guard < 60; guard++) {
+      improved = false;
+      for (let k = 0; k < n - 1; k++) {
+        const t = bestOrd.slice();
+        const x = t[k]; t[k] = t[k + 1]; t[k + 1] = x;
+        const v = evalOrd(t);
+        if (v < bestC - 1e-9) { bestC = v; bestOrd = t; improved = true; }
+      }
+    }
+  }
+  return bestOrd.map((i) => base[i]);
+}
+function layoutCluster(cl, rects, sp, moves) {
+  const movable = cl.filter((s) => !s.fixed), fixed = cl.filter((s) => s.fixed);
+  if (!movable.length || (movable.length === 1 && !fixed.length)) return;
+  const o = cl[0].o, c = cl[0].c;
+  const lo = Math.min.apply(null, cl.map((s) => s.lo)), hi = Math.max.apply(null, cl.map((s) => s.hi));
+  let minC = -Infinity, maxC = Infinity;
+  rects.forEach((r) => {
+    const rlo = o === 'V' ? r.y0 : r.x0, rhi = o === 'V' ? r.y1 : r.x1;
+    if (rhi <= lo || rlo >= hi) return;
+    const a = o === 'V' ? r.x0 : r.y0, b = o === 'V' ? r.x1 : r.y1;
+    if (b <= c + 0.5) minC = Math.max(minC, b + 5);
+    else if (a >= c - 0.5) maxC = Math.min(maxC, a - 5);
+  });
+  const order = bestOrder(movable);
+  const n = order.length;
+  if (!fixed.length) {
+    let step = sp, width = (n - 1) * step;
+    if (isFinite(minC) && isFinite(maxC) && width > maxC - minC) { step = Math.max(2, (maxC - minC) / (n - 1)); width = (n - 1) * step; }
+    let start = c - width / 2;
+    if (isFinite(minC) && start < minC) start = minC;
+    if (isFinite(maxC) && start + width > maxC) start = maxC - width;
+    order.forEach((s, i) => moves.push({ s, nc: start + i * step }));
+  } else {
+    let after = 0, before = 0;
+    fixed.forEach((f) => movable.forEach((m) => { after += pairCost(f, m); before += pairCost(m, f); }));
+    let dir = after <= before ? 1 : -1;
+    const need = n * sp;
+    if (dir > 0 && c + need > maxC) dir = -1;
+    else if (dir < 0 && c - need < minC) dir = 1;
+    if (dir > 0) order.forEach((s, i) => moves.push({ s, nc: c + (i + 1) * sp }));
+    else order.forEach((s, i) => moves.push({ s, nc: c - (n - i) * sp }));
+  }
+}
+function nudgeRoutes(items, rects, sp) {
+  const segs = [];
   items.forEach((it) => {
-    const s = it.cA !== it.cB ? sidesFor(geom.get(it.cA), geom.get(it.cB)) : null;
-    if (s) { it.sA = s[0]; it.sB = s[1]; inc(it.cA, it.sA); inc(it.cB, it.sB); }
-    else pending.push(it);
+    const p = it.pts, n = p.length;
+    for (let k = 0; k < n - 1; k++) {
+      const a = p[k], b = p[k + 1];
+      const fixed = k === 0 || k === n - 2;
+      let s = null;
+      if (Math.abs(a.x - b.x) < 0.05 && Math.abs(a.y - b.y) > 0.05) s = { it, k, o: 'V', c: a.x, lo: Math.min(a.y, b.y), hi: Math.max(a.y, b.y), fixed };
+      else if (Math.abs(a.y - b.y) < 0.05 && Math.abs(a.x - b.x) > 0.05) s = { it, k, o: 'H', c: a.y, lo: Math.min(a.x, b.x), hi: Math.max(a.x, b.x), fixed };
+      if (!s) continue;
+      s.att = [];
+      const att = (pi, pj) => {
+        if (pj < 0 || pj >= n) return;
+        if (s.o === 'V') s.att.push({ at: p[pi].y, dir: Math.sign(p[pj].x - p[pi].x) });
+        else s.att.push({ at: p[pi].x, dir: Math.sign(p[pj].y - p[pi].y) });
+      };
+      att(k, k - 1); att(k + 1, k + 2);
+      segs.push(s);
+    }
   });
-  pending.forEach((it) => {
-    const a = count.get(it.cA) || { L: 0, R: 0 }, b = count.get(it.cB) || { L: 0, R: 0 };
-    const side = (a.L + b.L) < (a.R + b.R) ? 'L' : 'R';
-    it.sA = it.sB = side;
-    inc(it.cA, side); inc(it.cB, side);
+  const groups = new Map();
+  segs.forEach((s) => mpush(groups, s.o + ':' + q2(s.c), s));
+  const moves = [];
+  groups.forEach((list) => {
+    if (list.length < 2) return;
+    list.sort((a, b) => a.lo - b.lo);
+    let cl = [list[0]], hi = list[0].hi;
+    const flush = () => { if (cl.length > 1 && new Set(cl.map((s) => s.it)).size > 1) layoutCluster(cl, rects, sp, moves); };
+    for (let i = 1; i < list.length; i++) {
+      const s = list[i];
+      if (s.lo <= hi + 1) { cl.push(s); hi = Math.max(hi, s.hi); }
+      else { flush(); cl = [s]; hi = s.hi; }
+    }
+    flush();
   });
-  // fasci: collegamenti fra la stessa coppia di porte → percorsi paralleli distanziati
-  const bundles = new Map();
-  items.forEach((it) => mpush(bundles, it.pA < it.pB ? it.pA + '|' + it.pB : it.pB + '|' + it.pA, it));
-  const spacing = ui.mode === 'interfaces' ? 30 : 28;
-  bundles.forEach((arr) => {
-    arr.sort((a, b) => cmpNat(a.obj.id, b.obj.id));
-    const n = arr.length;
-    arr.forEach((it, i) => {
-      const k = i - (n - 1) / 2;
-      it.off = k * spacing;
-      it.t = clamp(0.5 + k * 0.1, 0.22, 0.78);
-      it.n = n;
+  moves.forEach((m) => {
+    const p = m.s.it.pts;
+    if (m.s.o === 'V') { p[m.s.k].x = m.nc; p[m.s.k + 1].x = m.nc; }
+    else { p[m.s.k].y = m.nc; p[m.s.k + 1].y = m.nc; }
+  });
+}
+/* ---------- Ventaglio sulle porte con più collegamenti ---------- */
+function termDesc(pts, end) {
+  const seq = end === 0 ? pts : pts.slice().reverse();
+  const y0 = seq[0].y;
+  for (let k = 1; k < seq.length; k++) {
+    if (Math.abs(seq[k].y - y0) > 0.05) return { dir: Math.sign(seq[k].y - y0), dist: Math.abs(seq[k - 1].x - seq[0].x) };
+  }
+  return { dir: 0, dist: 0 };
+}
+function fanOut(items, geom) {
+  const ends = new Map();
+  items.forEach((it) => {
+    mpush(ends, it.L.pA + ':' + it.sA, { it, end: 0, port: it.L.pA, side: it.sA });
+    mpush(ends, it.L.pB + ':' + it.sB, { it, end: 1, port: it.L.pB, side: it.sB });
+  });
+  ends.forEach((list) => {
+    const a = anchorPoint(geom, list[0].port, list[0].side);
+    if (!a) return;
+    const n = list.length;
+    list.forEach((e) => { e.d = termDesc(e.it.pts, e.end); });
+    list.sort((p, q) => {
+      const rank = (e) => (e.d.dir < 0 ? 0 : (e.d.dir === 0 ? 1 : 2));
+      const rp = rank(p), rq = rank(q);
+      if (rp !== rq) return rp - rq;
+      if (rp === 0) return p.d.dist - q.d.dist;
+      if (rp === 2) return q.d.dist - p.d.dist;
+      return cmpNat(p.it.key, q.it.key);
+    });
+    const step = n > 1 ? Math.min(6, (BG.ROW - 8) / (n - 1)) : 0;
+    list.forEach((e, i) => {
+      const y = a.y + (i - (n - 1) / 2) * step;
+      if (e.end === 0) e.it.tyA = y; else e.it.tyB = y;
     });
   });
   items.forEach((it) => {
-    // orientamento canonico (porta con uid minore come origine) per offset coerenti nel fascio
-    const flip = it.pA > it.pB;
-    const pS = flip ? it.pB : it.pA, pE = flip ? it.pA : it.pB;
-    const sS = flip ? it.sB : it.sA, sE = flip ? it.sA : it.sB;
-    it.p0 = anchorPoint(geom, pS, sS);
-    it.p1 = anchorPoint(geom, pE, sE);
-    it.sideOf = new Map([[it.pA, it.sA], [it.pB, it.sB]]);
-    it.bez = makeCurve(it.p0, sS === 'R' ? 1 : -1, it.p1, sE === 'R' ? 1 : -1, it.off, sS === sE);
+    const p = it.pts, n = p.length;
+    const yA = it.tyA, yB = it.tyB;
+    const straight = p.every((q) => Math.abs(q.y - p[0].y) < 0.05);
+    if (straight) {
+      if (Math.abs(yA - yB) < 0.05) { p.forEach((q) => { q.y = yA; }); return; }
+      const mx = q2((p[0].x + p[n - 1].x) / 2);
+      it.pts = [{ x: p[0].x, y: yA }, { x: mx, y: yA }, { x: mx, y: yB }, { x: p[n - 1].x, y: yB }];
+      return;
+    }
+    const y0 = p[0].y;
+    for (let k = 0; k < n && Math.abs(p[k].y - y0) < 0.05; k++) p[k].y = yA;
+    const yn = p[n - 1].y;
+    for (let k = n - 1; k >= 0 && Math.abs(p[k].y - yn) < 0.05; k--) p[k].y = yB;
   });
+}
+/* Percorsi pronti per il disegno: copie dei percorsi canonici + nudging + ventaglio */
+function finalizeRoutes(links, routes, geom, mode) {
+  const items = [];
+  links.forEach((L) => {
+    const r = routes.get(L.key);
+    if (!r) return;
+    items.push({ L, key: L.key, bundle: L.bundle, sA: r.sA, sB: r.sB, manual: !!r.manual, pts: r.pts.map((p) => ({ x: p.x, y: p.y })) });
+  });
+  nudgeRoutes(items, linkRects(geom), mode === 'interfaces' ? RT.SP_IF : RT.SP_CBL);
+  fanOut(items, geom);
+  items.forEach((it) => { it.pts = simplifyPts(it.pts); });
   return items;
 }
+/* Incroci fra segmenti orizzontali e verticali di collegamenti diversi → salti di linea */
+function computeHops(items) {
+  const V = [];
+  items.forEach((it, li) => {
+    const p = it.pts;
+    for (let k = 0; k < p.length - 1; k++) {
+      if (Math.abs(p[k].x - p[k + 1].x) < 0.05 && Math.abs(p[k].y - p[k + 1].y) > 0.05) {
+        V.push({ li, x: p[k].x, y0: Math.min(p[k].y, p[k + 1].y), y1: Math.max(p[k].y, p[k + 1].y) });
+      }
+    }
+  });
+  let crossings = 0;
+  items.forEach((it, li) => {
+    it.hops = new Map();
+    const p = it.pts;
+    for (let k = 0; k < p.length - 1; k++) {
+      const a = p[k], b = p[k + 1];
+      if (Math.abs(a.y - b.y) > 0.05) continue;
+      const x0 = Math.min(a.x, b.x), x1 = Math.max(a.x, b.x);
+      const xsH = [];
+      V.forEach((v) => {
+        if (v.li === li || !(a.y > v.y0 + 0.5 && a.y < v.y1 - 0.5) || !(v.x > x0 + 0.5 && v.x < x1 - 0.5)) return;
+        crossings++;
+        if (v.x > x0 + 10 && v.x < x1 - 10) xsH.push(v.x);
+      });
+      if (!xsH.length) continue;
+      xsH.sort((m, q) => m - q);
+      const kept = [];
+      xsH.forEach((x) => { if (!kept.length || x - kept[kept.length - 1] >= RT.HOP * 2 + 2) kept.push(x); });
+      it.hops.set(k, kept);
+    }
+  });
+  return crossings;
+}
+/* Tracciato SVG ortogonale con angoli leggermente arrotondati e salti di linea */
+function orthoPath(pts, hops) {
+  const n = pts.length, R = RT.R, HR = RT.HOP;
+  const rad = new Array(n).fill(0);
+  for (let k = 1; k < n - 1; k++) {
+    const l1 = Math.abs(pts[k].x - pts[k - 1].x) + Math.abs(pts[k].y - pts[k - 1].y);
+    const l2 = Math.abs(pts[k + 1].x - pts[k].x) + Math.abs(pts[k + 1].y - pts[k].y);
+    rad[k] = Math.min(R, l1 / 2, l2 / 2);
+  }
+  let d = 'M' + r1(pts[0].x) + ',' + r1(pts[0].y);
+  for (let k = 0; k < n - 1; k++) {
+    const a = pts[k], b = pts[k + 1];
+    const dx = Math.sign(b.x - a.x), dy = Math.sign(b.y - a.y);
+    const hx = hops && hops.get(k);
+    if (hx && dy === 0) {
+      (dx > 0 ? hx : hx.slice().reverse()).forEach((x) => {
+        d += ' L' + r1(x - dx * HR) + ',' + r1(a.y) + ' A' + HR + ',' + HR + ' 0 0 ' + (dx > 0 ? 1 : 0) + ' ' + r1(x + dx * HR) + ',' + r1(a.y);
+      });
+    }
+    const rr = k + 1 < n - 1 ? rad[k + 1] : 0;
+    d += ' L' + r1(b.x - dx * rr) + ',' + r1(b.y - dy * rr);
+    if (rr > 0) {
+      const c = pts[k + 2];
+      d += ' Q' + r1(b.x) + ',' + r1(b.y) + ' ' + r1(b.x + Math.sign(c.x - b.x) * rr) + ',' + r1(b.y + Math.sign(c.y - b.y) * rr);
+    }
+  }
+  return d;
+}
+function polyPath(pts) {
+  return pts.map((p, i) => (i ? 'L' : 'M') + r1(p.x) + ',' + r1(p.y)).join(' ');
+}
+/* Etichette sui segmenti dei collegamenti, evitando etichette, blocchi e altre linee */
+function placeRouteLabels(labels, items, rects, quick) {
+  if (quick) {
+    // durante il trascinamento: posizione semplice al centro del tratto più lungo
+    labels.forEach((lb) => {
+      const p = items[lb.li].pts;
+      let bk = 0, bl = -1;
+      for (let k = 0; k < p.length - 1; k++) { const l = Math.abs(p[k + 1].x - p[k].x) + Math.abs(p[k + 1].y - p[k].y); if (l > bl) { bl = l; bk = k; } }
+      lb.x = lb.ax = (p[bk].x + p[bk + 1].x) / 2; lb.y = lb.ay = (p[bk].y + p[bk + 1].y) / 2;
+    });
+    return;
+  }
+  const overlap = (a, b) => {
+    const ox = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0);
+    const oy = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
+    return ox > 0 && oy > 0 ? ox * oy : 0;
+  };
+  const segs = [];
+  items.forEach((it, li) => {
+    for (let k = 0; k < it.pts.length - 1; k++) segs.push({ li, a: it.pts[k], b: it.pts[k + 1] });
+  });
+  const segInBox = (s, bx) => {
+    const x0 = Math.min(s.a.x, s.b.x), x1 = Math.max(s.a.x, s.b.x), y0 = Math.min(s.a.y, s.b.y), y1 = Math.max(s.a.y, s.b.y);
+    return x1 >= bx.x0 && x0 <= bx.x1 && y1 >= bx.y0 && y0 <= bx.y1;
+  };
+  const placed = [];
+  const order = labels.slice().sort((a, b) => (b.st === 'selected') - (a.st === 'selected'));
+  const bundleOfLi = items.map((it) => it.bundle);
+  const place = (lb) => {
+    const p = items[lb.li].pts, n = p.length;
+    const cands = [];
+    for (let k = 0; k < n - 1; k++) {
+      const a = p[k], b = p[k + 1];
+      const horiz = Math.abs(a.y - b.y) < 0.05;
+      const len = Math.abs(b.x - a.x) + Math.abs(b.y - a.y);
+      if (len < 12) continue;
+      const need = horiz ? lb.w + 14 : lb.h + 18;
+      [0.5, 0.3, 0.7].forEach((t) => {
+        const x = a.x + (b.x - a.x) * t, y = a.y + (b.y - a.y) * t;
+        let pen = Math.abs(t - 0.5) * 14 + (horiz ? 0 : 14) + (len < need ? (need - len) * 2 : 0);
+        if (k === 0 || k === n - 2) pen += 4;
+        cands.push({ x, y, ax: x, ay: y, pen });
+        const off = horiz ? lb.h / 2 + 8 : lb.w / 2 + 8;
+        [-1, 1].forEach((sg) => cands.push({ x: horiz ? x : x + sg * off, y: horiz ? y + sg * off : y, ax: x, ay: y, pen: pen + 34 }));
+      });
+    }
+    if (!cands.length) cands.push({ x: p[0].x, y: p[0].y, ax: p[0].x, ay: p[0].y, pen: 0 });
+    let best = null, bestScore = Infinity;
+    cands.forEach((c) => {
+      const box = { x0: c.x - lb.w / 2 - 2, x1: c.x + lb.w / 2 + 2, y0: c.y - lb.h / 2 - 1, y1: c.y + lb.h / 2 + 1 };
+      let sc = c.pen, conflicts = 0;
+      placed.forEach((q) => { const o = overlap(box, q); sc += o * 25; conflicts += o; });
+      rects.forEach((r) => { const o = overlap(box, { x0: r.x0 - 4, y0: r.y0 - 4, x1: r.x1 + 4, y1: r.y1 + 4 }); sc += o * 4; conflicts += o; });
+      segs.forEach((s) => {
+        if (s.li === lb.li || !segInBox(s, box)) return;
+        sc += bundleOfLi[s.li] === bundleOfLi[lb.li] ? 3 : 30;
+      });
+      if (sc < bestScore) { bestScore = sc; best = { c, box, conflicts }; }
+    });
+    return best;
+  };
+  order.forEach((lb) => {
+    let best = place(lb);
+    if (best.conflicts > 0 && lb.rest && !lb.rows) {
+      // l'etichetta completa coprirebbe un blocco o un'altra etichetta: si usa il solo ID se così il conflitto
+      // scompare (il tipo resta visibile nel tooltip e nelle tabelle)
+      const full = { rest: lb.rest, w: lb.w };
+      lb.rest = '';
+      lb.w = textW(lb.idPart, F.lblId) + 12;
+      const short = place(lb);
+      if (short.conflicts === 0) best = short;
+      else { lb.rest = full.rest; lb.w = full.w; }
+    }
+    lb.x = best.c.x; lb.y = best.c.y; lb.ax = best.c.ax; lb.ay = best.c.ay;
+    placed.push(best.box);
+  });
+}
+
+/* =====================================================================
+   8c. LAVAGNA: disegno
+   ===================================================================== */
 function selectionContext() {
   const sel = ui.selected;
-  const ctx = { linkState: () => '', hlPorts: new Set(), compDim: () => false };
+  const ctx = { linkState: () => '', hlPorts: new Set() };
   if (!sel) return ctx;
   const o = getObj(sel.kind, sel.uid);
   if (!o) return ctx;
@@ -1423,102 +2145,210 @@ function selectionContext() {
   }
   return ctx;
 }
-
+function groupFrames(geom) {
+  const out = [];
+  if (!ui.showGroups) return out;
+  state.groups.forEach((g) => {
+    const members = (idx.compsByGroup.get(g.uid) || []).map((c) => geom.get(c.uid)).filter(Boolean);
+    if (!members.length) return;
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    members.forEach((m) => { x0 = Math.min(x0, m.x); y0 = Math.min(y0, m.y); x1 = Math.max(x1, m.x + m.w); y1 = Math.max(y1, m.y + m.h); });
+    const pad = 30, band = 20;
+    out.push({ g, x: x0 - pad, y: y0 - pad - band, w: x1 - x0 + pad * 2, h: y1 - y0 + pad * 2 + band, band });
+  });
+  return out;
+}
+function routesForDisplay(geom) {
+  if (ui.showPorts) {
+    let stored = (state.routing && state.routing[ui.mode]) || {};
+    if (dragRoute && dragRoute.mode === ui.mode) {
+      stored = Object.assign({}, stored);
+      stored[dragRoute.key] = serializeRoute(dragRoute.route);
+    }
+    return computeRoutes(ui.mode, geom, { stored, noOptimize: !!drag, budgetMs: drag && drag.moved ? 25 : 0 });
+  }
+  // porte nascoste: percorsi provvisori (non memorizzati), calcolati sulla geometria compatta
+  const sig = ui.mode + '|' + [...geom.values()].map((g) => g.uid + ',' + g.x + ',' + g.y + ',' + g.w + ',' + g.h).join(';') + '|' +
+    modeLinks(ui.mode).map((L) => L.key + L.pA + L.pB).join(',');
+  if (transientCache.sig === sig) return transientCache.res;
+  const res = computeRoutes(ui.mode, geom, { stored: null, noOptimize: !!drag, budgetMs: drag && drag.moved ? 25 : 0 });
+  if (!drag) transientCache = { sig, res };
+  return res;
+}
+function linkTooltip(L) {
+  if (L.kind === 'cable') {
+    const f = idx.iface.get(L.obj.ifaceUid);
+    return 'Cavo ' + L.obj.id + (L.obj.name ? ' — ' + L.obj.name : '') + '\n' + portFull(L.obj.portA) + ' ↔ ' + portFull(L.obj.portB) +
+      '\nTipo: ' + (L.obj.type || '—') + '\nConnettori: ' + (L.obj.connA || '—') + ' / ' + (L.obj.connB || '—') +
+      '\nPinout: ' + (pinoutSummary(L.obj) || 'non definito') + '\nInterfaccia: ' + (f ? f.id : '—');
+  }
+  const nC = (idx.cablesByIface.get(L.obj.uid) || []).length;
+  return 'Interfaccia ' + L.obj.id + ' — ' + (L.obj.name || '') + '\n' + portFull(L.obj.portA) + ' ↔ ' + portFull(L.obj.portB) +
+    '\nTipo: ' + (L.obj.type || '—') + '\nStato: ' + (L.obj.status || '—') + '\nCavi: ' + nC;
+}
 function renderBoard() {
   if (!B || !state) return;
   renderQueued = false;
-  const geom = new Map();
-  state.components.forEach((c) => geom.set(c.uid, compGeom(c)));
+  const geom = geomMap(ui.showPorts);
   lastGeom = geom;
-  const links = layoutLinks(geom);
+  const rects = linkRects(geom);
+  const res = routesForDisplay(geom);
+  const items = finalizeRoutes(res.links, res.routes, geom, ui.mode);
+  const crossings = computeHops(items);
+  lastItems = new Map(items.map((it) => [it.key, it]));
+  lastRouteStats = {
+    crossings, links: items.length,
+    bends: items.reduce((s, it) => s + Math.max(0, it.pts.length - 2), 0),
+    manual: items.filter((it) => it.manual).length
+  };
   const sc = selectionContext();
-  const portState = new Map();
-  const dotCls = ui.mode === 'interfaces' ? 'if' : 'cbl';
-  links.forEach((L) => {
-    const cls = L.kind === 'ghost' ? 'ghost' : dotCls;
-    [L.pA, L.pB].forEach((p) => {
-      const key = p + ':' + L.sideOf.get(p);
-      if (portState.get(key) !== dotCls) portState.set(key, cls);
+  const portMarks = new Map();
+  const onCls = ui.mode === 'interfaces' ? 'if' : 'cbl';
+  items.forEach((it) => {
+    const cls = it.L.kind === 'ghost' ? 'ghost' : onCls;
+    [[it.L.pA, it.sA, it.pts[0].y], [it.L.pB, it.sB, it.pts[it.pts.length - 1].y]].forEach((e) => {
+      const k = e[0] + ':' + e[1];
+      const m = portMarks.get(k);
+      if (!m) portMarks.set(k, { cls, y0: e[2], y1: e[2] });
+      else { m.y0 = Math.min(m.y0, e[2]); m.y1 = Math.max(m.y1, e[2]); if (cls !== 'ghost') m.cls = cls; }
     });
   });
 
-  // --- gruppi funzionali (cornici calcolate dai componenti membri)
+  // --- gruppi funzionali: cornici con fascia del titolo
   let gs = '';
-  if (ui.showGroups) {
-    state.groups.forEach((g) => {
-      const members = (idx.compsByGroup.get(g.uid) || []).map((c) => geom.get(c.uid)).filter(Boolean);
-      if (!members.length) return;
-      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-      members.forEach((m) => { x0 = Math.min(x0, m.x); y0 = Math.min(y0, m.y); x1 = Math.max(x1, m.x + m.w); y1 = Math.max(y1, m.y + m.h); });
-      const pad = 18, band = 24;
-      const fx = x0 - pad, fy = y0 - pad - band, fw = x1 - x0 + pad * 2, fh = y1 - y0 + pad * 2 + band;
-      const col = esc(g.color || '#5b6b7d');
-      const sel = ui.selected && ui.selected.kind === 'group' && ui.selected.uid === g.uid;
-      const title = fitText(g.id + ' · ' + (g.name || ''), F.group, fw - 20);
-      gs += '<g class="g-frame' + (sel ? ' selected' : '') + '">' +
-        '<rect class="g-box" x="' + fx + '" y="' + fy + '" width="' + fw + '" height="' + fh + '" rx="10" fill="' + col + '" stroke="' + col + '"/>' +
-        '<path class="g-band" d="M' + fx + ',' + (fy + band) + ' V' + (fy + 10) + ' A10,10 0 0 1 ' + (fx + 10) + ',' + fy + ' H' + (fx + fw - 10) + ' A10,10 0 0 1 ' + (fx + fw) + ',' + (fy + 10) + ' V' + (fy + band) + ' Z" fill="' + col + '" fill-opacity=".13"/>' +
-        '<text class="g-title" x="' + (fx + 10) + '" y="' + (fy + 16) + '" fill="' + col + '">' + esc(title) + '</text>' +
-        '<g class="g-handle" data-group="' + esc(g.uid) + '"><title>' + esc('Gruppo funzionale ' + g.id + ' — ' + (g.name || '') + '\nTrascina l’intestazione per spostare tutto il gruppo; clic per modificarlo.') + '</title>' +
-        '<rect x="' + fx + '" y="' + fy + '" width="' + fw + '" height="' + band + '"/></g></g>';
+  groupFrames(geom).forEach((fr) => {
+    const g = fr.g;
+    const col = esc(g.color || '#5b6b7d');
+    const sel = ui.selected && ui.selected.kind === 'group' && ui.selected.uid === g.uid;
+    const title = fitText(g.id + '  ' + (g.name || ''), F.group, fr.w - 20);
+    gs += '<g class="g-frame' + (sel ? ' selected' : '') + '">' +
+      '<rect class="g-box" x="' + fr.x + '" y="' + fr.y + '" width="' + fr.w + '" height="' + fr.h + '" rx="3" fill="' + col + '" stroke="' + col + '"/>' +
+      '<path class="g-band" d="M' + fr.x + ',' + (fr.y + fr.band) + ' V' + (fr.y + 3) + ' A3,3 0 0 1 ' + (fr.x + 3) + ',' + fr.y + ' H' + (fr.x + fr.w - 3) + ' A3,3 0 0 1 ' + (fr.x + fr.w) + ',' + (fr.y + 3) + ' V' + (fr.y + fr.band) + ' Z" fill="' + col + '"/>' +
+      '<line class="g-band-line" x1="' + fr.x + '" y1="' + (fr.y + fr.band) + '" x2="' + (fr.x + fr.w) + '" y2="' + (fr.y + fr.band) + '" stroke="' + col + '"/>' +
+      '<text class="g-title" x="' + (fr.x + 9) + '" y="' + (fr.y + 14) + '" fill="' + col + '">' + esc(title) + '</text>' +
+      '<g class="g-handle" data-group="' + esc(g.uid) + '"><title>' + esc('Gruppo funzionale ' + g.id + ' — ' + (g.name || '') + '\nTrascina la fascia del titolo per spostare tutto il gruppo; clic per modificarlo.') + '</title>' +
+      '<rect x="' + fr.x + '" y="' + fr.y + '" width="' + fr.w + '" height="' + fr.band + '"/></g></g>';
+  });
+
+  // --- collegamenti ortogonali
+  let ls = '';
+  const labels = [];
+  items.forEach((it, li) => {
+    const L = it.L;
+    const st = sc.linkState(L);
+    const d = orthoPath(it.pts, it.hops);
+    const dHit = polyPath(it.pts);
+    const kindAttr = L.kind === 'ghost' ? 'interface' : L.kind;
+    const cls = L.kind === 'interface' ? 'link-if' : (L.kind === 'cable' ? 'link-cbl' : 'link-ghost');
+    let segHits = '';
+    if (ui.showPorts) {
+      for (let k = 1; k < it.pts.length - 2; k++) {
+        const a = it.pts[k], b = it.pts[k + 1];
+        const o = Math.abs(a.x - b.x) < 0.05 ? 'v' : 'h';
+        segHits += '<line class="seg-hit ' + o + '" data-seg="' + k + '" data-o="' + o + '" x1="' + r1(a.x) + '" y1="' + r1(a.y) + '" x2="' + r1(b.x) + '" y2="' + r1(b.y) + '"/>';
+      }
+    }
+    ls += '<g class="link-g ' + st + (it.manual ? ' manual' : '') + '" data-link="' + kindAttr + '" data-uid="' + esc(L.obj.uid) + '" data-key="' + esc(it.key) + '">' +
+      '<title>' + esc(linkTooltip(L) + (it.manual ? '\nPercorso: manuale (doppio clic per ripristinare l’instradamento automatico)' : '\nPercorso: automatico (trascina un tratto per modificarlo)')) + '</title>' +
+      (st === 'selected' ? '<path class="link-halo" d="' + dHit + '"/>' : '') +
+      '<path class="link-hit" d="' + dHit + '"/><path class="' + cls + '" d="' + d + '"/>' + segHits + '</g>';
+    if (ui.showLabels) {
+      const idPart = L.obj.id;
+      const rest = L.kind === 'ghost' ? '  nessun cavo' : '  ' + (L.obj.type || 'tipo n.d.');
+      const restFit = fitText(rest, F.label, 170);
+      labels.push({
+        li, idPart, rest: restFit, w: textW(idPart, F.lblId) + textW(restFit, F.label) + 12, h: 16,
+        kind: kindAttr, uid: L.obj.uid, key: it.key, st, bundle: it.bundle,
+        cls: L.kind === 'interface' ? 'if' : (L.kind === 'cable' ? 'cbl' : 'ghost')
+      });
+    }
+  });
+  // vista cavi: i cavi della stessa interfaccia condividono un unico cartellino con una riga per cavo
+  if (ui.mode === 'cables' && labels.length) {
+    const byBundle = new Map();
+    labels.forEach((lb) => { if (lb.cls === 'cbl') mpush(byBundle, lb.bundle, lb); });
+    byBundle.forEach((list) => {
+      if (list.length < 2) return;
+      list.sort((a, b) => cmpNat(a.idPart, b.idPart));
+      const head = list[Math.floor((list.length - 1) / 2)];
+      const rowW = Math.max(...list.map((r) => r.w));
+      const sts = list.map((r) => r.st);
+      const callout = {
+        li: head.li, rows: list, w: rowW, h: list.length * 15 + 5, kind: 'cable', uid: head.uid, key: head.key, cls: 'cbl bundle',
+        st: sts.includes('selected') ? 'selected' : (sts.every((x) => x === 'dim') ? 'dim' : (sts.includes('related') ? 'related' : ''))
+      };
+      list.forEach((r) => labels.splice(labels.indexOf(r), 1));
+      labels.push(callout);
     });
   }
 
-  // --- collegamenti
-  let ls = '';
-  const labels = [];
-  links.forEach((L) => {
-    const st = sc.linkState(L);
-    const d = bezPath(L.bez);
-    const kindAttr = L.kind === 'ghost' ? 'interface' : L.kind;
-    const cls = L.kind === 'interface' ? 'link-if' : (L.kind === 'cable' ? 'link-cbl' : 'link-ghost');
-    let tip;
-    if (L.kind === 'cable') {
-      const f = idx.iface.get(L.obj.ifaceUid);
-      tip = 'Cavo ' + L.obj.id + (L.obj.name ? ' — ' + L.obj.name : '') + '\n' + portFull(L.obj.portA) + ' ↔ ' + portFull(L.obj.portB) +
-        '\nTipo: ' + (L.obj.type || '—') + '\nConnettori: ' + (L.obj.connA || '—') + ' / ' + (L.obj.connB || '—') +
-        '\nPinout: ' + (pinoutSummary(L.obj) || 'non definito') + '\nInterfaccia: ' + (f ? f.id : '—');
-    } else {
-      const nC = (idx.cablesByIface.get(L.obj.uid) || []).length;
-      tip = 'Interfaccia ' + L.obj.id + ' — ' + (L.obj.name || '') + '\n' + portFull(L.obj.portA) + ' ↔ ' + portFull(L.obj.portB) +
-        '\nTipo: ' + (L.obj.type || '—') + '\nStato: ' + (L.obj.status || '—') + '\nCavi: ' + nC;
-    }
-    ls += '<g class="link-g ' + st + '" data-link="' + kindAttr + '" data-uid="' + esc(L.obj.uid) + '"><title>' + esc(tip) + '</title>' +
-      (st === 'selected' ? '<path class="link-halo" d="' + d + '"/>' : '') +
-      '<path class="link-hit" d="' + d + '"/><path class="' + cls + '" d="' + d + '"/></g>';
-    if (ui.showLabels) {
-      const text = L.kind === 'ghost' ? L.obj.id + ' | nessun cavo' : L.obj.id + ' | ' + (L.obj.type || 'tipo n.d.');
-      const t = fitText(text, F.label, 220);
-      const pt = bezAt(L.bez, L.t);
-      labels.push({ text: t, x: pt.x, y: pt.y, ax: pt.x, ay: pt.y, w: textW(t, F.label) + 12, h: 17, kind: kindAttr, uid: L.obj.uid, cls: L.kind === 'interface' ? 'if' : (L.kind === 'cable' ? 'cbl' : 'ghost'), st });
-    }
+  // --- componenti (durante il trascinamento di un blocco si aggiorna solo la sua posizione)
+  const fastDrag = drag && drag.moved && (drag.type === 'comp' || drag.type === 'group') && B.comps.childElementCount === state.components.length;
+  let cs = '', ps = '';
+  state.components.forEach((c) => {
+    const g = geom.get(c.uid);
+    if (!fastDrag) cs += compSvg(c, g, sc.hlPorts);
+    ps += portsSvg(c, g, portMarks);
   });
+  if (fastDrag) {
+    const moved = drag.type === 'comp' ? [drag.uid] : drag.members.map((m) => m.c.uid);
+    moved.forEach((u) => {
+      const el = B.comps.querySelector('[data-comp="' + u + '"]'), g = geom.get(u);
+      if (el && g) el.setAttribute('transform', 'translate(' + g.x + ',' + g.y + ')');
+    });
+  }
 
-  // --- componenti
-  let cs = '';
-  state.components.forEach((c) => { cs += compSvg(c, geom.get(c.uid), portState, sc.hlPorts); });
-
-  // --- etichette: posizionate evitando sovrapposizioni fra loro e con i blocchi
-  const obstacles = [];
-  geom.forEach((g) => obstacles.push({ x0: g.x - 9, y0: g.y - 3, x1: g.x + g.w + 9, y1: g.y + g.h + 3 }));
-  placeLabels(labels, obstacles);
+  // --- etichette
+  placeRouteLabels(labels, items, rects, !!drag && drag.moved);
   let lbs = '';
   labels.forEach((lb) => {
-    const moved = Math.hypot(lb.x - lb.ax, lb.y - lb.ay) > 9;
-    lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + '" data-link="' + lb.kind + '" data-uid="' + esc(lb.uid) + '">' +
-      (moved ? '<line class="lbl-leader" x1="' + r1(lb.ax) + '" y1="' + r1(lb.ay) + '" x2="' + r1(lb.x) + '" y2="' + r1(lb.y) + '"/>' : '') +
-      '<rect x="' + r1(lb.x - lb.w / 2) + '" y="' + r1(lb.y - lb.h / 2) + '" width="' + r1(lb.w) + '" height="' + lb.h + '" rx="3"/>' +
-      '<text x="' + r1(lb.x) + '" y="' + r1(lb.y + 4) + '" text-anchor="middle">' + esc(lb.text) + '</text></g>';
+    const moved = Math.hypot(lb.x - lb.ax, lb.y - lb.ay) > 2;
+    const x0 = lb.x - lb.w / 2, y0 = lb.y - lb.h / 2;
+    const leader = moved ? '<line class="lbl-leader" x1="' + r1(lb.ax) + '" y1="' + r1(lb.ay) + '" x2="' + r1(lb.x) + '" y2="' + r1(lb.y) + '"/>' : '';
+    if (lb.rows) {
+      lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + '">' + leader +
+        '<rect x="' + r1(x0) + '" y="' + r1(y0) + '" width="' + r1(lb.w) + '" height="' + lb.h + '" rx="2"/>';
+      lb.rows.forEach((rw, i) => {
+        const ty = y0 + 13.5 + i * 15;
+        lbs += '<g class="lbl-row ' + rw.st + '" data-link="cable" data-uid="' + esc(rw.uid) + '" data-key="' + esc(rw.key) + '">' +
+          (i ? '<line class="lbl-sep" x1="' + r1(x0) + '" y1="' + r1(ty - 11) + '" x2="' + r1(x0 + lb.w) + '" y2="' + r1(ty - 11) + '"/>' : '') +
+          '<rect class="lbl-row-hit" x="' + r1(x0) + '" y="' + r1(ty - 11) + '" width="' + r1(lb.w) + '" height="15"/>' +
+          '<text x="' + r1(x0 + 6) + '" y="' + r1(ty) + '"><tspan class="lbl-id">' + esc(rw.idPart) + '</tspan><tspan class="lbl-rest">' + esc(rw.rest) + '</tspan></text></g>';
+      });
+      lbs += '</g>';
+      return;
+    }
+    lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + '" data-link="' + lb.kind + '" data-uid="' + esc(lb.uid) + '" data-key="' + esc(lb.key) + '">' + leader +
+      '<rect x="' + r1(x0) + '" y="' + r1(y0) + '" width="' + r1(lb.w) + '" height="' + lb.h + '" rx="2"/>' +
+      '<text x="' + r1(x0 + 6) + '" y="' + r1(lb.y + 3.8) + '"><tspan class="lbl-id">' + esc(lb.idPart) + '</tspan><tspan class="lbl-rest">' + esc(lb.rest) + '</tspan></text></g>';
   });
 
   B.groups.innerHTML = gs;
   B.links.innerHTML = ls;
-  B.comps.innerHTML = cs;
+  if (!fastDrag) B.comps.innerHTML = cs;
+  B.ports.innerHTML = ps;
   B.labels.innerHTML = lbs;
   byId('boardEmpty').hidden = state.components.length > 0;
-  updateBoardChrome(links);
+  updateBoardChrome(items, res.links);
 }
-function compSvg(c, g, portState, hlPorts) {
+/* Punti di connessione (quadratini sui bordi), in un livello separato sopra i blocchi */
+function portsSvg(c, g, portMarks) {
+  if (!g.showPorts) return '';
+  let s = '';
+  c.ports.forEach((p) => {
+    const cy = g.y + g.portY.get(p.uid);
+    ['L', 'R'].forEach((side) => {
+      const x = side === 'L' ? g.x : g.x + g.w;
+      const pm = portMarks.get(p.uid + ':' + side);
+      const yA = pm ? pm.y0 : cy, yB = pm ? pm.y1 : cy;
+      s += '<g class="pin" data-pin="' + esc(p.uid) + '" data-side="' + side + '"><title>' + esc(c.id + ':' + p.id + ' ' + (p.label || '') + ' — lato ' + (side === 'L' ? 'sinistro' : 'destro') + '\nTrascina verso un’altra porta per creare un collegamento') + '</title>' +
+        '<rect class="port-sq' + (pm ? ' on-' + pm.cls : '') + '" x="' + r1(x - 4) + '" y="' + r1(yA - 4) + '" width="8" height="' + r1(yB - yA + 8) + '" rx="1"/>' +
+        '<rect class="pin-hit" x="' + r1(x - 10) + '" y="' + r1(cy - 10) + '" width="20" height="20"/></g>';
+    });
+  });
+  return s;
+}
+function compSvg(c, g, hlPorts) {
   const sel = ui.selected && ui.selected.kind === 'component' && ui.selected.uid === c.uid;
   const w = g.w, hh = g.h, H = BG.HEAD;
   const dcol = esc(domainColor(c.domain));
@@ -1528,79 +2358,43 @@ function compSvg(c, g, portState, hlPorts) {
     '\nPorte: ' + c.ports.length + '\n(trascina per spostare, clic per modificare)';
   let s = '<g class="comp' + (sel ? ' selected' : '') + '" data-comp="' + esc(c.uid) + '" transform="translate(' + g.x + ',' + g.y + ')">' +
     '<title>' + esc(tip) + '</title>' +
-    '<rect class="comp-body" width="' + w + '" height="' + hh + '" rx="6" filter="url(#compShadow)"/>' +
-    '<path class="comp-head" d="M0,' + H + ' V6 A6,6 0 0 1 6,0 H' + (w - 6) + ' A6,6 0 0 1 ' + w + ',6 V' + H + ' Z"/>' +
-    '<path d="M0,6 A6,6 0 0 1 6,0 H' + (w - 6) + ' A6,6 0 0 1 ' + w + ',6 V5 H0 Z" fill="' + dcol + '"/>';
-  const nameMax = w - g.idW - 30;
-  s += '<text class="comp-name" x="12" y="25">' + esc(fitText(c.name || '(senza nome)', F.name, nameMax)) + '</text>';
-  s += '<g class="comp-idb"><rect x="' + (w - g.idW - 10) + '" y="11" width="' + g.idW + '" height="19" rx="3"/>' +
-    '<text x="' + (w - 10 - g.idW / 2) + '" y="24.5" text-anchor="middle">' + esc(c.id || '?') + '</text></g>';
-  s += '<rect x="12" y="35" width="9" height="9" rx="2" fill="' + dcol + '"/>' +
-    '<text class="comp-meta" x="26" y="43.5">' + esc(fitText(c.domain || '—', F.meta, w - 40)) + '</text>';
-  s += '<text class="comp-meta" x="12" y="59"><tspan class="comp-meta-k">Owner: </tspan>' + esc(fitText(c.owner || '—', F.meta, w - 60)) + '</text>';
-  if (ui.showPorts) {
+    '<rect class="comp-body" width="' + w + '" height="' + hh + '" rx="2"/>' +
+    '<path class="comp-head" d="M0,' + (g.showPorts ? H : hh) + ' V2 A2,2 0 0 1 2,0 H' + (w - 2) + ' A2,2 0 0 1 ' + w + ',2 V' + (g.showPorts ? H : hh) + ' Z"/>' +
+    '<rect x="0" y="0" width="' + w + '" height="3" fill="' + dcol + '"/>';
+  s += '<text class="comp-name" x="10" y="22">' + esc(fitText(c.name || '(senza nome)', F.name, w - g.idW - 28)) + '</text>';
+  s += '<g class="comp-idb"><rect x="' + (w - g.idW - 8) + '" y="9" width="' + g.idW + '" height="17" rx="1.5"/>' +
+    '<text x="' + (w - 8 - g.idW / 2) + '" y="21.3" text-anchor="middle">' + esc(c.id || '?') + '</text></g>';
+  s += '<rect x="10" y="32" width="8" height="8" fill="' + dcol + '"/>' +
+    '<text class="comp-meta" x="23" y="39.5">' + esc(fitText(c.domain || '—', F.meta, w - 36)) + '</text>';
+  s += '<text class="comp-meta" x="10" y="52.5"><tspan class="comp-meta-k">Owner </tspan>' + esc(fitText(c.owner || '—', F.meta, w - 56)) + '</text>';
+  if (g.showPorts) {
     s += '<line class="comp-sep" x1="0" y1="' + H + '" x2="' + w + '" y2="' + H + '"/>';
-    if (!c.ports.length) {
-      s += '<text class="port-none" x="14" y="' + (H + 18) + '">Nessuna porta definita</text>';
-    }
-    c.ports.forEach((p) => {
+    if (!c.ports.length) s += '<text class="port-none" x="12" y="' + (H + 3 + BG.ROW / 2 + 4) + '">Nessuna porta definita</text>';
+    c.ports.forEach((p, i) => {
       const cy = g.portY.get(p.uid);
       const tag = portTag(p);
       const idWp = textW(p.id, F.portId);
-      const labMax = w - 40 - idWp - textW(tag, F.ptype) - 16;
+      const labMax = w - 44 - idWp - textW(tag, F.ptype) - 10;
       const usedBy = (idx.ifacesByPort.get(p.uid) || []).map((f) => f.id);
       const ptip = 'Porta ' + c.id + ':' + p.id + ' — ' + (p.label || '') + '\nTipo: ' + (p.type || '—') + ' · Direzione: ' + (p.direction || '—') +
-        (p.notes ? '\nNote: ' + p.notes : '') + '\nInterfacce: ' + (usedBy.length ? usedBy.join(', ') : 'nessuna');
+        (p.notes ? '\nNote: ' + p.notes : '') + '\nInterfacce: ' + (usedBy.length ? usedBy.join(', ') : 'nessuna') +
+        '\n(trascina dal quadratino di connessione per collegare la porta)';
       s += '<g class="port' + (hlPorts.has(p.uid) ? ' hl' : '') + '"><title>' + esc(ptip) + '</title>' +
-        '<rect class="port-row" x="1" y="' + (cy - BG.ROW / 2) + '" width="' + (w - 2) + '" height="' + BG.ROW + '"/>' +
-        '<text class="port-text" x="14" y="' + (cy + 4) + '"><tspan class="port-id">' + esc(p.id) + '</tspan><tspan class="port-sep"> | </tspan>' +
-        esc(fitText(p.label || '', F.port, labMax)) + '</text>' +
-        '<text class="port-type" x="' + (w - 14) + '" y="' + (cy + 3.5) + '" text-anchor="end">' + esc(tag) + '</text>';
-      ['L', 'R'].forEach((side) => {
-        const x = side === 'L' ? 0 : w;
-        const st = portState.get(p.uid + ':' + side);
-        s += '<g class="pin" data-pin="' + esc(p.uid) + '" data-side="' + side + '">' +
-          '<circle class="port-dot' + (st ? ' on-' + st : '') + '" cx="' + x + '" cy="' + cy + '" r="' + (st ? 5 : 4.5) + '"/>' +
-          '<circle class="pin-hit" cx="' + x + '" cy="' + cy + '" r="10"/></g>';
-      });
-      s += '</g>';
+        '<rect class="port-row' + (i % 2 ? ' alt' : '') + '" x="0.5" y="' + (cy - BG.ROW / 2) + '" width="' + (w - 1) + '" height="' + BG.ROW + '"/>' +
+        '<text class="port-text" x="14" y="' + (cy + 3.8) + '"><tspan class="port-id">' + esc(p.id) + '</tspan><tspan dx="7">' +
+        esc(fitText(p.label || '', F.port, labMax)) + '</tspan></text>' +
+        '<text class="port-type" x="' + (w - 14) + '" y="' + (cy + 3.2) + '" text-anchor="end">' + esc(tag) + '</text></g>';
     });
   }
-  s += '<rect class="comp-outline" width="' + w + '" height="' + hh + '" rx="6"/></g>';
+  s += '<rect class="comp-outline" width="' + w + '" height="' + hh + '" rx="2"/></g>';
   return s;
-}
-function placeLabels(labels, obstacles) {
-  const STEP = 19;
-  const cands = [[0, 0]];
-  for (let k = 1; k <= 7; k++) cands.push([0, k * STEP], [0, -k * STEP]);
-  [-80, 80, -160, 160].forEach((dx) => { for (let k = 0; k <= 4; k++) { cands.push([dx, k * STEP]); if (k) cands.push([dx, -k * STEP]); } });
-  const overlap = (a, b) => {
-    const ox = Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0);
-    const oy = Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0);
-    return ox > 0 && oy > 0 ? ox * oy : 0;
-  };
-  const placed = [];
-  const order = labels.slice().sort((a, b) => (b.st === 'selected') - (a.st === 'selected'));
-  order.forEach((lb) => {
-    let best = null, bestScore = Infinity;
-    for (const c of cands) {
-      const x = lb.ax + c[0], y = lb.ay + c[1];
-      const box = { x0: x - lb.w / 2 - 3, x1: x + lb.w / 2 + 3, y0: y - lb.h / 2 - 1.5, y1: y + lb.h / 2 + 1.5 };
-      let sc = Math.hypot(c[0], c[1]) * 2;
-      for (const p of placed) sc += overlap(box, p) * 25;
-      for (const o of obstacles) sc += overlap(box, o) * 3;
-      if (sc < bestScore) { bestScore = sc; best = { x, y, box }; if (sc === 0) break; }
-    }
-    lb.x = best.x; lb.y = best.y;
-    placed.push(best.box);
-  });
 }
 function scheduleBoardRender() {
   if (renderQueued) return;
   renderQueued = true;
   requestAnimationFrame(() => { if (renderQueued) renderBoard(); });
 }
-function updateBoardChrome(links) {
+function updateBoardChrome(items, links) {
   byId('btnViewIf').classList.toggle('active', ui.mode === 'interfaces');
   byId('btnViewCbl').classList.toggle('active', ui.mode === 'cables');
   byId('btnViewIf').setAttribute('aria-pressed', ui.mode === 'interfaces');
@@ -1612,41 +2406,47 @@ function updateBoardChrome(links) {
   byId('zoomLabel').textContent = Math.round(ui.zoom * 100) + '%';
   const lg = byId('boardLegend');
   const nIf = state.interfaces.length, nC = state.cables.length;
-  const ghosts = links ? links.filter((l) => l.kind === 'ghost').length : 0;
-  const notDrawn = ui.mode === 'interfaces'
-    ? nIf - (links ? links.length : 0)
-    : nC - (links ? links.filter((l) => l.kind === 'cable').length : 0);
+  const ghosts = items.filter((it) => it.L.kind === 'ghost').length;
+  const notDrawn = ui.mode === 'interfaces' ? nIf - items.length : nC - items.filter((it) => it.L.kind === 'cable').length;
+  const st = lastRouteStats;
+  const stats = '<div class="lg-stats">Instradamento ortogonale · ' + plural(st.crossings, 'incrocio', 'incroci') + ' · ' +
+    plural(st.bends, 'piegatura', 'piegature') + (st.manual ? ' · ' + plural(st.manual, 'percorso manuale', 'percorsi manuali') : '') +
+    (ui.showPorts ? '' : ' · <i>provvisorio (porte nascoste)</i>') + '</div>';
+  const sq = (fill, stroke) => '<svg width="14" height="12"><rect x="3" y="2" width="8" height="8" rx="1" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.1"/></svg>';
   if (ui.mode === 'interfaces') {
     lg.innerHTML = '<div class="lg-title">Vista interfacce · ' + plural(nIf, 'interfaccia logica', 'interfacce logiche') + '</div>' +
-      '<div class="lg-row"><svg width="34" height="10"><line x1="1" y1="5" x2="33" y2="5" stroke="#1d5fbf" stroke-width="3" stroke-dasharray="9 6"/></svg>Interfaccia logica (una linea per interfaccia)</div>' +
-      '<div class="lg-row"><svg width="34" height="12"><circle cx="17" cy="6" r="5" fill="#1d5fbf" stroke="#0f4597"/></svg>Porta collegata · <svg width="14" height="12"><circle cx="7" cy="6" r="4.5" fill="#fff" stroke="#7d8a9a" stroke-width="1.4"/></svg>porta libera</div>' +
-      (notDrawn > 0 ? '<div class="lg-row" style="color:#a11d1d">' + plural(notDrawn, 'interfaccia non disegnata', 'interfacce non disegnate') + ' (riferimenti non validi)</div>' : '');
+      '<div class="lg-row"><svg width="34" height="10"><line x1="1" y1="5" x2="33" y2="5" stroke="#1d5fbf" stroke-width="2.4" stroke-dasharray="8 4"/></svg>Interfaccia logica (una linea per interfaccia)</div>' +
+      '<div class="lg-row">' + sq('#1d5fbf', '#0f4597') + 'porta collegata ' + sq('#fff', '#5d6a79') + 'porta libera</div>' +
+      (notDrawn > 0 ? '<div class="lg-row lg-err">' + plural(notDrawn, 'interfaccia non disegnata', 'interfacce non disegnate') + ' (riferimenti non validi)</div>' : '') + stats;
   } else {
     lg.innerHTML = '<div class="lg-title">Vista cavi · ' + plural(nC, 'cavo fisico', 'cavi fisici') + '</div>' +
-      '<div class="lg-row"><svg width="34" height="10"><line x1="1" y1="5" x2="33" y2="5" stroke="#2f3d4c" stroke-width="1.7"/></svg>Cavo fisico (percorsi paralleli per la stessa interfaccia)</div>' +
-      '<div class="lg-row"><svg width="34" height="10"><line x1="1" y1="5" x2="33" y2="5" stroke="#a5afbb" stroke-width="1.4" stroke-dasharray="2 5"/></svg>Interfaccia senza cavi' + (ghosts ? ' (' + ghosts + ')' : '') + '</div>' +
-      '<div class="lg-row"><svg width="34" height="12"><circle cx="17" cy="6" r="5" fill="#2f3d4c"/></svg>Porta cablata</div>' +
-      (notDrawn > 0 ? '<div class="lg-row" style="color:#a11d1d">' + plural(notDrawn, 'cavo non disegnato', 'cavi non disegnati') + ' (riferimenti non validi)</div>' : '');
+      '<div class="lg-row"><svg width="34" height="10"><line x1="1" y1="3" x2="33" y2="3" stroke="#2b3640" stroke-width="1.4"/><line x1="1" y1="8" x2="33" y2="8" stroke="#2b3640" stroke-width="1.4"/></svg>Cavo fisico (affiancati per la stessa interfaccia)</div>' +
+      '<div class="lg-row"><svg width="34" height="10"><line x1="1" y1="5" x2="33" y2="5" stroke="#a5afbb" stroke-width="1.3" stroke-dasharray="2 4"/></svg>Interfaccia senza cavi' + (ghosts ? ' (' + ghosts + ')' : '') + '</div>' +
+      '<div class="lg-row">' + sq('#2b3640', '#111a22') + 'porta cablata ' + sq('#fff', '#5d6a79') + 'porta libera</div>' +
+      (notDrawn > 0 ? '<div class="lg-row lg-err">' + plural(notDrawn, 'cavo non disegnato', 'cavi non disegnati') + ' (riferimenti non validi)</div>' : '') + stats;
   }
+  updateHistoryButtons();
 }
 function applyView() {
   if (!B) return;
   const t = 'translate(' + r1(ui.panX) + ',' + r1(ui.panY) + ') scale(' + ui.zoom + ')';
   B.viewport.setAttribute('transform', t);
   B.pattern.setAttribute('patternTransform', t);
-  const sw = (1 / ui.zoom).toFixed(3);
-  B.gridMinor.style.strokeWidth = sw;
-  B.gridMinor.style.display = ui.zoom < 0.45 ? 'none' : '';
-  B.gridMajor.style.strokeWidth = (1.2 / ui.zoom).toFixed(3);
+  const rMinor = (0.9 / ui.zoom).toFixed(3), rMajor = (1.5 / ui.zoom).toFixed(3);
+  B.dotsMinor.forEach((c) => c.setAttribute('r', rMinor));
+  B.dotsMajor.forEach((c) => c.setAttribute('r', rMajor));
+  B.dotsMinorG.style.display = ui.zoom < 0.45 ? 'none' : '';
   byId('zoomLabel').textContent = Math.round(ui.zoom * 100) + '%';
 }
 function contentBounds() {
-  const geom = lastGeom || new Map(state.components.map((c) => [c.uid, compGeom(c)]));
+  const geom = lastGeom || geomMap(ui.showPorts);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-  geom.forEach((g) => { x0 = Math.min(x0, g.x); y0 = Math.min(y0, g.y); x1 = Math.max(x1, g.x + g.w); y1 = Math.max(y1, g.y + g.h); });
+  const inc = (x, y) => { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); };
+  geom.forEach((g) => { inc(g.x, g.y); inc(g.x + g.w, g.y + g.h); });
   if (!isFinite(x0)) return null;
-  const pad = ui.showGroups && state.groups.length ? 46 : 20;
-  return { x0: x0 - 30, y0: y0 - pad, x1: x1 + 30, y1: y1 + 24 };
+  lastItems.forEach((it) => it.pts.forEach((p) => inc(p.x, p.y)));
+  groupFrames(geom).forEach((fr) => { inc(fr.x, fr.y); inc(fr.x + fr.w, fr.y + fr.h); });
+  return { x0: x0 - 16, y0: y0 - 16, x1: x1 + 16, y1: y1 + 16 };
 }
 function visibleBoardSize() {
   const r = B.svg.getBoundingClientRect();
@@ -1657,12 +2457,12 @@ function fitView() {
   const { w: W, h: Hh } = visibleBoardSize();
   if (W < 50 || Hh < 50) { ui.fitted = true; return; }
   const bb = contentBounds();
-  if (!bb) { ui.zoom = 1; ui.panX = 40; ui.panY = 40; applyView(); return; }
-  const pad = 24;
-  const z = clamp(Math.min((W - pad * 2) / (bb.x1 - bb.x0), (Hh - pad * 2) / (bb.y1 - bb.y0)), 0.15, 1.5);
+  if (!bb) { ui.zoom = 1; ui.panX = 40; ui.panY = 60; applyView(); return; }
+  const padX = 24, padTop = 54, padBottom = 24;
+  const z = clamp(Math.min((W - padX * 2) / (bb.x1 - bb.x0), (Hh - padTop - padBottom) / (bb.y1 - bb.y0)), 0.15, 1.5);
   ui.zoom = z;
   ui.panX = (W - (bb.x1 - bb.x0) * z) / 2 - bb.x0 * z;
-  ui.panY = (Hh - (bb.y1 - bb.y0) * z) / 2 - bb.y0 * z;
+  ui.panY = padTop + (Hh - padTop - padBottom - (bb.y1 - bb.y0) * z) / 2 - bb.y0 * z;
   ui.fitted = true;
   applyView();
   saveUiSoon();
@@ -1684,24 +2484,24 @@ function zoomCenter(factor) {
 function centerOnObject(kind, uid) {
   if (!B || !lastGeom) return;
   let pts = [];
-  if (kind === 'component') { const g = lastGeom.get(uid); if (g) pts = [{ x: g.x, y: g.y }, { x: g.x + g.w, y: g.y + g.h }]; }
-  else if (kind === 'port') { const e = portEntry(uid); const g = e && lastGeom.get(e.comp.uid); if (g) pts = [{ x: g.x, y: g.y }, { x: g.x + g.w, y: g.y + g.h }]; }
-  else if (kind === 'group') {
-    (idx.compsByGroup.get(uid) || []).forEach((c) => { const g = lastGeom.get(c.uid); if (g) pts.push({ x: g.x, y: g.y }, { x: g.x + g.w, y: g.y + g.h }); });
-  } else if (kind === 'interface' || kind === 'cable') {
+  const addComp = (cu) => { const g = lastGeom.get(cu); if (g) pts.push({ x: g.x, y: g.y }, { x: g.x + g.w, y: g.y + g.h }); };
+  if (kind === 'component') addComp(uid);
+  else if (kind === 'port') { const e = portEntry(uid); if (e) addComp(e.comp.uid); }
+  else if (kind === 'group') (idx.compsByGroup.get(uid) || []).forEach((c) => addComp(c.uid));
+  else if (kind === 'interface' || kind === 'cable') {
     const o = getObj(kind, uid);
-    if (o) [o.compA, o.compB].forEach((cu) => { const g = lastGeom.get(cu); if (g) pts.push({ x: g.x, y: g.y }, { x: g.x + g.w, y: g.y + g.h }); });
+    if (o) { addComp(o.compA); addComp(o.compB); }
+    const it = lastItems.get(uid) || lastItems.get('g:' + uid);
+    if (it) pts = pts.concat(it.pts);
   } else if (kind === 'requirement') {
     const r = getObj(kind, uid);
-    const comps = new Set();
     (r ? r.links : []).forEach((l) => {
       const o = getObj(l.kind, l.uid);
       if (!o) return;
-      if (l.kind === 'component') comps.add(o.uid);
-      else if (l.kind === 'port') { const e = portEntry(o.uid); if (e) comps.add(e.comp.uid); }
-      else { comps.add(o.compA); comps.add(o.compB); }
+      if (l.kind === 'component') addComp(o.uid);
+      else if (l.kind === 'port') { const e = portEntry(o.uid); if (e) addComp(e.comp.uid); }
+      else { addComp(o.compA); addComp(o.compB); }
     });
-    comps.forEach((cu) => { const g = lastGeom.get(cu); if (g) pts.push({ x: g.x, y: g.y }, { x: g.x + g.w, y: g.y + g.h }); });
   }
   if (!pts.length) return;
   const x0 = Math.min(...pts.map((p) => p.x)), x1 = Math.max(...pts.map((p) => p.x));
@@ -1709,11 +2509,11 @@ function centerOnObject(kind, uid) {
   const { w: W, h: Hh } = visibleBoardSize();
   const panelW = byId('sidePanel').classList.contains('open') ? byId('sidePanel').getBoundingClientRect().width : 0;
   const availW = Math.max(200, W - panelW);
-  const needZ = Math.min((availW - 80) / Math.max(1, x1 - x0), (Hh - 80) / Math.max(1, y1 - y0));
+  const needZ = Math.min((availW - 80) / Math.max(1, x1 - x0), (Hh - 110) / Math.max(1, y1 - y0));
   if (needZ < ui.zoom) ui.zoom = clamp(needZ, 0.15, 3);
   else if (ui.zoom < 0.6) ui.zoom = Math.min(0.9, needZ);
   ui.panX = availW / 2 - ((x0 + x1) / 2) * ui.zoom;
-  ui.panY = Hh / 2 - ((y0 + y1) / 2) * ui.zoom;
+  ui.panY = 20 + Hh / 2 - ((y0 + y1) / 2) * ui.zoom;
   ui.fitted = false;
   applyView();
   saveUiSoon();
@@ -1730,12 +2530,116 @@ function clientToWorld(cx, cy) {
 }
 const snapV = (v) => Math.round(v / BG.SNAP) * BG.SNAP;
 
+/* ---------- Comandi di instradamento ---------- */
+function modeLabel(mode) { return mode === 'interfaces' ? 'vista interfacce' : 'vista cavi'; }
+function autoReroute() {
+  if (!ui.showPorts) { ui.showPorts = true; saveUi(); }
+  const mode = ui.mode;
+  renderBoard();
+  const before = lastRouteStats.crossings, beforeBends = lastRouteStats.bends;
+  const res = computeRoutes(mode, geomMap(true), { full: true });
+  const out = {};
+  res.links.forEach((L) => { const r = res.routes.get(L.key); if (r) out[L.key] = serializeRoute(r); });
+  const cur = (state.routing && state.routing[mode]) || {};
+  if (JSON.stringify(out) === JSON.stringify(cur)) {
+    toast('Percorsi già ottimizzati: nessuna modifica (' + plural(before, 'incrocio', 'incroci') + ').', 'info');
+    return;
+  }
+  commit((st) => { st.routing = st.routing || {}; st.routing[mode] = out; }, null, 'Auto-Rerouting (' + modeLabel(mode) + ')');
+  toast('Auto-Rerouting completato: incroci ' + before + ' → ' + lastRouteStats.crossings + ', piegature ' + beforeBends + ' → ' + lastRouteStats.bends + '. Ctrl+Z per annullare.', 'ok', 5000);
+}
+function resetRoute(key, modeArg) {
+  const mode = modeArg || ui.mode;
+  const r = state.routing && state.routing[mode] && state.routing[mode][key];
+  const L = modeLinks(mode).find((x) => x.key === key);
+  const name = L ? L.obj.id : 'questo collegamento';
+  if (!r || !r.manual) { toast('Il percorso di ' + name + ' è già automatico. Usa Auto-Rerouting per riorganizzare tutto.', 'info'); return false; }
+  commit((st) => { delete st.routing[mode][key]; }, null, 'Percorso automatico ripristinato (' + name + ')');
+  toast('Percorso automatico ripristinato per ' + name, 'ok');
+  return true;
+}
+/* Riquadro "Percorso sulla lavagna" nei pannelli di interfaccia e cavo */
+function routeInfoBox(mode, key) {
+  const r = state.routing && state.routing[mode] && state.routing[mode][key];
+  if (!r) return null;
+  const bends = Math.max(0, r.pts.length - 2);
+  const box = h('div', { class: 'sp-section' }, h('h3', null, 'Percorso sulla lavagna (' + modeLabel(mode) + ')'),
+    h('div', { class: 'row-actions', style: { marginTop: '0' } },
+      h('span', null, r.manual ? 'Manuale' : 'Automatico ortogonale', h('span', { class: 'muted' }, ' · ' + plural(bends, 'piegatura', 'piegature') + ' · lati ' + r.sA + '/' + r.sB)),
+      r.manual ? h('button', { type: 'button', class: 'btn sm', onclick: () => { if (resetRoute(key, mode)) renderAll(); } }, '↻ Ripristina percorso automatico') : null),
+    h('div', { class: 'fld-hint', style: { marginTop: '6px' } }, 'Sulla lavagna puoi trascinare un tratto della linea per modificarne il percorso; il doppio clic sulla linea ripristina l’instradamento automatico.'));
+  return box;
+}
+function updateHistoryButtons() {
+  const u = history.past[history.past.length - 1], r = history.future[history.future.length - 1];
+  [['btnUndo', 'btnBoardUndo', u, 'Annulla', 'Ctrl+Z'], ['btnRedo', 'btnBoardRedo', r, 'Ripeti', 'Ctrl+Y']].forEach((x) => {
+    const title = x[2] ? x[3] + ': ' + x[2].label + ' (' + x[4] + ')' : (x[3] === 'Annulla' ? 'Niente da annullare' : 'Niente da ripetere');
+    [x[0], x[1]].forEach((id) => { const b = byId(id); if (b) { b.disabled = !x[2]; b.title = title; } });
+  });
+}
+/* Esportazione dello schema in SVG vettoriale con cartiglio */
+function exportSvg() {
+  const sel = ui.selected;
+  ui.selected = null;
+  renderBoard();
+  const bb = contentBounds();
+  if (!bb) { ui.selected = sel; renderBoard(); toast('Lo schema è vuoto.', 'warn'); return; }
+  const pad = 30, tbW = 360, tbH = 110;
+  const W = Math.ceil(Math.max(bb.x1 - bb.x0 + pad * 2, tbW + pad * 2));
+  const Hh = Math.ceil(bb.y1 - bb.y0 + pad * 2 + tbH + 14);
+  const svg = B.svg.cloneNode(true);
+  ui.selected = sel;
+  renderBoard();
+  svg.removeAttribute('class');
+  svg.removeAttribute('style');
+  svg.removeAttribute('id');
+  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+  svg.setAttribute('width', W);
+  svg.setAttribute('height', Hh);
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + Hh);
+  const grid = svg.querySelector('#gridBg');
+  if (grid) { grid.removeAttribute('fill'); grid.setAttribute('fill', '#ffffff'); }
+  svg.querySelector('#viewport').setAttribute('transform', 'translate(' + r1(pad - bb.x0) + ',' + r1(pad - bb.y0) + ')');
+  svg.querySelectorAll('.link-hit,.seg-hit,.pin-hit,.g-handle,#layerTemp > *').forEach((n) => n.remove());
+  const NS = 'http://www.w3.org/2000/svg';
+  const style = document.createElementNS(NS, 'style');
+  style.textContent = 'svg { font-family: ' + FONT_STACK + '; }\n' + document.querySelector('head style').textContent;
+  svg.insertBefore(style, svg.firstChild);
+  const tx = W - pad - tbW, ty = Hh - pad - tbH + 14;
+  const today = new Date().toLocaleDateString('it-IT');
+  const rows = [
+    ['Titolo', state.meta.name || '—'],
+    ['Vista', ui.mode === 'interfaces' ? 'Interfacce logiche' : 'Cavi fisici'],
+    ['Contenuto', plural(state.components.length, 'componente', 'componenti') + ' · ' + plural(state.interfaces.length, 'interfaccia', 'interfacce') + ' · ' + plural(state.cables.length, 'cavo', 'cavi')],
+    ['Instradamento', 'ortogonale automatico · ' + plural(lastRouteStats.crossings, 'incrocio', 'incroci') + ' · ' + plural(lastRouteStats.bends, 'piegatura', 'piegature')],
+    ['Data', today]
+  ];
+  let tb = '<g class="title-block" transform="translate(' + tx + ',' + ty + ')"><rect width="' + tbW + '" height="' + tbH + '" fill="#fff" stroke="#3f4b59" stroke-width="1"/>' +
+    '<rect width="' + tbW + '" height="20" fill="#0b2140"/><text x="10" y="14" fill="#fff" font-size="11" font-weight="700">IDV Interface Manager — Schema di interfacciamento</text>';
+  rows.forEach((rw, i) => {
+    const y = 20 + i * 18;
+    tb += '<line x1="0" y1="' + y + '" x2="' + tbW + '" y2="' + y + '" stroke="#c3cad3" stroke-width=".8"/>' +
+      '<line x1="106" y1="' + y + '" x2="106" y2="' + (y + 18) + '" stroke="#c3cad3" stroke-width=".8"/>' +
+      '<text x="8" y="' + (y + 12.5) + '" font-size="9.5" fill="#5b6676" font-weight="700">' + esc(rw[0].toUpperCase()) + '</text>' +
+      '<text x="114" y="' + (y + 12.5) + '" font-size="10.5" fill="#16202d">' + esc(fitText(rw[1], '10.5px ' + FONT_STACK, tbW - 122)) + '</text>';
+  });
+  tb += '</g>';
+  svg.querySelector('#viewport').insertAdjacentHTML('afterend', tb);
+  const text = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
+  downloadFile('IDV_schema_' + (ui.mode === 'interfaces' ? 'interfacce' : 'cavi') + '_' + stamp() + '.svg', text, 'image/svg+xml');
+  toast('Schema esportato in SVG', 'ok');
+}
+
 function setupBoard() {
   const svg = byId('board');
+  const dotsG = byId('gridDots');
+  let dots = '';
+  for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++) dots += '<circle class="grid-dot" cx="' + (10 + i * 20) + '" cy="' + (10 + j * 20) + '" r="0.9"/>';
+  dotsG.innerHTML = dots;
   B = {
     svg, viewport: byId('viewport'), groups: byId('layerGroups'), links: byId('layerLinks'),
-    comps: byId('layerComps'), labels: byId('layerLabels'), temp: byId('layerTemp'),
-    pattern: byId('gridPattern'), gridMinor: qs('#gridPattern .grid-minor'), gridMajor: qs('#gridPattern .grid-major'),
+    comps: byId('layerComps'), ports: byId('layerPorts'), labels: byId('layerLabels'), temp: byId('layerTemp'),
+    pattern: byId('gridPattern'), dotsMinorG: dotsG, dotsMinor: qsa('circle', dotsG), dotsMajor: qsa('#gridPattern .grid-dot-major'),
     wrap: byId('boardWrap')
   };
   svg.addEventListener('pointerdown', onBoardPointerDown);
@@ -1749,6 +2653,8 @@ function setupBoard() {
     zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-e.deltaY * k));
   }, { passive: false });
   svg.addEventListener('dblclick', (e) => {
+    const lk = e.target.closest('[data-key]');
+    if (lk) { clearTimeout(linkClickTimer); resetRoute(lk.dataset.key); return; }
     if (e.target.closest('[data-comp],[data-link],[data-group]')) return;
     const w = clientToWorld(e.clientX, e.clientY);
     openComponentPanel(null, { x: snapV(w.x), y: snapV(w.y) });
@@ -1787,6 +2693,10 @@ function setupBoard() {
   byId('btnTogglePorts').addEventListener('click', () => { ui.showPorts = !ui.showPorts; saveUi(); renderBoard(); });
   byId('btnToggleGroups').addEventListener('click', () => { ui.showGroups = !ui.showGroups; saveUi(); renderBoard(); });
   byId('btnToggleLabels').addEventListener('click', () => { ui.showLabels = !ui.showLabels; saveUi(); renderBoard(); });
+  byId('btnReroute').addEventListener('click', autoReroute);
+  byId('btnBoardUndo').addEventListener('click', undo);
+  byId('btnBoardRedo').addEventListener('click', redo);
+  byId('btnExportSvg').addEventListener('click', exportSvg);
   const find = byId('boardFind');
   const doFind = () => {
     const q = find.value.trim();
@@ -1812,13 +2722,22 @@ function onBoardPointerDown(e) {
   if (e.button !== 0 || drag) return;
   const t = e.target;
   const pin = t.closest('[data-pin]');
+  const seg = t.closest('[data-seg]');
   const link = t.closest('[data-link]');
   const comp = t.closest('[data-comp]');
   const grp = t.closest('[data-group]');
   drag = { sx: e.clientX, sy: e.clientY, moved: false };
   if (pin) {
     const a = anchorPoint(lastGeom, pin.dataset.pin, pin.dataset.side);
-    Object.assign(drag, { type: 'connect', port: pin.dataset.pin, from: a });
+    Object.assign(drag, { type: 'connect', port: pin.dataset.pin, side: pin.dataset.side, from: a });
+  } else if (seg && link) {
+    const it = lastItems.get(link.dataset.key);
+    if (!it) { drag = null; return; }
+    const k = Number(seg.dataset.seg), o = seg.dataset.o;
+    Object.assign(drag, {
+      type: 'seg', kind: link.dataset.link, uid: link.dataset.uid, key: link.dataset.key, k, o, mode: ui.mode,
+      it, base: it.pts.map((p) => ({ x: p.x, y: p.y })), orig: o === 'v' ? it.pts[k].x : it.pts[k].y, snap: snapshot(), cur: null
+    });
   } else if (link) {
     Object.assign(drag, { type: 'link', kind: link.dataset.link, uid: link.dataset.uid });
   } else if (comp) {
@@ -1832,6 +2751,20 @@ function onBoardPointerDown(e) {
     Object.assign(drag, { type: 'pan', ox: ui.panX, oy: ui.panY });
   }
   e.preventDefault();
+}
+/* Spostamento di un tratto: il tratto trascinato e i due adiacenti non devono entrare nei blocchi */
+function dragSegment(dx, dy) {
+  const d = drag, p = d.base.map((q) => ({ x: q.x, y: q.y })), n = p.length, k = d.k;
+  const delta = (d.o === 'v' ? dx : dy) / ui.zoom;
+  const nc = Math.round((d.orig + delta) / 5) * 5;
+  if (d.o === 'v') { p[k].x = nc; p[k + 1].x = nc; } else { p[k].y = nc; p[k + 1].y = nc; }
+  const sgA = d.it.sA === 'R' ? 1 : -1, sgB = d.it.sB === 'R' ? 1 : -1;
+  if ((p[1].x - p[0].x) * sgA < 10 || (p[n - 2].x - p[n - 1].x) * sgB < 10) return;
+  const rects = linkRects(lastGeom);
+  for (let s = Math.max(0, k - 1); s <= Math.min(n - 2, k + 1); s++) if (segHitsRects(p[s], p[s + 1], rects)) return;
+  d.cur = p;
+  dragRoute = { mode: d.mode, key: d.key, route: { sA: d.it.sA, sB: d.it.sB, pts: p, manual: true } };
+  scheduleBoardRender();
 }
 function onBoardPointerMove(e) {
   if (!drag) return;
@@ -1851,14 +2784,18 @@ function onBoardPointerMove(e) {
   } else if (drag.type === 'group') {
     drag.members.forEach((m) => { m.c.x = snapV(m.ox + dx / ui.zoom); m.c.y = snapV(m.oy + dy / ui.zoom); });
     scheduleBoardRender();
+  } else if (drag.type === 'seg') {
+    B.svg.classList.add(drag.o === 'v' ? 'seg-v' : 'seg-h');
+    dragSegment(dx, dy);
   } else if (drag.type === 'connect') {
     B.svg.classList.add('connecting');
     const w = clientToWorld(e.clientX, e.clientY);
     const a = drag.from;
     if (!a) return;
-    const k = Math.max(40, Math.abs(w.x - a.x) * 0.45);
-    const s = w.x >= a.x ? 1 : -1;
-    B.temp.innerHTML = '<path class="temp-link" d="M' + r1(a.x) + ',' + r1(a.y) + ' C' + r1(a.x + s * k) + ',' + r1(a.y) + ' ' + r1(w.x - s * k) + ',' + r1(w.y) + ' ' + r1(w.x) + ',' + r1(w.y) + '"/>';
+    const sg = drag.side === 'R' ? 1 : -1;
+    const sx = a.x + sg * RT.M;
+    const mx = (sg > 0 ? Math.max(sx, (sx + w.x) / 2) : Math.min(sx, (sx + w.x) / 2));
+    B.temp.innerHTML = '<path class="temp-link" d="' + polyPath(simplifyPts([a, { x: mx, y: a.y }, { x: mx, y: w.y }, w])) + '"/>';
     qsa('.pin.target', B.svg).forEach((x) => x.classList.remove('target'));
     const el = document.elementFromPoint(e.clientX, e.clientY);
     const pin = el && el.closest ? el.closest('[data-pin]') : null;
@@ -1869,24 +2806,45 @@ function onBoardPointerUp(e) {
   if (!drag) return;
   const d = drag;
   drag = null;
-  B.svg.classList.remove('panning', 'connecting');
+  B.svg.classList.remove('panning', 'connecting', 'seg-v', 'seg-h');
   if (d.type === 'pan') {
     if (!d.moved) { if (ui.selected) { ui.selected = null; renderBoard(); } }
     else saveUi();
   } else if (d.type === 'comp' || d.type === 'group') {
     if (d.moved) {
       if (d.snap !== snapshot()) {
-        pushHistory(d.snap);
+        const label = d.type === 'comp' ? 'Spostamento ' + ((idx.comp.get(d.uid) || {}).id || 'componente') : 'Spostamento gruppo ' + ((idx.group.get(d.uid) || {}).id || '');
+        pushHistory(d.snap, label);
         state.meta.modified = new Date().toISOString();
         afterChange();
-      }
+        const movedUids = d.type === 'comp' ? [d.uid] : d.members.map((m) => m.c.uid);
+        const g = geomMap(true), over = new Set();
+        movedUids.forEach((u) => {
+          const a = g.get(u);
+          g.forEach((b, v) => {
+            if (v !== u && !movedUids.includes(v) && a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y) over.add((idx.comp.get(v) || {}).id);
+          });
+        });
+        if (over.size) toast('Attenzione: il blocco si sovrappone a ' + [...over].join(', ') + '. I collegamenti verso le porte coperte non possono essere instradati in modo pulito.', 'warn', 6000);
+      } else renderBoard();
     } else if (d.type === 'comp') {
       openObject('component', d.uid);
     } else {
       openObject('group', d.uid);
     }
+  } else if (d.type === 'seg') {
+    dragRoute = null;
+    if (!d.moved) { openLinkSoon(d.kind, d.uid); return; }
+    if (!d.cur) { renderBoard(); return; }
+    const route = serializeRoute({ sA: d.it.sA, sB: d.it.sB, pts: simplifyPts(d.cur), manual: true });
+    pushHistory(d.snap, 'Modifica percorso ' + d.it.L.obj.id);
+    state.routing = state.routing || { interfaces: {}, cables: {} };
+    state.routing[d.mode] = state.routing[d.mode] || {};
+    state.routing[d.mode][d.key] = route;
+    state.meta.modified = new Date().toISOString();
+    afterChange();
   } else if (d.type === 'link') {
-    if (!d.moved) openObject(d.kind, d.uid);
+    if (!d.moved) openLinkSoon(d.kind, d.uid);
   } else if (d.type === 'connect') {
     B.temp.innerHTML = '';
     qsa('.pin.target', B.svg).forEach((x) => x.classList.remove('target'));
@@ -2648,6 +3606,7 @@ function openInterfacePanel(uid, preset) {
           cbs.length ? h('div', { class: 'rel-list' }, cbs.map((c) => relItem('cable', c.uid, c.id, (c.name || '') + ' · ' + (c.type || '—') + ' · ' + (pinoutSummary(c) || 'pinout non definito'))))
             : h('div', { class: 'msg-box info' }, 'Nessun cavo associato: l’interfaccia non è ancora realizzata fisicamente.')));
       }
+      if (!isNew) kids.push(routeInfoBox('interfaces', uid));
       kids.push(h('div', { class: 'sp-section' }, h('h3', null, 'Requisiti di interfaccia associati'),
         reqChecklist(d, { type: 'Interface', prefix: 'IRS-' + (str(d.id).replace(/^IF-/i, '').trim() || 'IF') + '-' })));
       return kids;
@@ -2771,6 +3730,7 @@ function openCablePanel(uid, preset) {
           fld('Note', textareaFor(d, 'notes', { rows: 2 }), { wide: true })),
         h('div', { class: 'sp-section', 'data-field': 'pinout' }, h('h3', null, 'Pinout', h('span', { class: 'spacer' }), h('span', { class: 'muted small', style: { fontWeight: '400' } }, 'Pin e segnale lato A → pin e segnale lato B')), pinoutEditor(d))
       ];
+      if (!isNew) kids.push(routeInfoBox('cables', uid));
       kids.push(h('div', { class: 'sp-section' }, h('h3', null, 'Requisiti associati al cavo'),
         reqChecklist(d, { type: 'Cable', prefix: 'CAB-' + (str(d.id).replace(/^CBL-/i, '').trim() || 'CBL') + '-' })));
       return kids;
@@ -3557,6 +4517,20 @@ function normalizeData(raw) {
     arr.forEach((o) => { const k = normId(o.id); if (k && seen.has(k)) warnings.push(label + ' con ID duplicato: ' + o.id + '.'); seen.add(k); });
   };
   dupWarn(out.groups, 'Gruppo'); dupWarn(out.components, 'Componente'); dupWarn(out.interfaces, 'Interfaccia'); dupWarn(out.cables, 'Cavo'); dupWarn(out.requirements, 'Requisito');
+  // percorsi memorizzati: accettati solo se ben formati e riferiti a collegamenti esistenti
+  out.routing = { interfaces: {}, cables: {} };
+  let badRoutes = 0;
+  if (isObj(d.routing)) {
+    ['interfaces', 'cables'].forEach((m) => {
+      if (!isObj(d.routing[m])) return;
+      const keys = new Set(m === 'interfaces' ? out.interfaces.map((f) => f.uid) : out.cables.map((c) => c.uid).concat(out.interfaces.map((f) => 'g:' + f.uid)));
+      Object.keys(d.routing[m]).forEach((k) => {
+        const r = keys.has(k) ? sanitizeRoute(d.routing[m][k]) : null;
+        if (r) out.routing[m][k] = r; else badRoutes++;
+      });
+    });
+  } else if (d.routing != null) badRoutes++;
+  if (badRoutes) warnings.push(plural(badRoutes, 'percorso grafico non valido', 'percorsi grafici non validi') + ' ignorati: verranno ricalcolati automaticamente.');
   return { errors, warnings, data: out };
 }
 async function importJsonFile(file) {
@@ -3678,8 +4652,7 @@ function renderNav() {
   });
   byId('projectName').textContent = state.meta.name || '';
   byId('projectName').title = state.meta.name || '';
-  byId('btnUndo').disabled = !history.past.length;
-  byId('btnRedo').disabled = !history.future.length;
+  updateHistoryButtons();
   const dl = byId('boardFindList');
   dl.innerHTML = '';
   state.components.slice().sort((a, b) => cmpNat(a.id, b.id)).forEach((c) => dl.appendChild(h('option', { value: c.id }, c.name)));
@@ -3761,8 +4734,9 @@ function init() {
     const loaded = loadModel();
     state = loaded.data;
     rebuildIndex();
+    syncRoutes();
     computeIssues();
-    if (loaded.source !== 'storage') saveModel();
+    saveModel();
     setupBoard();
     buildTableSections();
     setupGlobalHandlers();
@@ -3779,7 +4753,12 @@ function init() {
   }
 }
 // API di sola lettura per diagnostica da console
-window.IDV = { get state() { return state; }, get issues() { return issues; }, ui };
+window.IDV = {
+  get state() { return state; }, get issues() { return issues; }, ui,
+  get routeStats() { return Object.assign({}, lastRouteStats); },
+  get routes() { return [...lastItems.values()].map((it) => ({ key: it.key, id: it.L.obj.id, kind: it.L.kind, sA: it.sA, sB: it.sB, manual: it.manual, pts: it.pts.map((q) => [q.x, q.y]) })); },
+  get history() { return { past: history.past.map((e) => e.label), future: history.future.map((e) => e.label) }; }
+};
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 else init();
