@@ -107,7 +107,19 @@ button, input, select, textarea { font: inherit; color: inherit; }
   background: #fff; color: var(--navy-900); border-radius: 4px; padding: 3px 6px;
 }
 .brand-title { font-weight: 700; font-size: 15px; line-height: 1.1; white-space: nowrap; }
-.brand-sub { font-size: 11px; color: #a9bbd6; line-height: 1.2; white-space: nowrap; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
+.brand-sub {
+  font: inherit; font-size: 11px; color: #a9bbd6; line-height: 1.2; white-space: nowrap; max-width: 260px; overflow: hidden; text-overflow: ellipsis;
+  display: block; background: none; border: 0; padding: 0; text-align: left; cursor: pointer;
+}
+.brand-sub:hover { color: #fff; text-decoration: underline; }
+.save-state { font-size: 11px; color: #a9d8b5; white-space: nowrap; padding: 0 4px; cursor: default; }
+.save-state.busy { color: #c5d3e8; }
+.save-state.err { color: #fff; background: #d32f2f; border-radius: 4px; padding: 2px 6px; font-weight: 700; }
+.pm-name { font-weight: 700; font-size: 13px; }
+.pm-table tr.pm-current td { background: #f1f7ff; }
+.pm-table td.act { white-space: nowrap; }
+.pm-trash { margin-top: 12px; }
+.pm-trash summary { cursor: pointer; font-weight: 600; color: var(--text-2); margin-bottom: 6px; }
 .main-nav { display: flex; gap: 0; flex: 1 1 auto; flex-wrap: nowrap; min-width: max-content; }
 .main-nav button {
   background: transparent; color: #c5d3e8; border: 0;
@@ -222,6 +234,8 @@ table.grid td.nowrap { white-space: nowrap; }
 table.grid td.text { min-width: 220px; max-width: 460px; }
 table.grid td.mid { min-width: 140px; max-width: 280px; }
 table.grid td.ico { width: 26px; padding-right: 0; }
+table.grid .td-sel { width: 30px; padding-right: 0; cursor: default; }
+table.grid tbody tr.checked td { background: #f1f6fd; }
 table.grid td.act { white-space: nowrap; text-align: right; }
 .empty { padding: 36px 16px; text-align: center; color: var(--muted); }
 .muted { color: var(--muted); }
@@ -325,7 +339,11 @@ table.grid td.act { white-space: nowrap; text-align: right; }
 .port-type { font: 600 9px var(--mono); fill: #6d7887; letter-spacing: .02em; }
 .port-none { font-size: 11px; fill: #8a94a2; font-style: italic; }
 .port-sq { fill: #fff; stroke: #5d6a79; stroke-width: 1.1; }
-.port-sq.on-if { fill: var(--primary); stroke: #0f4597; }
+.port-sq.on-if { fill: var(--lc, var(--primary)); stroke: var(--lc, #0f4597); }
+.port-sq.on-cat { fill: var(--lc, #5b6b7d); stroke: var(--lc, #5b6b7d); }
+.pin.free { opacity: 0; }
+.pin.free .port-sq { fill: #fff; stroke: #6d7a8a; stroke-dasharray: 2 1.5; }
+.pin.free.show, #board.connecting .pin.free { opacity: 1; }
 .port-sq.on-cbl { fill: #2b3640; stroke: #111a22; }
 .port-sq.on-ghost { fill: #fff; stroke: #8b96a3; stroke-dasharray: 2 1.5; }
 .pin { cursor: crosshair; }
@@ -338,30 +356,33 @@ table.grid td.act { white-space: nowrap; text-align: right; }
 .seg-hit.h { cursor: ns-resize; }
 #board.seg-v, #board.seg-v * { cursor: ew-resize !important; }
 #board.seg-h, #board.seg-h * { cursor: ns-resize !important; }
-.link-if { fill: none; stroke: var(--primary); stroke-width: 2.3; stroke-dasharray: 8 4; }
+.link-if { fill: none; stroke: var(--lc, var(--primary)); stroke-width: 2.3; stroke-dasharray: 8 4; }
+.link-nocable { fill: none; stroke: var(--lc, #5b6b7d); stroke-width: 1.5; stroke-dasharray: 5 3; stroke-opacity: .85; }
 .link-cbl { fill: none; stroke: #2b3640; stroke-width: 1.35; }
 .link-ghost { fill: none; stroke: #a5afbb; stroke-width: 1.3; stroke-dasharray: 2 4; }
 .link-halo { fill: none; stroke-width: 9; stroke-linejoin: round; stroke-linecap: round; }
 .link-g:hover .link-if { stroke-width: 3.1; }
 .link-g:hover .link-cbl { stroke-width: 2.1; }
-.link-g.selected .link-if { stroke: #0b3d8f; stroke-width: 3.2; }
+.link-g.selected .link-if { stroke-width: 3.4; }
+.link-g.selected .link-nocable { stroke-width: 2.4; }
 .link-g.selected .link-cbl { stroke: #c45a00; stroke-width: 2.3; }
-.link-g.selected .link-halo { stroke: rgba(29,95,191,.13); }
-.link-g.related .link-if { stroke: #0b3d8f; }
+.link-g.selected .link-halo { stroke: var(--lc, #1d5fbf); stroke-opacity: .15; }
+.link-g.related .link-if { stroke-width: 2.9; }
 .link-g.related .link-cbl { stroke: #0d1822; stroke-width: 1.8; }
 .link-g.dim, .lbl.dim { opacity: .18; }
 .lbl { cursor: pointer; }
 .lbl rect { fill: #fff; stroke-width: .9; }
 .lbl text { font-size: 10.5px; font-weight: 600; }
 .lbl .lbl-id { font: 700 10px var(--mono); }
-.lbl.if rect { stroke: #8fb1e3; }
-.lbl.if text { fill: #123f80; }
+.lbl.if rect { stroke: var(--lc, #8fb1e3); stroke-opacity: .7; }
+.lbl.if text { fill: #16202d; }
+.lbl.if .lbl-id { fill: var(--lc, #123f80); }
 .lbl.cbl rect { stroke: #aab4bf; }
 .lbl.cbl text { fill: #1f2b38; }
 .lbl.ghost rect { stroke: #d0d6de; stroke-dasharray: 2 2; }
 .lbl.ghost text { fill: #6f7a88; font-style: italic; font-weight: 500; }
 .lbl.selected rect { stroke-width: 1.8; stroke: #c45a00; }
-.lbl.if.selected rect { stroke: #0b3d8f; }
+.lbl.if.selected rect { stroke: var(--lc, #0b3d8f); stroke-opacity: 1; }
 .lbl:hover rect { stroke-width: 1.6; }
 .lbl-leader { stroke: #7d8896; stroke-width: .9; stroke-dasharray: 2 2; fill: none; }
 .lbl-sep { stroke: #e1e5ea; stroke-width: .8; }
@@ -436,7 +457,9 @@ tr.port-edit > td { background: #f2f7fe; border-bottom: 1px solid #c9daf3; }
 .checklist .ck-id { font-family: var(--mono); font-weight: 700; white-space: nowrap; }
 .checklist .ck-text { color: var(--text-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .checklist .ck-empty { padding: 10px; color: var(--muted); }
-.quick-add { display: grid; grid-template-columns: 130px 1fr auto; gap: 6px; margin-top: 8px; }
+.checklist .ck-new { background: #f2f8f2; }
+.quick-add { display: grid; grid-template-columns: 130px 1fr; gap: 6px; margin-top: 8px; }
+.quick-add.two { grid-template-columns: 1fr auto; margin-top: 6px; }
 .link-list { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; }
 .link-item { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 5px; padding: 5px 8px; background: #fbfcfd; }
 .link-item.bad { border-color: #efb3b3; background: var(--err-bg); }
@@ -473,6 +496,26 @@ tr.port-edit > td { background: #f2f7fe; border-bottom: 1px solid #c9daf3; }
 .check-line { display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; padding: 8px 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
 .settings-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 .settings-grid textarea { min-height: 170px; font-size: 12px; }
+.set-title { font-size: 13.5px; margin: 16px 0 6px; color: var(--navy-800); }
+.set-title:first-child { margin-top: 0; }
+.cat-table td { vertical-align: top; }
+.cat-table textarea.inp { min-height: 54px; font-size: 12px; }
+.cat-table td:nth-child(2) { width: 22%; }
+.cat-table td:nth-child(4) { width: 42%; }
+.cat-color { width: 34px; height: 26px; padding: 0 2px; border: 1px solid var(--border); border-radius: 4px; background: #fff; cursor: pointer; }
+.help-link {
+  display: inline-flex; align-items: center; justify-content: center; width: 15px; height: 15px; margin-left: 5px; padding: 0;
+  border-radius: 50%; border: 1px solid var(--border-strong); background: #fff; color: var(--text-2); font-size: 10px; font-weight: 700; line-height: 1; cursor: pointer; vertical-align: 1px;
+}
+.help-link:hover { background: var(--navy-700); border-color: var(--navy-700); color: #fff; }
+.help-toc { display: flex; flex-wrap: wrap; gap: 4px; padding-bottom: 10px; margin-bottom: 4px; border-bottom: 1px solid var(--border); }
+.help { font-size: 13px; line-height: 1.5; }
+.help-sec { padding-top: 6px; }
+.help-sec h3 { font-size: 14px; margin: 12px 0 6px; color: var(--navy-800); }
+.help-sec ul { margin: 0 0 10px; padding-left: 20px; }
+.help-sec li { margin-bottom: 4px; }
+.help-table { margin: 4px 0 10px; }
+.inline-check { display: inline-flex; gap: 5px; align-items: center; white-space: nowrap; padding-top: 4px; cursor: pointer; }
 .err-log { font-family: var(--mono); font-size: 11.5px; white-space: pre-wrap; background: #f6f7f9; border: 1px solid var(--border); border-radius: 6px; padding: 8px; max-height: 300px; overflow: auto; }
 
 /* ---------- Toasts ---------- */
@@ -553,7 +596,7 @@ table.n2 td .chip { margin: 1px; }
     <span class="brand-logo">IDV</span>
     <div>
       <div class="brand-title">Interface Manager</div>
-      <div class="brand-sub" id="projectName">—</div>
+      <button type="button" class="brand-sub" id="projectName" title="Progetto aperto: clic per gestire i progetti">—</button>
     </div>
   </div>
   <nav class="main-nav" id="mainNav" aria-label="Sezioni">
@@ -568,11 +611,11 @@ table.n2 td .chip { margin: 1px; }
   <div class="header-tools">
     <button type="button" class="hbtn icon" id="btnUndo" title="Annulla l'ultima modifica (Ctrl+Z)" aria-label="Annulla">↶</button>
     <button type="button" class="hbtn icon" id="btnRedo" title="Ripeti la modifica annullata (Ctrl+Y)" aria-label="Ripeti">↷</button>
-    <button type="button" class="hbtn" id="btnExport" title="Scarica tutti i dati in formato JSON">Esporta JSON</button>
-    <button type="button" class="hbtn" id="btnImport" title="Carica un file JSON esportato in precedenza">Importa JSON</button>
-    <input type="file" id="fileImport" accept=".json,application/json" hidden>
-    <button type="button" class="hbtn" id="btnSettings" title="Nome progetto e liste di valori">Impostazioni</button>
-    <button type="button" class="hbtn" id="btnReset" title="Sostituisce i dati con lo schema dimostrativo">Ripristina esempio</button>
+    <span class="save-state" id="saveState" aria-live="polite">—</span>
+    <button type="button" class="hbtn" id="btnProjects" title="Crea, apri, duplica i progetti; versioni e file di progetto">Progetti</button>
+    <input type="file" id="fileProject" accept=".idvproj,.json,application/json" hidden>
+    <button type="button" class="hbtn" id="btnSettings" title="Progetto, utente, categorie di interfaccia e liste di valori">Impostazioni</button>
+    <button type="button" class="hbtn icon" id="btnHelp" title="Guida: significato dei campi e uso dello strumento" aria-label="Guida">?</button>
     <button type="button" class="app-status wait" id="appStatus"><span class="dot"></span><span class="st-text">Avvio in corso…</span></button>
   </div>
 </header>
@@ -596,9 +639,7 @@ table.n2 td .chip { margin: 1px; }
       <button type="button" class="btn" id="btnAddGroup">+ Gruppo</button>
       <span class="tb-sep"></span>
       <button type="button" class="btn" id="btnFit" title="Adatta lo schema alla finestra">Adatta</button>
-      <button type="button" class="btn" id="btnZoomOut" title="Riduci">Zoom −</button>
-      <span class="zoom-label" id="zoomLabel" title="Clic per tornare al 100%">100%</span>
-      <button type="button" class="btn" id="btnZoomIn" title="Ingrandisci">Zoom +</button>
+      <span class="zoom-label" id="zoomLabel" title="Zoom con la rotella del mouse o il gesto del trackpad · clic per tornare al 100%">100%</span>
       <span class="tb-sep"></span>
       <span class="flt-label">Mostra</span>
       <button type="button" class="btn toggle" id="btnTogglePorts" title="Mostra/Nascondi porte">Porte</button>
@@ -681,30 +722,50 @@ table.n2 td .chip { margin: 1px; }
    ===================================================================== */
 const APP = {
   format: 'IDV-Interface-Manager',
-  schema: 1,
-  modelKey: 'idv-interface-manager.model.v1',
-  uiKey: 'idv-interface-manager.ui.v1'
+  projectFormat: 'IDV-Interface-Manager-Project',
+  schema: 2,
+  legacyModelKey: 'idv-interface-manager.model.v1',
+  uiKey: 'idv-interface-manager.ui.v1',
+  dbName: 'idv-interface-manager'
 };
 
+/* Categorie di interfaccia predefinite. Ogni categoria ha sottotipi configurabili, un colore per la
+   lavagna e l'indicazione se è realizzata fisicamente da cavi (controllo "interfacce senza cavi"). */
+const DEFAULT_CATEGORIES = [
+  { name: 'Meccanica', color: '#7a5c2e', cables: false, subtypes: ['Statica', 'Dinamica'] },
+  { name: 'Elettrica', color: '#c4410c', cables: true, subtypes: ['Alimentazione', 'Segnale', 'Messa a terra', 'Schermatura / EMC', 'RF'] },
+  { name: 'Fluidica', color: '#0f8a7e', cables: false, subtypes: ['Liquidi', 'Raffreddamento', 'Aria / gas', 'Idraulica'] },
+  { name: 'Funzionale', color: '#1d5fbf', cables: true, subtypes: ['Scambio dati', 'Controllo', 'Comando', 'Monitoraggio'] }
+];
+const CATEGORY_COLORS = ['#1d5fbf', '#c4410c', '#0f8a7e', '#7a5c2e', '#6250d6', '#c2417a', '#008300', '#5b6b7d'];
 const DEFAULT_LISTS = {
   domains: ['System Integration', 'Vehicle Integration', 'C3/Comunicazioni', 'RF', 'Navigazione', 'Audio/Interfono', 'Power', 'HMI', 'Safety', 'Altro'],
   owners: ['System Integration', 'Vehicle Integration', 'C3 Integration', 'RF Integration', 'Navigation Integration', 'Electrical Integration', 'Verification Team', 'Supplier Radio', 'Supplier Antenna', 'Da assegnare'],
-  portTypes: ['Power', 'RF', 'Ethernet', 'Serial', 'Audio', 'Discrete', 'Video', 'Mechanical', 'Other'],
-  ifTypes: ['RS-232', 'RS-422', 'RS-485', 'Ethernet', 'CAN bus', 'MIL-STD-1553', 'RF', 'Audio analogico', 'Power DC', 'Controllo discreto', 'Video', 'Mechanical', 'Other'],
-  cableTypes: ['Twisted pair 120 Ω', 'Shielded twisted pair (STP)', 'Drain wire / shield', 'Cat5e SF/UTP', 'Cat6A S/FTP', 'Coax RG-58', 'Coax RG-142', 'Coax LMR-400', 'Power 2 x AWG16', 'Power 2 x AWG12', 'Multicore schermato', 'Fibra ottica'],
+  portTypes: ['Power', 'Ground', 'RF', 'Ethernet', 'Serial', 'Audio', 'Discrete', 'Video', 'Mechanical', 'Fluid', 'Other'],
+  ifCategories: DEFAULT_CATEGORIES,
+  protocols: ['RS-232', 'RS-422', 'RS-485', 'Ethernet 100BASE-TX', 'Ethernet 1000BASE-T', 'CAN bus', 'MIL-STD-1553B', 'ARINC 429', 'NMEA 0183',
+    'Discreto 28 V / aperto', '28 VDC (MIL-STD-1275)', '24 VDC', '115 VAC 400 Hz', 'Audio analogico', 'Video analogico', 'RF 50 Ω',
+    'Fissaggio a vite', 'Supporti antivibranti', 'Glicole 50% (circuito chiuso)', 'Raccordo rapido'],
+  cableTypes: ['Twisted pair 120 Ω', 'Shielded twisted pair (STP)', 'Drain wire / shield', 'Cat5e SF/UTP', 'Cat6A S/FTP', 'Coax RG-58', 'Coax RG-142', 'Coax LMR-400', 'Power 2 x AWG16', 'Power 2 x AWG12', 'Treccia di massa', 'Multicore schermato', 'Fibra ottica'],
   connectors: ['D-Sub 9 (DE-9)', 'D-Sub 15 (DA-15)', 'D-Sub 25 (DB-25)', 'D-Sub 9 shell', 'MIL-DTL-38999 Series III', 'MIL-DTL-26482', 'M12 D-coded', 'M12 X-coded', 'M12 A-coded', 'RJ45', 'TNC', 'N-type', 'SMA', 'BNC', 'Terminal block', 'Ring lug']
 };
+const SIMPLE_LISTS = ['domains', 'owners', 'portTypes', 'protocols', 'cableTypes', 'connectors'];
 const LIST_LABELS = {
-  domains: 'Domini', owners: 'Owner', portTypes: 'Tipi di porta', ifTypes: 'Tipi / protocolli di interfaccia',
+  domains: 'Domini', owners: 'Owner', portTypes: 'Tipi di porta', protocols: 'Protocolli / standard (suggerimenti)',
   cableTypes: 'Tipi di cavo (suggerimenti)', connectors: 'Connettori (suggerimenti)'
 };
+const PORT_SIDES = [
+  { value: 'auto', label: 'Automatico (lato verso il collegamento)' },
+  { value: 'L', label: 'Sempre a sinistra' },
+  { value: 'R', label: 'Sempre a destra' }
+];
 const DIRECTIONS = ['Input', 'Output', 'Bidirectional', 'Not applicable'];
 const DIR_ABBR = { 'Input': 'IN', 'Output': 'OUT', 'Bidirectional': 'I/O', 'Not applicable': '' };
 const STATUSES = ['Da verificare', 'Proposta', 'In revisione', 'Concordata', 'Baselined', 'Verified', 'Rejected'];
 const APPROVED_STATUSES = new Set(['Concordata', 'Baselined', 'Verified']);
 const SHIELDING = ['None', 'Overall shield', 'Individual pair shield', 'Overall + individual shield', 'Coaxial shield', 'Other'];
 const LENGTH_UNITS = ['m', 'cm', 'mm', 'ft', 'in'];
-const REQ_TYPES = ['Interface', 'Performance', 'Cable', 'Connector', 'Pinout', 'Power', 'EMC', 'Safety', 'Installation', 'Verification'];
+const REQ_TYPES = ['Interface', 'Performance', 'Cable', 'Connector', 'Pinout', 'Power', 'EMC', 'Safety', 'Installation', 'Mechanical', 'Fluidic', 'Verification'];
 const REQ_ORIGINS = ['Customer', 'System derived', 'Interface analysis', 'Supplier', 'Standard', 'Design decision'];
 const REQ_METHODS = ['Test', 'Inspection', 'Analysis', 'Demonstration', 'Inspection + Test'];
 const REQ_STATUSES = ['Draft', 'Proposed', 'In review', 'Approved', 'Rejected', 'Verified'];
@@ -719,14 +780,35 @@ const DOMAIN_COLORS = {
   'HMI': '#e06a2c', 'Safety': '#8c1d18', 'Altro': '#6f7c8c'
 };
 const PORT_ABBR = {
-  'Power': 'PWR', 'RF': 'RF', 'Ethernet': 'ETH', 'Serial': 'SER', 'Audio': 'AUD',
-  'Discrete': 'DSC', 'Video': 'VID', 'Mechanical': 'MEC', 'Other': 'OTH'
+  'Power': 'PWR', 'Ground': 'GND', 'RF': 'RF', 'Ethernet': 'ETH', 'Serial': 'SER', 'Audio': 'AUD',
+  'Discrete': 'DSC', 'Video': 'VID', 'Mechanical': 'MEC', 'Fluid': 'FLD', 'Other': 'OTH'
 };
-/* Coerenza fra protocollo dell'interfaccia e tipo di porta (controllo di qualità, solo avviso). */
-const IF_PORT_COMPAT = {
-  'RS-232': ['Serial'], 'RS-422': ['Serial'], 'RS-485': ['Serial'], 'Ethernet': ['Ethernet'],
-  'CAN bus': ['Serial'], 'MIL-STD-1553': ['Serial'], 'RF': ['RF'], 'Audio analogico': ['Audio'],
-  'Power DC': ['Power'], 'Controllo discreto': ['Discrete'], 'Video': ['Video'], 'Mechanical': ['Mechanical']
+/* Coerenza fra categoria/sottotipo dell'interfaccia e tipo di porta (solo avviso; per le categorie
+   predefinite). '*' vale per i sottotipi non elencati. */
+const CAT_PORT_COMPAT = {
+  'Meccanica': { '*': ['Mechanical', 'Ground'] },
+  'Fluidica': { '*': ['Fluid'] },
+  'Elettrica': {
+    'Alimentazione': ['Power'], 'Messa a terra': ['Ground', 'Power', 'Mechanical'], 'RF': ['RF'],
+    'Segnale': ['Discrete', 'Serial', 'Audio', 'Video', 'RF', 'Ethernet'],
+    '*': ['Power', 'Ground', 'Discrete', 'Serial', 'Audio', 'Video', 'RF', 'Ethernet']
+  },
+  'Funzionale': { '*': ['Serial', 'Ethernet', 'Discrete', 'RF', 'Audio', 'Video'] }
+};
+/* Categoria proposta quando si crea un'interfaccia partendo da una porta */
+const PORT_DEFAULT_CAT = {
+  'Power': ['Elettrica', 'Alimentazione'], 'Ground': ['Elettrica', 'Messa a terra'], 'RF': ['Elettrica', 'RF'],
+  'Audio': ['Elettrica', 'Segnale'], 'Video': ['Elettrica', 'Segnale'], 'Mechanical': ['Meccanica', 'Statica'],
+  'Fluid': ['Fluidica', 'Liquidi'], 'Serial': ['Funzionale', 'Scambio dati'], 'Ethernet': ['Funzionale', 'Scambio dati'],
+  'Discrete': ['Funzionale', 'Comando']
+};
+/* Migrazione dal vecchio campo "Tipo / protocollo" (schema 1) */
+const LEGACY_IF_TYPES = {
+  'RS-232': ['Funzionale', 'Scambio dati', 'RS-232'], 'RS-422': ['Funzionale', 'Scambio dati', 'RS-422'], 'RS-485': ['Funzionale', 'Scambio dati', 'RS-485'],
+  'Ethernet': ['Funzionale', 'Scambio dati', 'Ethernet'], 'CAN bus': ['Funzionale', 'Scambio dati', 'CAN bus'], 'MIL-STD-1553': ['Funzionale', 'Scambio dati', 'MIL-STD-1553B'],
+  'RF': ['Elettrica', 'RF', ''], 'Audio analogico': ['Elettrica', 'Segnale', 'Audio analogico'], 'Power DC': ['Elettrica', 'Alimentazione', 'Power DC'],
+  'Controllo discreto': ['Funzionale', 'Comando', 'Discreto'], 'Video': ['Elettrica', 'Segnale', 'Video'], 'Mechanical': ['Meccanica', 'Statica', ''],
+  'Other': ['Funzionale', '', '']
 };
 const KIND_IT = { group: 'Gruppo funzionale', component: 'Componente', port: 'Porta', interface: 'Interfaccia', cable: 'Cavo', requirement: 'Requisito' };
 const KIND_EN = { interface: 'Interface', cable: 'Cable', component: 'Component', port: 'Port' };
@@ -853,10 +935,11 @@ const ui = {
 function buildDemo() {
   let n = 0;
   const U = (p) => p + '_demo' + (++n).toString(36);
-  const port = (id, label, type, direction, notes) => ({ uid: U('p'), id, label, type, direction, notes: notes || '' });
+  const port = (id, label, type, direction, notes) => ({ uid: U('p'), id, label, type, direction, side: 'auto', notes: notes || '' });
   const gNav = { uid: U('g'), id: 'GF-NAV', name: 'Navigazione', description: 'Posizionamento e riferimento di tempo.', color: '#008300', owner: 'Navigation Integration' };
   const gVet = { uid: U('g'), id: 'GF-VET', name: 'Vetronica di base', description: 'Distribuzione energia e controllo del veicolo.', color: '#2a78d6', owner: 'Vehicle Integration' };
   const gC3 = { uid: U('g'), id: 'GF-C3HMI', name: 'C3 e postazione operatore', description: 'Comunicazioni tattiche e interfaccia uomo-macchina.', color: '#6250d6', owner: 'C3 Integration' };
+  const gPlt = { uid: U('g'), id: 'GF-PIATT', name: 'Piattaforma e servizi', description: 'Struttura del vano equipaggio e raffreddamento a liquido.', color: '#5b6b7d', owner: 'Vehicle Integration' };
   const comp = (id, name, description, domain, owner, supplier, status, x, y, group, ports) =>
     ({ uid: U('c'), id, name, description, domain, owner, supplier, status, x, y, groupUid: group ? group.uid : null, ports });
 
@@ -874,25 +957,43 @@ function buildDemo() {
   const HMI = comp('HMI', 'Operator Display', 'Display multifunzione della postazione operatore.', 'HMI', 'Vehicle Integration', 'Fornitore C', 'In revisione', 940, 40, gC3, [
     port('J1', '28 VDC POWER', 'Power', 'Input'),
     port('J2', 'RS-422 CONTROL', 'Serial', 'Bidirectional'),
-    port('J3', 'VIDEO INPUT', 'Video', 'Input')]);
+    port('J3', 'VIDEO INPUT', 'Video', 'Input'),
+    port('M1', 'MOUNTING POINTS', 'Mechanical', 'Not applicable', '4 fori M5 + 2 spine di centraggio'),
+    port('G1', 'GROUND STUD', 'Ground', 'Not applicable')]);
   const GPS = comp('GPS', 'GPS Receiver', 'Ricevitore GNSS per posizione, velocità e tempo.', 'Navigazione', 'Navigation Integration', 'Fornitore D', 'Proposta', 40, 312, gNav, [
     port('J1', '28 VDC POWER', 'Power', 'Input'),
     port('J2', 'SERIAL DATA', 'Serial', 'Output'),
     port('J3', 'RF ANTENNA', 'RF', 'Input')]);
-  const RAD = comp('RAD', 'Tactical Radio', 'Radio tattica V/UHF con interfaccia dati IP.', 'C3/Comunicazioni', 'C3 Integration', 'Supplier Radio', 'Da verificare', 940, 334, gC3, [
+  const RAD = comp('RAD', 'Tactical Radio', 'Radio tattica V/UHF con interfaccia dati IP, raffreddata a liquido.', 'C3/Comunicazioni', 'C3 Integration', 'Supplier Radio', 'Da verificare', 940, 334, gC3, [
     port('J1', '28 VDC POWER', 'Power', 'Input'),
     port('J2', 'ETHERNET DATA', 'Ethernet', 'Bidirectional'),
     port('J3', 'RF ANTENNA', 'RF', 'Bidirectional'),
-    port('J4', 'AUDIO', 'Audio', 'Bidirectional')]);
+    port('J4', 'AUDIO', 'Audio', 'Bidirectional'),
+    port('M1', 'MOUNTING TRAY', 'Mechanical', 'Not applicable'),
+    port('F1', 'COOLANT IN', 'Fluid', 'Input'),
+    port('F2', 'COOLANT OUT', 'Fluid', 'Output')]);
+  const STR = comp('STR', 'Crew Compartment Structure', 'Struttura del vano equipaggio: punti di fissaggio e massa.', 'Vehicle Integration', 'Vehicle Integration', 'Fornitore veicolo', 'Concordata', 1400, 106, gPlt, [
+    port('M1', 'HMI MOUNTING', 'Mechanical', 'Not applicable'),
+    port('G1', 'GROUND STUD', 'Ground', 'Not applicable'),
+    port('M2', 'RADIO RACK', 'Mechanical', 'Not applicable')]);
+  const CLU = comp('CLU', 'Liquid Cooling Unit', 'Unità di raffreddamento a liquido per l’elettronica di missione.', 'Altro', 'Vehicle Integration', 'Fornitore E', 'Proposta', 1400, 444, gPlt, [
+    port('F1', 'COOLANT SUPPLY', 'Fluid', 'Output'),
+    port('F2', 'COOLANT RETURN', 'Fluid', 'Input'),
+    port('J1', '28 VDC POWER', 'Power', 'Input')]);
   const P = (c, id) => c.ports.find((p) => p.id === id).uid;
-  const iface = (id, name, a, pa, b, pb, type, description, owner, status) =>
-    ({ uid: U('i'), id, name, compA: a.uid, portA: P(a, pa), compB: b.uid, portB: P(b, pb), type, description, owner, status });
-  const IF_CTRL = iface('IF-CTRL-01', 'VCU to Display control interface', VCU, 'J2', HMI, 'J2', 'RS-422', 'Comandi operatore, stati e allarmi scambiati in full-duplex fra VCU e display.', 'Vehicle Integration', 'Concordata');
-  const IF_GPS = iface('IF-GPS-01', 'GPS position data to VCU', GPS, 'J2', VCU, 'J3', 'RS-232', 'Messaggi NMEA 0183 di posizione, velocità e tempo (1 Hz).', 'Navigation Integration', 'In revisione');
-  const IF_RAD = iface('IF-RADIO-01', 'VCU to Tactical Radio data link', VCU, 'J4', RAD, 'J2', 'Ethernet', 'Traffico dati IP fra VCU e radio tattica.', 'C3 Integration', 'Proposta');
-  const IF_PV = iface('IF-PWR-VCU', 'VCU 28 VDC supply', PDU, 'J2', VCU, 'J1', 'Power DC', 'Alimentazione 28 VDC nominali, 10 A max.', 'Electrical Integration', 'Baselined');
-  const IF_PH = iface('IF-PWR-HMI', 'Display 28 VDC supply', PDU, 'J3', HMI, 'J1', 'Power DC', 'Alimentazione 28 VDC nominali, 4 A max.', 'Electrical Integration', 'Concordata');
-  const IF_PR = iface('IF-PWR-RAD', 'Radio 28 VDC supply', PDU, 'J4', RAD, 'J1', 'Power DC', 'Alimentazione 28 VDC nominali, 15 A max in trasmissione.', 'Electrical Integration', 'Da verificare');
+  const iface = (id, name, a, pa, b, pb, cls, description, owner, status) =>
+    ({ uid: U('i'), id, name, compA: a.uid, portA: P(a, pa), compB: b.uid, portB: P(b, pb), category: cls[0], subtype: cls[1], protocol: cls[2], description, owner, status });
+  const IF_CTRL = iface('IF-CTRL-01', 'VCU to Display control interface', VCU, 'J2', HMI, 'J2', ['Funzionale', 'Controllo', 'RS-422'], 'Comandi operatore, stati e allarmi scambiati in full-duplex fra VCU e display.', 'Vehicle Integration', 'Concordata');
+  const IF_GPS = iface('IF-GPS-01', 'GPS position data to VCU', GPS, 'J2', VCU, 'J3', ['Funzionale', 'Scambio dati', 'RS-232 · NMEA 0183'], 'Messaggi NMEA 0183 di posizione, velocità e tempo (1 Hz).', 'Navigation Integration', 'In revisione');
+  const IF_RAD = iface('IF-RADIO-01', 'VCU to Tactical Radio data link', VCU, 'J4', RAD, 'J2', ['Funzionale', 'Scambio dati', 'Ethernet 100BASE-TX'], 'Traffico dati IP fra VCU e radio tattica.', 'C3 Integration', 'Proposta');
+  const IF_PV = iface('IF-PWR-VCU', 'VCU 28 VDC supply', PDU, 'J2', VCU, 'J1', ['Elettrica', 'Alimentazione', '28 VDC (MIL-STD-1275)'], 'Alimentazione 28 VDC nominali, 10 A max.', 'Electrical Integration', 'Baselined');
+  const IF_PH = iface('IF-PWR-HMI', 'Display 28 VDC supply', PDU, 'J3', HMI, 'J1', ['Elettrica', 'Alimentazione', '28 VDC (MIL-STD-1275)'], 'Alimentazione 28 VDC nominali, 4 A max.', 'Electrical Integration', 'Concordata');
+  const IF_PR = iface('IF-PWR-RAD', 'Radio 28 VDC supply', PDU, 'J4', RAD, 'J1', ['Elettrica', 'Alimentazione', '28 VDC (MIL-STD-1275)'], 'Alimentazione 28 VDC nominali, 15 A max in trasmissione.', 'Electrical Integration', 'Da verificare');
+  const IF_MH = iface('IF-MEC-HMI', 'Display mounting', HMI, 'M1', STR, 'M1', ['Meccanica', 'Statica', 'Fissaggio a vite'], 'Fissaggio rigido del display alla struttura: 4 viti M5, 2 spine di centraggio, coppia 5 N·m.', 'Vehicle Integration', 'Concordata');
+  const IF_MR = iface('IF-MEC-RAD', 'Radio shock-mounted tray', RAD, 'M1', STR, 'M2', ['Meccanica', 'Dinamica', 'Supporti antivibranti'], 'Vassoio su supporti antivibranti: isolamento da urti e vibrazioni del veicolo.', 'Vehicle Integration', 'In revisione');
+  const IF_GH = iface('IF-GND-HMI', 'Display ground bonding', HMI, 'G1', STR, 'G1', ['Elettrica', 'Messa a terra', 'Resistenza di bonding ≤ 2.5 mΩ'], 'Collegamento di massa del display alla struttura.', 'Electrical Integration', 'Concordata');
+  const IF_CS = iface('IF-COOL-SUP', 'Radio coolant supply', CLU, 'F1', RAD, 'F1', ['Fluidica', 'Raffreddamento', 'Glicole 50% (circuito chiuso)'], 'Mandata del refrigerante alla radio: 2 l/min, 25 °C max.', 'Vehicle Integration', 'Proposta');
+  const IF_CR = iface('IF-COOL-RET', 'Radio coolant return', RAD, 'F2', CLU, 'F2', ['Fluidica', 'Raffreddamento', 'Glicole 50% (circuito chiuso)'], 'Ritorno del refrigerante all’unità di raffreddamento.', 'Vehicle Integration', 'Proposta');
 
   const pin = (pinA, sigA, pinB, sigB, wire) => ({ pinA, sigA, pinB, sigB, wire: wire || '' });
   const cable = (id, f, name, type, connA, connB, pinout, length, shielding, partNumber, notes, status, reverse) => ({
@@ -917,31 +1018,47 @@ function buildDemo() {
     cable('CBL-PWR-HMI', IF_PH, '28 VDC display feed', 'Power 2 x AWG16', 'MIL-DTL-38999 Series III', '',
       [pin('A', '+28V', '1', '+28V', 'RD'), pin('B', 'RTN', '2', 'RTN', 'BK')], 2.6, 'None', 'SPEC-CBL-PWR-16', 'Connettore lato display da confermare.', 'Proposta'),
     cable('CBL-PWR-RAD', IF_PR, '28 VDC radio feed', 'Power 2 x AWG12', 'MIL-DTL-38999 Series III', 'MIL-DTL-38999 Series III',
-      [pin('A', '+28V', 'A', '+28V', 'RD'), pin('B', 'RTN', 'B', 'RTN', 'BK')], 3, 'None', 'SPEC-CBL-PWR-12', '', 'Da verificare')
+      [pin('A', '+28V', 'A', '+28V', 'RD'), pin('B', 'RTN', 'B', 'RTN', 'BK')], 3, 'None', 'SPEC-CBL-PWR-12', '', 'Da verificare'),
+    cable('CBL-GND-HMI', IF_GH, 'Ground strap', 'Treccia di massa', 'Ring lug', 'Ring lug',
+      [pin('G1', 'GND', 'G1', 'CHASSIS', 'Treccia')], 0.3, 'None', 'SPEC-GND-STRAP-01', '', 'Concordata')
   ];
   const lk = (kind, obj) => ({ kind, uid: obj.uid });
   const lkPort = (c, pid) => ({ kind: 'port', uid: P(c, pid) });
   const C = (id) => cables.find((c) => c.id === id);
-  const req = (id, text, type, origin, links, method, owner, status, notes) => ({ uid: U('r'), id, text, type, origin, links, method, owner, status, notes: notes || '' });
+  const req = (id, title, text, type, origin, links, method, owner, status, shareable, notes) =>
+    ({ uid: U('r'), id, title, text, type, origin, links, method, owner, status, shareable: !!shareable, notes: notes || '' });
   const requirements = [
-    req('IRS-CTRL-001', 'The control interface shall support full-duplex RS-422 communication.', 'Interface', 'Customer', [lk('interface', IF_CTRL)], 'Test', 'Vehicle Integration', 'Approved'),
-    req('IRS-CTRL-002', 'The Operator Display shall receive control updates within 100 ms.', 'Performance', 'System derived', [lk('interface', IF_CTRL)], 'Test', 'Vehicle Integration', 'Proposed'),
-    req('CAB-CTRL-001', 'The transmit pair shall have a nominal differential impedance of 120 ohm.', 'Cable', 'Interface analysis', [lk('cable', C('CBL-CTRL-TX'))], 'Inspection + Test', 'Electrical Integration', 'Proposed'),
-    req('EMC-CTRL-001', 'The cable shield shall be terminated 360 degrees at the connector shell.', 'EMC', 'Standard', [lk('cable', C('CBL-CTRL-SH'))], 'Inspection', 'Electrical Integration', 'Proposed'),
-    req('IRS-C3-001', 'The radio data interface shall support 100BASE-TX Ethernet.', 'Interface', 'Customer', [lk('interface', IF_RAD)], 'Test', 'C3 Integration', 'Proposed'),
-    req('IRS-PWR-001', 'The PDU shall provide 28 VDC nominal power to the VCU.', 'Power', 'System derived', [lk('interface', IF_PV)], 'Test', 'Electrical Integration', 'Approved'),
-    req('IRS-GPS-001', 'The GPS receiver shall output NMEA 0183 position messages at a rate of at least 1 Hz.', 'Interface', 'Supplier', [lk('interface', IF_GPS)], 'Test', 'Navigation Integration', 'Draft'),
-    req('CON-PWR-001', 'PDU power output connectors shall be MIL-DTL-38999 Series III with keyed inserts.', 'Connector', 'Design decision', [lkPort(PDU, 'J2'), lkPort(PDU, 'J3'), lkPort(PDU, 'J4')], 'Inspection', 'Electrical Integration', 'In review', 'Evita inversioni di connessione fra le uscite di potenza.')
+    req('IRS-CTRL-001', 'Comunicazione full-duplex RS-422', 'The control interface shall support full-duplex RS-422 communication.', 'Interface', 'Customer', [lk('interface', IF_CTRL)], 'Test', 'Vehicle Integration', 'Approved', false),
+    req('IRS-CTRL-002', 'Latenza degli aggiornamenti di controllo', 'The Operator Display shall receive control updates within 100 ms.', 'Performance', 'System derived', [lk('interface', IF_CTRL)], 'Test', 'Vehicle Integration', 'Proposed', false),
+    req('CAB-CTRL-001', 'Impedenza della coppia di trasmissione', 'The transmit pair shall have a nominal differential impedance of 120 ohm.', 'Cable', 'Interface analysis', [lk('cable', C('CBL-CTRL-TX'))], 'Inspection + Test', 'Electrical Integration', 'Proposed', true),
+    req('EMC-CTRL-001', 'Terminazione dello schermo a 360°', 'The cable shield shall be terminated 360 degrees at the connector shell.', 'EMC', 'Standard', [lk('cable', C('CBL-CTRL-SH'))], 'Inspection', 'Electrical Integration', 'Proposed', true),
+    req('IRS-C3-001', 'Interfaccia dati radio 100BASE-TX', 'The radio data interface shall support 100BASE-TX Ethernet.', 'Interface', 'Customer', [lk('interface', IF_RAD)], 'Test', 'C3 Integration', 'Proposed', true),
+    req('IRS-PWR-001', 'Alimentazione 28 VDC alla VCU', 'The PDU shall provide 28 VDC nominal power to the VCU.', 'Power', 'System derived', [lk('interface', IF_PV)], 'Test', 'Electrical Integration', 'Approved', false),
+    req('IRS-GPS-001', 'Frequenza dei messaggi NMEA', 'The GPS receiver shall output NMEA 0183 position messages at a rate of at least 1 Hz.', 'Interface', 'Supplier', [lk('interface', IF_GPS)], 'Test', 'Navigation Integration', 'Draft', false),
+    req('CON-PWR-001', 'Connettori di potenza codificati', 'PDU power output connectors shall be MIL-DTL-38999 Series III with keyed inserts.', 'Connector', 'Design decision', [lkPort(PDU, 'J2'), lkPort(PDU, 'J3'), lkPort(PDU, 'J4')], 'Inspection', 'Electrical Integration', 'In review', true, 'Evita inversioni di connessione fra le uscite di potenza.'),
+    req('MEC-HMI-001', 'Fissaggio del display', 'The Operator Display shall be secured to the structure with four M5 screws and two locating pins.', 'Mechanical', 'Design decision', [lk('interface', IF_MH)], 'Inspection', 'Vehicle Integration', 'Approved', true),
+    req('GND-HMI-001', 'Resistenza di bonding del display', 'The bonding resistance between the display case and the structure shall not exceed 2.5 mΩ.', 'EMC', 'Standard', [lk('interface', IF_GH)], 'Test', 'Electrical Integration', 'Approved', true),
+    req('FLU-RAD-001', 'Portata del refrigerante', 'The cooling unit shall supply at least 2 l/min of coolant to the Tactical Radio.', 'Fluidic', 'System derived', [lk('interface', IF_CS)], 'Test', 'Vehicle Integration', 'Proposed', true)
   ];
   return {
     schema: APP.schema,
-    meta: { name: 'Schema dimostrativo IDV', created: new Date().toISOString(), modified: new Date().toISOString() },
+    meta: { name: 'Schema dimostrativo IDV', program: 'Programma dimostrativo', created: new Date().toISOString(), modified: new Date().toISOString() },
     lists: clone(DEFAULT_LISTS),
-    groups: [gNav, gVet, gC3],
-    components: [PDU, VCU, HMI, GPS, RAD],
-    interfaces: [IF_CTRL, IF_GPS, IF_RAD, IF_PV, IF_PH, IF_PR],
+    groups: [gNav, gVet, gC3, gPlt],
+    components: [PDU, VCU, HMI, GPS, RAD, STR, CLU],
+    interfaces: [IF_CTRL, IF_GPS, IF_RAD, IF_PV, IF_PH, IF_PR, IF_MH, IF_MR, IF_GH, IF_CS, IF_CR],
     cables,
     requirements,
+    routing: { interfaces: {}, cables: {} }
+  };
+}
+/* Progetto vuoto (nuovo programma) */
+function buildEmpty(name, program) {
+  return {
+    schema: APP.schema,
+    meta: { name: name || 'Nuovo progetto', program: program || '', created: new Date().toISOString(), modified: new Date().toISOString() },
+    lists: clone(DEFAULT_LISTS),
+    groups: [], components: [], interfaces: [], cables: [], requirements: [],
     routing: { interfaces: {}, cables: {} }
   };
 }
@@ -1009,7 +1126,7 @@ function objLabel(kind, uid) {
   const o = getObj(kind, uid);
   if (!o) return null;
   switch (kind) {
-    case 'interface': return 'Interface | ' + o.id + ' | ' + (o.name || o.type || '');
+    case 'interface': return 'Interface | ' + o.id + ' | ' + (o.name || ifClassText(o));
     case 'cable': return 'Cable | ' + o.id + ' | ' + (o.name || o.type || '');
     case 'component': return 'Component | ' + o.id + ' | ' + (o.name || '');
     case 'port': return 'Port | ' + portFull(uid) + ' | ' + (o.label || '');
@@ -1040,29 +1157,43 @@ function cableMatchesInterface(c, f) {
   if (!f) return false;
   return (c.portA === f.portA && c.portB === f.portB) || (c.portA === f.portB && c.portB === f.portA);
 }
-function portTypeCompatible(ifType, portType) {
-  const allowed = IF_PORT_COMPAT[ifType];
-  if (!allowed || !portType || portType === 'Other') return true;
-  return allowed.includes(portType);
+/* Interfaccia fra componenti di domini tecnici diversi: tipicamente la più critica per l'integrazione */
+function isCrossDomain(f) {
+  const a = idx.comp.get(f.compA), b = idx.comp.get(f.compB);
+  return !!(a && b && a.domain && b.domain && a.domain !== b.domain);
+}
+function categoryOf(name) { return (state.lists.ifCategories || []).find((c) => c.name === name) || null; }
+function categoryColor(name) {
+  const c = categoryOf(name);
+  if (c && /^#[0-9a-f]{3,8}$/i.test(str(c.color))) return c.color;
+  let hsh = 0;
+  for (const ch of str(name)) hsh = (hsh * 31 + ch.charCodeAt(0)) >>> 0;
+  return CATEGORY_COLORS[hsh % CATEGORY_COLORS.length];
+}
+function categoryNeedsCables(name) { const c = categoryOf(name); return c ? c.cables !== false : true; }
+function subtypesOf(name) { const c = categoryOf(name); return c ? c.subtypes.slice() : []; }
+/* "Controllo · RS-422": sottotipo e protocollo (la categoria è data dal colore) */
+function ifTypeText(f) { return [f.subtype, f.protocol].filter((x) => str(x).trim()).join(' · ') || f.category || '—'; }
+/* "Funzionale / Controllo · RS-422" */
+function ifClassText(f) { return [f.category, f.subtype].filter((x) => str(x).trim()).join(' / ') + (str(f.protocol).trim() ? ' · ' + f.protocol : ''); }
+function portCompatible(cat, sub, portType) {
+  if (!portType || portType === 'Other') return true;
+  const c = CAT_PORT_COMPAT[cat];
+  if (!c) return true;
+  const list = c[sub] || c['*'];
+  return !list || list.includes(portType);
 }
 
 /* =====================================================================
-   6. PERSISTENZA (localStorage) E STORICO MODIFICHE
+   6. STORICO MODIFICHE E PREFERENZE DI VISUALIZZAZIONE
    ===================================================================== */
 const history = { past: [], future: [], max: 80 };
 function snapshot() { return JSON.stringify(state); }
-function saveModel() {
-  try {
-    localStorage.setItem(APP.modelKey, JSON.stringify(state));
-  } catch (e) {
-    toast('Impossibile salvare nel localStorage: ' + e.message, 'err', 8000);
-  }
-}
 function saveUi() {
   try {
     localStorage.setItem(APP.uiKey, JSON.stringify({
       section: ui.section, mode: ui.mode, zoom: ui.zoom, panX: ui.panX, panY: ui.panY, fitted: ui.fitted,
-      showPorts: ui.showPorts, showGroups: ui.showGroups, showLabels: ui.showLabels
+      showPorts: ui.showPorts, showGroups: ui.showGroups, showLabels: ui.showLabels, user: prefs.user
     }));
   } catch (e) { /* preferenze non critiche */ }
 }
@@ -1082,24 +1213,11 @@ function loadUi() {
       ui.showPorts = u.showPorts !== false;
       ui.showGroups = u.showGroups !== false;
       ui.showLabels = u.showLabels !== false;
+      if (typeof u.user === 'string') prefs.user = u.user.slice(0, 80);
       return true;
     }
   } catch (e) { /* ignora */ }
   return false;
-}
-function loadModel() {
-  let raw = null;
-  try { raw = localStorage.getItem(APP.modelKey); } catch (e) { raw = null; }
-  if (raw) {
-    try {
-      const res = normalizeData(JSON.parse(raw));
-      if (!res.errors.length) return { data: res.data, source: 'storage' };
-      return { data: buildDemo(), source: 'invalid', detail: res.errors.join(' ') };
-    } catch (e) {
-      return { data: buildDemo(), source: 'invalid', detail: e.message };
-    }
-  }
-  return { data: buildDemo(), source: 'demo' };
 }
 /* Storico: ogni voce conserva lo stato completo (inclusi i percorsi) e una descrizione */
 function pushHistory(snap, label) {
@@ -1166,6 +1284,574 @@ function reportError(err) {
 }
 
 /* =====================================================================
+   6b. PROGETTI: archivio persistente nel browser (IndexedDB, con ripiego su
+   localStorage), salvataggio automatico, versioni, cestino, file di progetto
+   ===================================================================== */
+const prefs = { user: '' };
+let project = null;            // progetto aperto: { id, pending }
+let saveSeq = 0, savedSeq = 0, saveChain = Promise.resolve(), lastSavedAt = null, lastSaveError = null;
+let lastVersionAt = 0;
+const VERSION_EVERY_MS = 20 * 60 * 1000, MAX_AUTO_VERSIONS = 30;
+const EMERGENCY_KEY = 'idv-interface-manager.emergency';
+const TAB_ID = newUid('tab');
+const bc = window.BroadcastChannel ? new BroadcastChannel('idv-interface-manager') : null;
+let bcAsking = false, bcKeep = false;
+/* Esegue un'azione asincrona mostrando l'eventuale errore all'utente */
+const safely = (fn) => (...a) => Promise.resolve().then(() => fn(...a)).catch(reportError);
+
+const Store = (() => {
+  let db = null, mode = 'none';
+  const P = 'idv-store.';
+  const mem = { projects: new Map(), versions: new Map(), meta: new Map() };
+  const KEY = { projects: 'id', versions: 'vid', meta: 'key' };
+  const PREF = { projects: 'p.', versions: 'v.', meta: 'm.' };
+  const req = (r) => new Promise((res, rej) => { r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  const done = (t) => new Promise((res, rej) => { t.oncomplete = () => res(); t.onerror = () => rej(t.error); t.onabort = () => rej(t.error || new Error('scrittura annullata (spazio esaurito?)')); });
+  const lsKeys = (pref) => { const out = []; for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.indexOf(P + pref) === 0) out.push(k); } return out; };
+  async function get(store, key) {
+    if (mode === 'idb') return (await req(db.transaction(store).objectStore(store).get(key))) || null;
+    if (mode === 'ls') { const v = localStorage.getItem(P + PREF[store] + key); return v ? JSON.parse(v) : null; }
+    return mem[store].has(key) ? clone(mem[store].get(key)) : null;
+  }
+  async function put(store, value) {
+    if (mode === 'idb') { const t = db.transaction(store, 'readwrite'); t.objectStore(store).put(value); return done(t); }
+    if (mode === 'ls') { localStorage.setItem(P + PREF[store] + value[KEY[store]], JSON.stringify(value)); return undefined; }
+    mem[store].set(value[KEY[store]], clone(value));
+    return undefined;
+  }
+  async function del(store, key) {
+    if (mode === 'idb') { const t = db.transaction(store, 'readwrite'); t.objectStore(store).delete(key); return done(t); }
+    if (mode === 'ls') { localStorage.removeItem(P + PREF[store] + key); return undefined; }
+    mem[store].delete(key);
+    return undefined;
+  }
+  async function all(store) {
+    if (mode === 'idb') return req(db.transaction(store).objectStore(store).getAll());
+    if (mode === 'ls') return lsKeys(PREF[store]).map((k) => JSON.parse(localStorage.getItem(k)));
+    return [...mem[store].values()].map(clone);
+  }
+  const strip = (r) => { const o = Object.assign({}, r); delete o.json; return o; };
+  return {
+    get mode() { return mode; },
+    async init() {
+      try {
+        if (!window.indexedDB) throw new Error('IndexedDB non disponibile');
+        db = await new Promise((res, rej) => {
+          const r = indexedDB.open(APP.dbName, 1);
+          r.onupgradeneeded = () => {
+            const d = r.result;
+            if (!d.objectStoreNames.contains('projects')) d.createObjectStore('projects', { keyPath: 'id' });
+            if (!d.objectStoreNames.contains('versions')) d.createObjectStore('versions', { keyPath: 'vid' }).createIndex('projectId', 'projectId');
+            if (!d.objectStoreNames.contains('meta')) d.createObjectStore('meta', { keyPath: 'key' });
+          };
+          r.onsuccess = () => res(r.result);
+          r.onerror = () => rej(r.error);
+          r.onblocked = () => rej(new Error('archivio bloccato da un’altra finestra'));
+        });
+        db.onversionchange = () => db.close();
+        mode = 'idb';
+      } catch (e) {
+        try { localStorage.setItem(P + 'probe', '1'); localStorage.removeItem(P + 'probe'); mode = 'ls'; } catch (e2) { mode = 'memory'; }
+      }
+      return mode;
+    },
+    async listProjects() { return (await all('projects')).map(strip); },
+    getProject: (id) => get('projects', id),
+    putProject: (rec) => put('projects', rec),
+    async deleteProject(id) {
+      await del('projects', id);
+      const vs = await this.listVersions(id);
+      for (const v of vs) await del('versions', v.vid);
+    },
+    async listVersions(pid) {
+      let list;
+      if (mode === 'idb') list = await req(db.transaction('versions').objectStore('versions').index('projectId').getAll(pid));
+      else list = (await all('versions')).filter((v) => v.projectId === pid);
+      return list.map(strip).sort((a, b) => (a.at < b.at ? 1 : -1));
+    },
+    getVersion: (vid) => get('versions', vid),
+    putVersion: (v) => put('versions', v),
+    deleteVersion: (vid) => del('versions', vid),
+    async getMeta(key) { const r = await get('meta', key); return r ? r.value : null; },
+    setMeta: (key, value) => put('meta', { key, value })
+  };
+})();
+
+function storageLabel() {
+  return { idb: 'archivio del browser (IndexedDB)', ls: 'archivio del browser (localStorage, spazio limitato)', memory: 'memoria temporanea: i dati NON vengono conservati' }[Store.mode] || '—';
+}
+function projectCounts(st) {
+  return { groups: st.groups.length, components: st.components.length, interfaces: st.interfaces.length, cables: st.cables.length, requirements: st.requirements.length };
+}
+function projectRecord(id, st, extra) {
+  const now = new Date().toISOString();
+  return Object.assign({
+    id, name: st.meta.name || 'Progetto senza nome', program: st.meta.program || '', created: st.meta.created || now,
+    updated: now, updatedBy: prefs.user || '', counts: projectCounts(st), deleted: null, json: JSON.stringify(st)
+  }, extra || {});
+}
+function setSaveState(kind) {
+  const el = byId('saveState');
+  if (!el) return;
+  el.classList.toggle('err', kind === 'error');
+  el.classList.toggle('busy', kind === 'saving');
+  if (kind === 'saving') el.textContent = 'Salvataggio…';
+  else if (kind === 'error') el.textContent = '⚠ Non salvato';
+  else el.textContent = lastSavedAt ? '✓ Salvato ' + lastSavedAt.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '✓ Salvato';
+  el.title = (kind === 'error' ? 'Ultimo salvataggio non riuscito: ' + (lastSaveError && lastSaveError.message ? lastSaveError.message : '') + '\n' : '') +
+    'Salvataggio automatico ad ogni modifica nell’' + storageLabel() + '.\nPer una copia di sicurezza o per condividere il progetto: Progetti → Salva su file.';
+}
+/* Salvataggio automatico del progetto aperto: chiamato dopo ogni modifica */
+function saveModel() {
+  if (!project) return;
+  const seq = ++saveSeq;
+  if (prefs.user) state.meta.modifiedBy = prefs.user;
+  const rec = projectRecord(project.id, state);
+  project.pending = rec;
+  setSaveState('saving');
+  saveChain = saveChain.then(() => Store.putProject(rec)).then(() => {
+    savedSeq = Math.max(savedSeq, seq);
+    if (savedSeq === saveSeq) { if (project && project.id === rec.id) project.pending = null; lastSavedAt = new Date(); lastSaveError = null; setSaveState('saved'); }
+    if (bc) bc.postMessage({ type: 'saved', id: rec.id, tab: TAB_ID, at: rec.updated });
+    return maybeAutoVersion(rec);
+  }).catch((e) => {
+    lastSaveError = e;
+    setSaveState('error');
+    toast('Salvataggio non riuscito (' + (e && e.message ? e.message : e) + '). Salva subito una copia su file da “Progetti”.', 'err', 10000);
+  });
+  return saveChain;
+}
+function flushSave() { return saveChain.catch(() => {}); }
+/* Alla chiusura della pagina: se un salvataggio non è ancora concluso, se ne lascia una copia di emergenza */
+function writeEmergencyCopy() {
+  if (!project || !project.pending) return;
+  try { localStorage.setItem(EMERGENCY_KEY, JSON.stringify({ rec: project.pending })); } catch (e) { /* spazio esaurito */ }
+}
+async function addVersion(rec, note, auto) {
+  const v = { vid: newUid('v'), projectId: rec.id, at: new Date().toISOString(), by: prefs.user || '', note: note || '', auto: !!auto, name: rec.name, counts: rec.counts, json: rec.json };
+  await Store.putVersion(v);
+  lastVersionAt = Date.now();
+  const list = await Store.listVersions(rec.id);
+  const autos = list.filter((x) => x.auto);
+  for (const old of autos.slice(MAX_AUTO_VERSIONS)) await Store.deleteVersion(old.vid);
+  return v;
+}
+function maybeAutoVersion(rec) {
+  if (Date.now() - lastVersionAt < VERSION_EVERY_MS) return undefined;
+  return addVersion(rec, 'Salvataggio automatico', true);
+}
+/* Apertura di un progetto dall'archivio */
+async function openProject(id, opts) {
+  opts = opts || {};
+  await flushSave();
+  const rec = await Store.getProject(id);
+  if (!rec) throw new Error('progetto non trovato nell’archivio');
+  let res;
+  try { res = normalizeData(JSON.parse(rec.json)); } catch (e) { res = { errors: [e.message] }; }
+  if (res.errors && res.errors.length) {
+    showModal({ title: 'Progetto danneggiato', body: [h('p', null, 'Il progetto “' + rec.name + '” non può essere aperto: ' + res.errors.slice(0, 5).join(' ')), h('p', null, 'Puoi ripristinare una versione precedente da Progetti → Versioni.')] });
+    return false;
+  }
+  if (!opts.keepModal) closeModal(null);
+  closePanel(true);
+  project = { id: rec.id, pending: null };
+  bcKeep = false;
+  state = res.data;
+  state.meta.name = rec.name || state.meta.name;
+  history.past.length = 0; history.future.length = 0;
+  ui.selected = null; ui.sel = {}; ui.dashCat = null;
+  Object.keys(ui.filters).forEach((k) => {
+    ui.filters[k].q = '';
+    const inp = qs('#sec-' + k + ' input.search');
+    if (inp) inp.value = '';
+  });
+  rebuildIndex();
+  syncRoutes();
+  computeIssues();
+  lastSavedAt = rec.updated ? new Date(rec.updated) : null;
+  lastSaveError = null;
+  setSaveState('saved');
+  await Store.setMeta('lastProject', rec.id);
+  const versions = await Store.listVersions(rec.id);
+  lastVersionAt = versions.length ? Date.parse(versions[0].at) : 0;
+  if (!versions.length) await addVersion(rec, 'Versione iniziale', true);
+  if (!opts.keepView) ui.fitted = true;
+  renderAll();
+  if (ui.section === 'board' && !opts.keepView) fitView();
+  if (!opts.silent) toast('Progetto aperto: ' + rec.name, 'info');
+  return true;
+}
+async function createProject(name, program, template) {
+  const st = template === 'demo' ? buildDemo() : buildEmpty(name, program);
+  st.meta.name = name || st.meta.name;
+  st.meta.program = program || st.meta.program || '';
+  const id = newUid('prj');
+  const prev = state, prevIdx = idx;
+  // i percorsi si calcolano con il modello del nuovo progetto
+  state = st; rebuildIndex(); syncRoutes();
+  const rec = projectRecord(id, state, { created: new Date().toISOString() });
+  state = prev; idx = prevIdx;
+  await Store.putProject(rec);
+  await addVersion(rec, 'Creazione del progetto', false);
+  return id;
+}
+async function recoverEmergencyCopy() {
+  let em = null;
+  try { em = JSON.parse(localStorage.getItem(EMERGENCY_KEY) || 'null'); } catch (e) { em = null; }
+  if (!em || !em.rec || !em.rec.id) return;
+  const cur = await Store.getProject(em.rec.id);
+  if (!cur || (cur.updated || '') < (em.rec.updated || '')) {
+    await Store.putProject(em.rec);
+    toast('Recuperate le ultime modifiche del progetto “' + em.rec.name + '” non ancora salvate alla chiusura.', 'warn', 8000);
+  }
+  localStorage.removeItem(EMERGENCY_KEY);
+}
+/* Primo avvio: migra i dati della versione precedente (un solo schema nel browser) oppure crea l'esempio */
+async function migrateOrCreateFirstProject() {
+  let raw = null;
+  try { raw = localStorage.getItem(APP.legacyModelKey); } catch (e) { raw = null; }
+  if (raw) {
+    try {
+      const res = normalizeData(JSON.parse(raw));
+      if (!res.errors.length) {
+        const id = newUid('prj');
+        const prev = state, prevIdx = idx;
+        state = res.data; rebuildIndex(); syncRoutes();
+        const rec = projectRecord(id, state);
+        state = prev; idx = prevIdx;
+        await Store.putProject(rec);
+        await addVersion(rec, 'Migrazione dalla versione precedente', false);
+        localStorage.removeItem(APP.legacyModelKey);
+        toast('I dati salvati in precedenza sono stati convertiti nel progetto “' + rec.name + '”.', 'info', 8000);
+        return id;
+      }
+    } catch (e) { /* dati vecchi illeggibili: si crea l'esempio */ }
+  }
+  return createProject('Schema dimostrativo IDV', 'Programma dimostrativo', 'demo');
+}
+async function requestPersistentStorage() {
+  try {
+    if (navigator.storage && navigator.storage.persist) {
+      const already = await navigator.storage.persisted();
+      if (!already) await navigator.storage.persist();
+    }
+  } catch (e) { /* non supportato */ }
+}
+async function storageStatus() {
+  const out = { persisted: null, usage: null, quota: null };
+  try {
+    if (navigator.storage && navigator.storage.persisted) out.persisted = await navigator.storage.persisted();
+    if (navigator.storage && navigator.storage.estimate) { const e = await navigator.storage.estimate(); out.usage = e.usage; out.quota = e.quota; }
+  } catch (e) { /* ignora */ }
+  return out;
+}
+function safeFileName(s) { return str(s).replace(/[\\/:*?"<>|]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80) || 'progetto'; }
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('it-IT') + ' ' + d.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+}
+function countsText(c) {
+  if (!c) return '—';
+  return plural(c.components || 0, 'componente', 'componenti') + ' · ' + plural(c.interfaces || 0, 'interfaccia', 'interfacce') + ' · ' +
+    plural(c.cables || 0, 'cavo', 'cavi') + ' · ' + plural(c.requirements || 0, 'requisito', 'requisiti');
+}
+
+/* ---------- File di progetto (copia di sicurezza, condivisione con altri utenti) ---------- */
+async function saveProjectToFile() {
+  await flushSave();
+  const payload = {
+    format: APP.projectFormat, schema: APP.schema, savedAt: new Date().toISOString(), savedBy: prefs.user || '',
+    project: { id: project.id, name: state.meta.name, program: state.meta.program || '' }, data: state
+  };
+  const text = JSON.stringify(payload, null, 2);
+  const name = safeFileName(state.meta.name) + '.idvproj';
+  if (window.showSaveFilePicker) {
+    try {
+      const handle = await window.showSaveFilePicker({ suggestedName: name, types: [{ description: 'Progetto IDV Interface Manager', accept: { 'application/json': ['.idvproj'] } }] });
+      const w = await handle.createWritable();
+      await w.write(text);
+      await w.close();
+      toast('Progetto salvato su file: ' + handle.name, 'ok');
+      return;
+    } catch (e) {
+      if (e && e.name === 'AbortError') return;
+    }
+  }
+  downloadFile(name, text, 'application/json');
+  toast('File di progetto scaricato: ' + name, 'ok');
+}
+async function openProjectFile(file) {
+  if (!(await guardDirty())) return;
+  let raw;
+  try { raw = JSON.parse(await file.text()); } catch (e) {
+    showModal({ title: 'File non leggibile', body: [h('p', null, '“' + file.name + '” non è un file di progetto valido.'), h('div', { class: 'err-log' }, e.message)] });
+    return;
+  }
+  const inner = raw && typeof raw === 'object' && raw.data && typeof raw.data === 'object' && (raw.format || raw.schema) ? raw.data : raw;
+  const ownName = inner && inner.meta && typeof inner.meta === 'object' && inner.meta.name ? String(inner.meta.name) : '';
+  const res = normalizeData(raw);
+  if (res.errors.length) {
+    showModal({ title: 'File di progetto non valido', wide: true, body: [h('p', null, 'Il file non è stato caricato. Errori rilevati:'), h('div', { class: 'msg-box err' }, h('ul', null, res.errors.slice(0, 60).map((x) => h('li', null, x))))] });
+    return;
+  }
+  const meta = raw && raw.project && typeof raw.project === 'object' ? raw.project : {};
+  const name = str(meta.name || ownName || file.name.replace(/\.(idvproj|json)$/i, '')).trim() || 'Progetto da file';
+  res.data.meta.name = name;
+  if (meta.program) res.data.meta.program = String(meta.program);
+  const existing = meta.id ? await Store.getProject(String(meta.id)) : null;
+  const body = [h('p', null, 'Il file “' + file.name + '” contiene il progetto ', h('b', null, name), ': ' + countsText(projectCounts(res.data)) + '.'),
+    raw.savedBy || raw.savedAt ? h('p', { class: 'muted' }, 'Salvato' + (raw.savedBy ? ' da ' + raw.savedBy : '') + (raw.savedAt ? ' il ' + fmtDate(raw.savedAt) : '') + '.') : null];
+  if (res.warnings.length) body.push(h('div', { class: 'msg-box warn' }, h('b', null, plural(res.warnings.length, 'avviso', 'avvisi') + ':'), h('ul', null, res.warnings.slice(0, 40).map((w) => h('li', null, w)))));
+  const buttons = [{ label: 'Annulla', value: null }, { label: existing ? 'Apri come nuovo progetto' : 'Apri il progetto', value: 'new', cls: existing ? '' : 'primary' }];
+  if (existing) {
+    body.push(h('div', { class: 'msg-box info' }, 'Nell’archivio esiste già questo progetto (ultima modifica ' + fmtDate(existing.updated) + (existing.updatedBy ? ' da ' + existing.updatedBy : '') + '). ' +
+      'Puoi aggiornarlo con il contenuto del file (il contenuto attuale viene conservato come versione) oppure aprirlo come progetto separato.'));
+    buttons.push({ label: 'Aggiorna il progetto esistente', value: 'replace', cls: 'primary' });
+  }
+  const choice = await showModal({ title: 'Apri progetto da file', wide: res.warnings.length > 0, body, buttons });
+  if (!choice) return;
+  const id = choice === 'replace' ? existing.id : (meta.id && !existing ? String(meta.id) : newUid('prj'));
+  if (choice !== 'replace' && existing) res.data.meta.name = name + ' (da file)';
+  // i percorsi si calcolano sul modello del file; lo stato aperto viene ripristinato subito (nessuna attesa nel mezzo)
+  const prev = state, prevIdx = idx;
+  state = res.data; rebuildIndex(); syncRoutes();
+  const rec = choice === 'replace' ? projectRecord(id, state, { created: existing.created, deleted: null }) : projectRecord(id, state);
+  state = prev; idx = prevIdx;
+  if (choice === 'replace') {
+    await flushSave();
+    await addVersion(await Store.getProject(id) || existing, 'Prima dell’aggiornamento da file', false);
+    await Store.putProject(rec);
+  } else {
+    await Store.putProject(rec);
+    await addVersion(rec, 'Aperto da file ' + file.name, false);
+  }
+  await openProject(id);
+}
+
+/* ---------- Dialoghi di gestione ---------- */
+async function promptDialog(title, fields, confirmLabel, intro) {
+  const inputs = {};
+  const body = [];
+  if (intro) body.push(h('p', null, intro));
+  fields.forEach((f) => {
+    let el;
+    if (f.options) { el = h('select', { class: 'inp' }); fillSelect(el, f.options, f.value || ''); }
+    else el = h('input', { class: 'inp', value: f.value || '', placeholder: f.placeholder || '', maxlength: f.max || 120 });
+    inputs[f.key] = el;
+    body.push(h('div', { style: { marginBottom: '10px' } }, fld(f.label, el, { required: f.required, hint: f.hint })));
+  });
+  const ok = await showModal({
+    title, body,
+    buttons: [{ label: 'Annulla', value: false }, {
+      label: confirmLabel || 'OK', value: true, cls: 'primary',
+      validate: () => {
+        const miss = fields.find((f) => f.required && !inputs[f.key].value.trim());
+        if (miss) { toast('Compila il campo “' + miss.label + '”.', 'err'); inputs[miss.key].focus(); return false; }
+        return true;
+      }
+    }]
+  });
+  if (!ok) return null;
+  const out = {};
+  fields.forEach((f) => { out[f.key] = inputs[f.key].value.trim(); });
+  return out;
+}
+async function newProjectDialog(fromManager) {
+  const v = await promptDialog('Nuovo progetto', [
+    { key: 'name', label: 'Nome del progetto', required: true, placeholder: 'es. Veicolo X — architettura C4I' },
+    { key: 'program', label: 'Programma / cliente', placeholder: 'es. Programma Y' },
+    { key: 'template', label: 'Contenuto iniziale', options: [{ value: 'empty', label: 'Progetto vuoto' }, { value: 'demo', label: 'Copia dello schema dimostrativo' }], value: 'empty' }
+  ], 'Crea e apri', 'Il progetto viene salvato automaticamente nell’archivio del browser ed è indipendente dagli altri progetti.');
+  if (!v) { if (fromManager === true) openProjectManager(); return; }
+  const id = await createProject(v.name, v.program, v.template);
+  await openProject(id);
+  requestPersistentStorage();
+}
+async function openProjectManager() {
+  if (!(await guardDirty())) return;
+  await flushSave();
+  const list = await Store.listProjects();
+  const live = list.filter((p) => !p.deleted).sort((a, b) => (a.updated < b.updated ? 1 : -1));
+  const trash = list.filter((p) => p.deleted).sort((a, b) => (a.deleted < b.deleted ? 1 : -1));
+  const ss = await storageStatus();
+  const act = (label, fn, cls, title) => h('button', { type: 'button', class: 'btn xs ' + (cls || ''), title: title || null, onclick: safely(fn) }, label);
+  const rows = live.map((p) => {
+    const cur = project && p.id === project.id;
+    return h('tr', { class: cur ? 'pm-current' : null },
+      h('td', null, h('div', { class: 'pm-name' }, p.name, cur ? h('span', { class: 'pill st-approved', style: { marginLeft: '8px' } }, 'aperto') : null),
+        p.program ? h('div', { class: 'muted small' }, p.program) : null),
+      h('td', { class: 'small' }, countsText(p.counts)),
+      h('td', { class: 'small nowrap' }, fmtDate(p.updated), p.updatedBy ? h('div', { class: 'muted' }, p.updatedBy) : null),
+      h('td', { class: 'act' },
+        cur ? null : act('Apri', () => openProject(p.id), 'primary'),
+        act('Versioni', () => openVersionsDialog(p.id)),
+        act('Rinomina', () => renameProject(p.id)),
+        act('Duplica', () => duplicateProject(p.id)),
+        act('Elimina', () => trashProject(p.id), 'danger')));
+  });
+  const body = [
+    h('div', { class: 'row-actions', style: { marginTop: '0', marginBottom: '10px' } },
+      h('button', { type: 'button', class: 'btn primary', onclick: safely(() => newProjectDialog(true)) }, '+ Nuovo progetto'),
+      h('button', { type: 'button', class: 'btn', onclick: () => byId('fileProject').click(), title: 'Apre un file .idvproj salvato in precedenza o ricevuto da un collega' }, 'Apri da file…'),
+      h('button', { type: 'button', class: 'btn', onclick: safely(saveProjectToFile), title: 'Salva il progetto aperto in un file .idvproj (copia di sicurezza o condivisione)' }, 'Salva su file…'),
+      h('span', { class: 'spacer' })),
+    h('table', { class: 'mini pm-table' }, h('thead', null, h('tr', null, ['Progetto', 'Contenuto', 'Ultima modifica', ''].map((t) => h('th', null, t)))), h('tbody', null, rows)),
+    trash.length ? h('details', { class: 'pm-trash' }, h('summary', null, 'Cestino (' + trash.length + ')'),
+      h('table', { class: 'mini' }, h('tbody', null, trash.map((p) => h('tr', null,
+        h('td', null, h('b', null, p.name), h('div', { class: 'muted small' }, 'eliminato il ' + fmtDate(p.deleted))),
+        h('td', { class: 'small' }, countsText(p.counts)),
+        h('td', { class: 'act' }, act('Ripristina', () => restoreProject(p.id)), act('Elimina definitivamente', () => purgeProject(p.id), 'danger'))))))) : null,
+    h('div', { class: 'msg-box ' + (Store.mode === 'memory' || ss.persisted === false ? 'warn' : 'info'), style: { marginTop: '12px', marginBottom: '0' } },
+      h('b', null, 'Archiviazione: '), storageLabel() + '. ',
+      ss.persisted === true ? 'Il browser la conserva in modo persistente. ' : (ss.persisted === false ? 'Il browser potrebbe liberare spazio in caso di necessità. ' : ''),
+      ss.usage != null ? 'Spazio usato: ' + (ss.usage / 1048576).toFixed(1) + ' MB. ' : '',
+      'I progetti restano in questo browser su questo computer: per conservarli in modo sicuro o condividerli con altri utenti usa “Salva su file” (ad es. su una cartella di rete o di progetto).')
+  ];
+  showModal({ title: 'Progetti', wide: true, body, buttons: [{ label: 'Chiudi', value: null }] });
+}
+async function renameProject(id) {
+  const rec = await Store.getProject(id);
+  if (!rec) return;
+  const v = await promptDialog('Rinomina progetto', [
+    { key: 'name', label: 'Nome del progetto', required: true, value: rec.name },
+    { key: 'program', label: 'Programma / cliente', value: rec.program || '' }
+  ], 'Salva');
+  if (!v) { openProjectManager(); return; }
+  if (project && id === project.id) {
+    commit((st) => { st.meta.name = v.name; st.meta.program = v.program; }, 'Progetto rinominato in “' + v.name + '”');
+    await flushSave();
+  } else {
+    const st = JSON.parse(rec.json);
+    st.meta = Object.assign({}, st.meta, { name: v.name, program: v.program });
+    await Store.putProject(Object.assign(rec, { name: v.name, program: v.program, json: JSON.stringify(st) }));
+  }
+  openProjectManager();
+}
+async function duplicateProject(id) {
+  await flushSave();
+  const rec = await Store.getProject(id);
+  if (!rec) return;
+  const st = JSON.parse(rec.json);
+  const name = 'Copia di ' + rec.name;
+  st.meta = Object.assign({}, st.meta, { name, created: new Date().toISOString() });
+  const copy = Object.assign({}, rec, { id: newUid('prj'), name, created: new Date().toISOString(), updated: new Date().toISOString(), updatedBy: prefs.user || '', deleted: null, json: JSON.stringify(st) });
+  await Store.putProject(copy);
+  await addVersion(copy, 'Duplicato da “' + rec.name + '”', false);
+  toast('Creato “' + name + '”', 'ok');
+  openProjectManager();
+}
+async function trashProject(id) {
+  const rec = await Store.getProject(id);
+  if (!rec) return;
+  const r = await confirmDialog({
+    title: 'Spostare “' + rec.name + '” nel cestino?',
+    body: [h('p', null, 'Il progetto viene spostato nel cestino e può essere ripristinato in qualsiasi momento da Progetti → Cestino.'),
+      h('p', { class: 'muted' }, countsText(rec.counts) + '.')],
+    confirmLabel: 'Sposta nel cestino', danger: true
+  });
+  if (!r.ok) { openProjectManager(); return; }
+  await flushSave();
+  const fresh = await Store.getProject(id);
+  await Store.putProject(Object.assign(fresh, { deleted: new Date().toISOString() }));
+  if (project && id === project.id) {
+    const others = (await Store.listProjects()).filter((p) => !p.deleted).sort((a, b) => (a.updated < b.updated ? 1 : -1));
+    const next = others.length ? others[0].id : await createProject('Nuovo progetto', '', 'empty');
+    project = null;
+    await openProject(next, { silent: true });
+  }
+  toast('“' + rec.name + '” spostato nel cestino', 'ok');
+  openProjectManager();
+}
+async function restoreProject(id) {
+  const rec = await Store.getProject(id);
+  if (!rec) return;
+  await Store.putProject(Object.assign(rec, { deleted: null }));
+  toast('“' + rec.name + '” ripristinato', 'ok');
+  openProjectManager();
+}
+async function purgeProject(id) {
+  const rec = await Store.getProject(id);
+  if (!rec) return;
+  const r = await confirmDialog({
+    title: 'Eliminare definitivamente “' + rec.name + '”?',
+    body: [h('p', null, 'Il progetto e tutte le sue versioni verranno cancellati dall’archivio del browser. L’operazione non è reversibile.'),
+      h('p', { class: 'muted' }, 'Suggerimento: se potrebbe servire in futuro, ripristinalo e salvalo prima su file.')],
+    confirmLabel: 'Elimina definitivamente', danger: true
+  });
+  if (r.ok) { await Store.deleteProject(id); toast('Progetto eliminato definitivamente', 'ok'); }
+  openProjectManager();
+}
+async function openVersionsDialog(id) {
+  await flushSave();
+  const rec = await Store.getProject(id);
+  if (!rec) return;
+  const isCur = project && id === project.id;
+  const versions = await Store.listVersions(id);
+  const body = [
+    h('p', null, 'Progetto ', h('b', null, rec.name), '. Le versioni vengono create automaticamente (alla creazione del progetto, ogni 20 minuti di lavoro, prima di ripristini e aggiornamenti da file) oppure manualmente, ad es. per fissare una baseline.'),
+    h('div', { class: 'row-actions', style: { marginTop: '0', marginBottom: '10px' } },
+      h('button', {
+        type: 'button', class: 'btn primary', onclick: safely(async () => {
+          const v = await promptDialog('Salva versione', [{ key: 'note', label: 'Descrizione della versione', placeholder: 'es. Baseline per la revisione PDR', required: true }], 'Salva versione');
+          if (v) { await addVersion(await Store.getProject(id), v.note, false); toast('Versione salvata', 'ok'); }
+          openVersionsDialog(id);
+        })
+      }, '+ Salva versione ora')),
+    versions.length ? h('table', { class: 'mini' }, h('thead', null, h('tr', null, ['Data', 'Descrizione', 'Contenuto', ''].map((t) => h('th', null, t)))),
+      h('tbody', null, versions.map((v) => h('tr', null,
+        h('td', { class: 'small nowrap' }, fmtDate(v.at), v.by ? h('div', { class: 'muted' }, v.by) : null),
+        h('td', null, v.note || '—', v.auto ? h('span', { class: 'muted small' }, ' · automatica') : null),
+        h('td', { class: 'small' }, countsText(v.counts)),
+        h('td', { class: 'act' }, h('button', { type: 'button', class: 'btn xs', onclick: safely(() => restoreVersion(id, v.vid)) }, 'Ripristina')))))) : h('p', { class: 'muted' }, 'Nessuna versione salvata.')
+  ];
+  showModal({ title: 'Versioni del progetto' + (isCur ? ' (aperto)' : ''), wide: true, body, buttons: [{ label: '← Progetti', value: 'back' }, { label: 'Chiudi', value: null }] })
+    .then((v) => { if (v === 'back') openProjectManager(); });
+}
+async function restoreVersion(pid, vid) {
+  const v = await Store.getVersion(vid);
+  if (!v) return;
+  const r = await confirmDialog({
+    title: 'Ripristinare la versione del ' + fmtDate(v.at) + '?',
+    body: [h('p', null, 'Il contenuto del progetto verrà sostituito con quello della versione “' + (v.note || 'senza descrizione') + '” (' + countsText(v.counts) + ').'),
+      h('p', { class: 'muted' }, 'Il contenuto attuale viene prima salvato come nuova versione, quindi nulla va perso.')],
+    confirmLabel: 'Ripristina versione'
+  });
+  if (!r.ok) { openVersionsDialog(pid); return; }
+  await flushSave();
+  const cur = await Store.getProject(pid);
+  await addVersion(cur, 'Prima del ripristino della versione del ' + fmtDate(v.at), false);
+  const res = normalizeData(JSON.parse(v.json));
+  if (res.errors.length) { showModal({ title: 'Versione non leggibile', body: res.errors.join(' ') }); return; }
+  if (project && pid === project.id) {
+    res.data.meta.name = cur.name;
+    replaceState(res.data, 'Ripristinata la versione del ' + fmtDate(v.at));
+    ui.fitted = true;
+    if (ui.section === 'board') fitView();
+  } else {
+    await Store.putProject(Object.assign(cur, { json: JSON.stringify(Object.assign(res.data, { meta: Object.assign(res.data.meta, { name: cur.name }) })), counts: v.counts, updated: new Date().toISOString(), updatedBy: prefs.user || '' }));
+    toast('Versione ripristinata nel progetto “' + cur.name + '”', 'ok');
+  }
+}
+/* Stesso progetto aperto in un'altra finestra del browser */
+if (bc) {
+  bc.onmessage = safely(async (ev) => {
+    const m = ev.data || {};
+    if (m.type !== 'saved' || m.tab === TAB_ID || !project || m.id !== project.id || bcAsking || bcKeep) return;
+    bcAsking = true;
+    const choice = await showModal({
+      title: 'Progetto modificato in un’altra finestra',
+      body: [h('p', null, 'Il progetto “' + state.meta.name + '” è stato appena modificato in un’altra scheda o finestra di questo browser.'),
+        h('p', null, 'Per evitare di sovrascrivere il lavoro, ricarica il progetto qui oppure continua a lavorare solo in una delle due finestre.')],
+      buttons: [{ label: 'Continua qui', value: 'keep' }, { label: 'Ricarica il progetto', value: 'reload', cls: 'primary' }]
+    });
+    bcAsking = false;
+    if (choice === 'reload') { project.pending = null; await openProject(project.id); }
+    else bcKeep = true;
+  });
+}
+
+/* =====================================================================
    7. VALIDAZIONE GLOBALE (Dashboard, indicatori nelle tabelle)
    ===================================================================== */
 const ISSUE_CATS = {
@@ -1177,8 +1863,9 @@ const ISSUE_CATS = {
   cblNoConn:    { label: 'Cavi senza connettore', sev: 'warning' },
   cblNoPin:     { label: 'Cavi senza pinout', sev: 'warning' },
   cblMismatch:  { label: 'Cavi con estremi diversi dall’interfaccia', sev: 'warning' },
-  typeMismatch: { label: 'Tipo porta non coerente con il protocollo', sev: 'warning' },
+  typeMismatch: { label: 'Tipo porta non coerente con la categoria', sev: 'warning' },
   reqNoLink:    { label: 'Requisiti senza oggetto collegato', sev: 'warning' },
+  reqNoTitle:   { label: 'Requisiti senza titolo', sev: 'warning' },
   compNoPorts:  { label: 'Componenti senza porte', sev: 'warning' },
   reqNotApproved: { label: 'Requisiti non approvati', sev: 'info' },
   toVerify:     { label: 'Oggetti in stato “Da verificare”', sev: 'info' },
@@ -1231,9 +1918,10 @@ function computeIssues() {
     if (cA && (!pA || pA.comp.uid !== cA.uid)) add('badRef', 'interface', f.uid, name + ': la porta A non appartiene al componente ' + cA.id + '.');
     if (cB && (!pB || pB.comp.uid !== cB.uid)) add('badRef', 'interface', f.uid, name + ': la porta B non appartiene al componente ' + cB.id + '.');
     if (pA && pB && f.portA === f.portB) add('badRef', 'interface', f.uid, name + ': porta A e porta B coincidono.');
-    if (pA && !portTypeCompatible(f.type, pA.port.type)) add('typeMismatch', 'interface', f.uid, name + ' (' + f.type + '): la porta ' + portFull(f.portA) + ' è di tipo ' + pA.port.type + '.');
-    if (pB && !portTypeCompatible(f.type, pB.port.type)) add('typeMismatch', 'interface', f.uid, name + ' (' + f.type + '): la porta ' + portFull(f.portB) + ' è di tipo ' + pB.port.type + '.');
-    if (!(idx.cablesByIface.get(f.uid) || []).length) add('ifNoCable', 'interface', f.uid, name + ' non è realizzata da alcun cavo.');
+    if (pA && !portCompatible(f.category, f.subtype, pA.port.type)) add('typeMismatch', 'interface', f.uid, name + ' (' + ifClassText(f) + '): la porta ' + portFull(f.portA) + ' è di tipo ' + pA.port.type + '.');
+    if (pB && !portCompatible(f.category, f.subtype, pB.port.type)) add('typeMismatch', 'interface', f.uid, name + ' (' + ifClassText(f) + '): la porta ' + portFull(f.portB) + ' è di tipo ' + pB.port.type + '.');
+    if (!categoryOf(f.category)) add('missing', 'interface', f.uid, name + ': categoria “' + (f.category || '—') + '” non configurata nelle impostazioni.', 'warning');
+    if (categoryNeedsCables(f.category) && !(idx.cablesByIface.get(f.uid) || []).length) add('ifNoCable', 'interface', f.uid, name + ' (' + (f.category || '—') + ') non è realizzata da alcun cavo.');
     if (!(idx.reqsByObj.get(f.uid) || []).length) add('ifNoReq', 'interface', f.uid, name + ' non ha requisiti associati.');
     if (f.status === 'Da verificare') add('toVerify', 'interface', f.uid, name + ' in stato “Da verificare”.');
   });
@@ -1258,6 +1946,7 @@ function computeIssues() {
   state.requirements.forEach((r) => {
     const name = 'Requisito ' + (r.id || '(senza ID)');
     if (!str(r.id).trim() || !str(r.text).trim()) add('missing', 'requirement', r.uid, name + ': ID e testo sono obbligatori.');
+    if (!str(r.title).trim()) add('reqNoTitle', 'requirement', r.uid, name + ' senza titolo.');
     if (!(r.links || []).length) add('reqNoLink', 'requirement', r.uid, name + ' non è collegato ad alcun oggetto.');
     (r.links || []).forEach((l) => {
       if (!getObj(l.kind, l.uid)) add('badRef', 'requirement', r.uid, name + ': collegamento a ' + (KIND_IT[l.kind] || l.kind || 'oggetto').toLowerCase() + ' inesistente.');
@@ -1376,11 +2065,19 @@ function modeLinks(mode) {
   if (mode === 'interfaces') state.interfaces.forEach((f) => add(f.uid, 'interface', f, f.portA, f.portB, f.uid));
   else {
     state.cables.forEach((c) => add(c.uid, 'cable', c, c.portA, c.portB, 'b:' + (c.ifaceUid || c.uid)));
+    // interfacce senza cavi: "fantasma" se la categoria prevede cavi, altrimenti collegamento non cablato
+    // (meccanico, fluidico…) disegnato nello stile della propria categoria
     state.interfaces.forEach((f) => {
       if (!(idx.cablesByIface.get(f.uid) || []).length) add('g:' + f.uid, 'ghost', f, f.portA, f.portB, 'b:' + f.uid);
     });
+    out.forEach((L) => { if (L.kind === 'ghost') L.noCable = !categoryNeedsCables(L.obj.category); });
   }
   return out;
+}
+/* Lato imposto della porta sul diagramma ('L' | 'R'), oppure null se automatico */
+function portSide(uid) {
+  const e = portEntry(uid);
+  return e && (e.port.side === 'L' || e.port.side === 'R') ? e.port.side : null;
 }
 /* Formato memorizzato: {sA, sB, pts:[[x,y],...], manual} */
 function sanitizeRoute(r) {
@@ -1433,6 +2130,8 @@ function segHitsRects(p, q, rects) {
 function routeValid(r, L, geom, rects) {
   const pts = r.pts, n = pts.length;
   if (n < 2) return false;
+  const fA = portSide(L.pA), fB = portSide(L.pB);
+  if ((fA && r.sA !== fA) || (fB && r.sB !== fB)) return false;
   const a = anchorPoint(geom, L.pA, r.sA), b = anchorPoint(geom, L.pB, r.sB);
   if (!a || !b) return false;
   const tol = BG.ROW / 2 - 1;
@@ -1665,16 +2364,25 @@ function routeWithSides(G, occ, a, b, sides) {
   }
   return { pts: simplifyPts(fallbackPts(a, sA, sB, b, sides)), cost: 1e7, fallback: true };
 }
+/* Lati candidati per i due estremi: preferito il lato rivolto verso l'altro blocco;
+   se la porta ha un lato imposto si usa solo quello. */
 function sideOptions(geom, L, exhaustive) {
   const opp = (s) => (s === 'R' ? 'L' : 'R');
+  const fA = portSide(L.pA), fB = portSide(L.pB);
   const f = L.cA !== L.cB ? sidesFor(geom.get(L.cA), geom.get(L.cB)) : null;
+  let o;
   if (f) {
-    const o = [{ sides: f, pen: 0 }];
-    if (exhaustive) o.push({ sides: [f[0], opp(f[1])], pen: RT.SIDE_ALT }, { sides: [opp(f[0]), f[1]], pen: RT.SIDE_ALT });
-    return o;
+    o = [{ sides: f, pen: 0 }, { sides: [f[0], opp(f[1])], pen: RT.SIDE_ALT }, { sides: [opp(f[0]), f[1]], pen: RT.SIDE_ALT },
+      { sides: [opp(f[0]), opp(f[1])], pen: RT.SIDE_ALT * 2 }];
+  } else {
+    o = [{ sides: ['R', 'R'], pen: 0 }, { sides: ['L', 'L'], pen: 0 }];
+    if (L.cA !== L.cB) o.push({ sides: ['R', 'L'], pen: RT.SIDE_ALT / 2 }, { sides: ['L', 'R'], pen: RT.SIDE_ALT / 2 });
   }
-  const o = [{ sides: ['R', 'R'], pen: 0 }, { sides: ['L', 'L'], pen: 0 }];
-  if (exhaustive && L.cA !== L.cB) o.push({ sides: ['R', 'L'], pen: RT.SIDE_ALT / 2 }, { sides: ['L', 'R'], pen: RT.SIDE_ALT / 2 });
+  o = o.filter((x) => (!fA || x.sides[0] === fA) && (!fB || x.sides[1] === fB));
+  if (!exhaustive) {
+    const min = Math.min.apply(null, o.map((x) => x.pen));
+    o = o.filter((x) => x.pen === min);
+  }
   return o;
 }
 function routeLink(G, occ, geom, L, options) {
@@ -2184,8 +2892,12 @@ function linkTooltip(L) {
   }
   const nC = (idx.cablesByIface.get(L.obj.uid) || []).length;
   return 'Interfaccia ' + L.obj.id + ' — ' + (L.obj.name || '') + '\n' + portFull(L.obj.portA) + ' ↔ ' + portFull(L.obj.portB) +
-    '\nTipo: ' + (L.obj.type || '—') + '\nStato: ' + (L.obj.status || '—') + '\nCavi: ' + nC;
+    '\nCategoria: ' + (L.obj.category || '—') + (L.obj.subtype ? ' / ' + L.obj.subtype : '') +
+    '\nProtocollo / standard: ' + (L.obj.protocol || '—') + '\nStato: ' + (L.obj.status || '—') +
+    (categoryNeedsCables(L.obj.category) ? '\nCavi: ' + nC : '\nNon realizzata da cavi');
 }
+/* Colore di linea del collegamento: categoria per le interfacce, neutro per i cavi */
+function linkColor(L) { return L.kind === 'cable' ? '#2b3640' : categoryColor(L.obj.category); }
 function renderBoard() {
   if (!B || !state) return;
   renderQueued = false;
@@ -2204,13 +2916,18 @@ function renderBoard() {
   const sc = selectionContext();
   const portMarks = new Map();
   const onCls = ui.mode === 'interfaces' ? 'if' : 'cbl';
+  const rank = { ghost: 0, cat: 1, if: 2, cbl: 2 };
   items.forEach((it) => {
-    const cls = it.L.kind === 'ghost' ? 'ghost' : onCls;
+    const cls = it.L.kind === 'ghost' ? (it.L.noCable ? 'cat' : 'ghost') : onCls;
+    const color = linkColor(it.L);
     [[it.L.pA, it.sA, it.pts[0].y], [it.L.pB, it.sB, it.pts[it.pts.length - 1].y]].forEach((e) => {
       const k = e[0] + ':' + e[1];
       const m = portMarks.get(k);
-      if (!m) portMarks.set(k, { cls, y0: e[2], y1: e[2] });
-      else { m.y0 = Math.min(m.y0, e[2]); m.y1 = Math.max(m.y1, e[2]); if (cls !== 'ghost') m.cls = cls; }
+      if (!m) portMarks.set(k, { cls, color, y0: e[2], y1: e[2] });
+      else {
+        m.y0 = Math.min(m.y0, e[2]); m.y1 = Math.max(m.y1, e[2]);
+        if (rank[cls] > rank[m.cls]) { m.cls = cls; m.color = color; }
+      }
     });
   });
 
@@ -2239,7 +2956,8 @@ function renderBoard() {
     const d = orthoPath(it.pts, it.hops);
     const dHit = polyPath(it.pts);
     const kindAttr = L.kind === 'ghost' ? 'interface' : L.kind;
-    const cls = L.kind === 'interface' ? 'link-if' : (L.kind === 'cable' ? 'link-cbl' : 'link-ghost');
+    const cls = L.kind === 'interface' ? 'link-if' : (L.kind === 'cable' ? 'link-cbl' : (L.noCable ? 'link-nocable' : 'link-ghost'));
+    const lc = linkColor(L);
     let segHits = '';
     if (ui.showPorts) {
       for (let k = 1; k < it.pts.length - 2; k++) {
@@ -2248,18 +2966,18 @@ function renderBoard() {
         segHits += '<line class="seg-hit ' + o + '" data-seg="' + k + '" data-o="' + o + '" x1="' + r1(a.x) + '" y1="' + r1(a.y) + '" x2="' + r1(b.x) + '" y2="' + r1(b.y) + '"/>';
       }
     }
-    ls += '<g class="link-g ' + st + (it.manual ? ' manual' : '') + '" data-link="' + kindAttr + '" data-uid="' + esc(L.obj.uid) + '" data-key="' + esc(it.key) + '">' +
+    ls += '<g class="link-g ' + st + (it.manual ? ' manual' : '') + '" style="--lc:' + esc(lc) + '" data-link="' + kindAttr + '" data-uid="' + esc(L.obj.uid) + '" data-key="' + esc(it.key) + '">' +
       '<title>' + esc(linkTooltip(L) + (it.manual ? '\nPercorso: manuale (doppio clic per ripristinare l’instradamento automatico)' : '\nPercorso: automatico (trascina un tratto per modificarlo)')) + '</title>' +
       (st === 'selected' ? '<path class="link-halo" d="' + dHit + '"/>' : '') +
       '<path class="link-hit" d="' + dHit + '"/><path class="' + cls + '" d="' + d + '"/>' + segHits + '</g>';
     if (ui.showLabels) {
       const idPart = L.obj.id;
-      const rest = L.kind === 'ghost' ? '  nessun cavo' : '  ' + (L.obj.type || 'tipo n.d.');
-      const restFit = fitText(rest, F.label, 170);
+      const rest = L.kind === 'cable' ? '  ' + (L.obj.type || 'tipo n.d.') : (L.kind === 'ghost' && !L.noCable ? '  nessun cavo' : '  ' + ifTypeText(L.obj));
+      const restFit = fitText(rest, F.label, 190);
       labels.push({
         li, idPart, rest: restFit, w: textW(idPart, F.lblId) + textW(restFit, F.label) + 12, h: 16,
-        kind: kindAttr, uid: L.obj.uid, key: it.key, st, bundle: it.bundle,
-        cls: L.kind === 'interface' ? 'if' : (L.kind === 'cable' ? 'cbl' : 'ghost')
+        kind: kindAttr, uid: L.obj.uid, key: it.key, st, bundle: it.bundle, color: lc,
+        cls: L.kind === 'interface' ? 'if' : (L.kind === 'cable' ? 'cbl' : (L.noCable ? 'if nocable' : 'ghost'))
       });
     }
   });
@@ -2318,7 +3036,7 @@ function renderBoard() {
       lbs += '</g>';
       return;
     }
-    lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + '" data-link="' + lb.kind + '" data-uid="' + esc(lb.uid) + '" data-key="' + esc(lb.key) + '">' + leader +
+    lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + '"' + (lb.color ? ' style="--lc:' + esc(lb.color) + '"' : '') + ' data-link="' + lb.kind + '" data-uid="' + esc(lb.uid) + '" data-key="' + esc(lb.key) + '">' + leader +
       '<rect x="' + r1(x0) + '" y="' + r1(y0) + '" width="' + r1(lb.w) + '" height="' + lb.h + '" rx="2"/>' +
       '<text x="' + r1(x0 + 6) + '" y="' + r1(lb.y + 3.8) + '"><tspan class="lbl-id">' + esc(lb.idPart) + '</tspan><tspan class="lbl-rest">' + esc(lb.rest) + '</tspan></text></g>';
   });
@@ -2327,21 +3045,31 @@ function renderBoard() {
   B.links.innerHTML = ls;
   if (!fastDrag) B.comps.innerHTML = cs;
   B.ports.innerHTML = ps;
+  markHoverHandles();
   B.labels.innerHTML = lbs;
   byId('boardEmpty').hidden = state.components.length > 0;
   updateBoardChrome(items, res.links);
 }
 /* Punti di connessione (quadratini sui bordi), in un livello separato sopra i blocchi */
+/* Punti di connessione sui bordi del blocco (livello separato sopra i blocchi).
+   Il connettore è uno solo: il quadratino pieno indica il lato da cui esce effettivamente la linea.
+   Sui lati non usati compaiono solo "maniglie" tratteggiate al passaggio del mouse, per collegare. */
 function portsSvg(c, g, portMarks) {
   if (!g.showPorts) return '';
   let s = '';
   c.ports.forEach((p) => {
     const cy = g.y + g.portY.get(p.uid);
+    const fixed = p.side === 'L' || p.side === 'R' ? p.side : null;
     ['L', 'R'].forEach((side) => {
-      const x = side === 'L' ? g.x : g.x + g.w;
       const pm = portMarks.get(p.uid + ':' + side);
+      if (fixed && side !== fixed && !pm) return;
+      const x = side === 'L' ? g.x : g.x + g.w;
       const yA = pm ? pm.y0 : cy, yB = pm ? pm.y1 : cy;
-      s += '<g class="pin" data-pin="' + esc(p.uid) + '" data-side="' + side + '"><title>' + esc(c.id + ':' + p.id + ' ' + (p.label || '') + ' — lato ' + (side === 'L' ? 'sinistro' : 'destro') + '\nTrascina verso un’altra porta per creare un collegamento') + '</title>' +
+      const tip = c.id + ':' + p.id + ' ' + (p.label || '') + (pm ? ' — punto di uscita delle linee (lato ' + (side === 'L' ? 'sinistro' : 'destro') + ')' : ' — maniglia di collegamento') +
+        (fixed ? '\nLato imposto sul diagramma: ' + (fixed === 'L' ? 'sinistro' : 'destro') : '\nLato scelto automaticamente verso il collegamento') +
+        '\nTrascina verso un’altra porta per creare un collegamento';
+      s += '<g class="pin' + (pm ? '' : ' free') + '" data-pin="' + esc(p.uid) + '" data-side="' + side + '" data-comp="' + esc(c.uid) + '"' +
+        (pm && pm.color ? ' style="--lc:' + esc(pm.color) + '"' : '') + '><title>' + esc(tip) + '</title>' +
         '<rect class="port-sq' + (pm ? ' on-' + pm.cls : '') + '" x="' + r1(x - 4) + '" y="' + r1(yA - 4) + '" width="8" height="' + r1(yB - yA + 8) + '" rx="1"/>' +
         '<rect class="pin-hit" x="' + r1(x - 10) + '" y="' + r1(cy - 10) + '" width="20" height="20"/></g>';
     });
@@ -2389,6 +3117,11 @@ function compSvg(c, g, hlPorts) {
   s += '<rect class="comp-outline" width="' + w + '" height="' + hh + '" rx="2"/></g>';
   return s;
 }
+function markHoverHandles() {
+  if (!B) return;
+  qsa('#layerPorts .pin.show').forEach((x) => x.classList.remove('show'));
+  if (B.hoverComp) qsa('#layerPorts .pin[data-comp="' + B.hoverComp + '"]').forEach((x) => x.classList.add('show'));
+}
 function scheduleBoardRender() {
   if (renderQueued) return;
   renderQueued = true;
@@ -2406,23 +3139,29 @@ function updateBoardChrome(items, links) {
   byId('zoomLabel').textContent = Math.round(ui.zoom * 100) + '%';
   const lg = byId('boardLegend');
   const nIf = state.interfaces.length, nC = state.cables.length;
-  const ghosts = items.filter((it) => it.L.kind === 'ghost').length;
+  const ghosts = items.filter((it) => it.L.kind === 'ghost' && !it.L.noCable).length;
   const notDrawn = ui.mode === 'interfaces' ? nIf - items.length : nC - items.filter((it) => it.L.kind === 'cable').length;
   const st = lastRouteStats;
   const stats = '<div class="lg-stats">Instradamento ortogonale · ' + plural(st.crossings, 'incrocio', 'incroci') + ' · ' +
     plural(st.bends, 'piegatura', 'piegature') + (st.manual ? ' · ' + plural(st.manual, 'percorso manuale', 'percorsi manuali') : '') +
     (ui.showPorts ? '' : ' · <i>provvisorio (porte nascoste)</i>') + '</div>';
-  const sq = (fill, stroke) => '<svg width="14" height="12"><rect x="3" y="2" width="8" height="8" rx="1" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.1"/></svg>';
+  const sq = (fill, stroke, dash) => '<svg width="14" height="12"><rect x="3" y="2" width="8" height="8" rx="1" fill="' + fill + '" stroke="' + stroke + '" stroke-width="1.1"' + (dash ? ' stroke-dasharray="2 1.5"' : '') + '/></svg>';
+  const line = (color, w, dash) => '<svg width="34" height="10"><line x1="1" y1="5" x2="33" y2="5" stroke="' + color + '" stroke-width="' + w + '"' + (dash ? ' stroke-dasharray="' + dash + '"' : '') + '/></svg>';
+  const catCount = new Map();
+  items.forEach((it) => { if (it.L.kind !== 'cable' && (ui.mode === 'interfaces' || it.L.noCable)) catCount.set(it.L.obj.category, (catCount.get(it.L.obj.category) || 0) + 1); });
+  const cats = state.lists.ifCategories.map((c) => c.name).filter((n) => catCount.has(n)).concat([...catCount.keys()].filter((n) => !categoryOf(n)));
+  const ports = '<div class="lg-row">' + sq('#3f4b59', '#3f4b59') + 'lato di uscita della linea · ' + sq('#fff', '#6d7a8a', true) + 'maniglia di collegamento (al passaggio del mouse)</div>';
   if (ui.mode === 'interfaces') {
     lg.innerHTML = '<div class="lg-title">Vista interfacce · ' + plural(nIf, 'interfaccia logica', 'interfacce logiche') + '</div>' +
-      '<div class="lg-row"><svg width="34" height="10"><line x1="1" y1="5" x2="33" y2="5" stroke="#1d5fbf" stroke-width="2.4" stroke-dasharray="8 4"/></svg>Interfaccia logica (una linea per interfaccia)</div>' +
-      '<div class="lg-row">' + sq('#1d5fbf', '#0f4597') + 'porta collegata ' + sq('#fff', '#5d6a79') + 'porta libera</div>' +
+      cats.map((n) => '<div class="lg-row">' + line(esc(categoryColor(n)), 2.3, '8 4') + esc(n) + ' (' + catCount.get(n) + ')</div>').join('') +
+      ports +
       (notDrawn > 0 ? '<div class="lg-row lg-err">' + plural(notDrawn, 'interfaccia non disegnata', 'interfacce non disegnate') + ' (riferimenti non validi)</div>' : '') + stats;
   } else {
     lg.innerHTML = '<div class="lg-title">Vista cavi · ' + plural(nC, 'cavo fisico', 'cavi fisici') + '</div>' +
       '<div class="lg-row"><svg width="34" height="10"><line x1="1" y1="3" x2="33" y2="3" stroke="#2b3640" stroke-width="1.4"/><line x1="1" y1="8" x2="33" y2="8" stroke="#2b3640" stroke-width="1.4"/></svg>Cavo fisico (affiancati per la stessa interfaccia)</div>' +
-      '<div class="lg-row"><svg width="34" height="10"><line x1="1" y1="5" x2="33" y2="5" stroke="#a5afbb" stroke-width="1.3" stroke-dasharray="2 4"/></svg>Interfaccia senza cavi' + (ghosts ? ' (' + ghosts + ')' : '') + '</div>' +
-      '<div class="lg-row">' + sq('#2b3640', '#111a22') + 'porta cablata ' + sq('#fff', '#5d6a79') + 'porta libera</div>' +
+      (ghosts ? '<div class="lg-row">' + line('#a5afbb', 1.3, '2 4') + 'Interfaccia senza cavi (' + ghosts + ')</div>' : '') +
+      cats.map((n) => '<div class="lg-row">' + line(esc(categoryColor(n)), 1.5, '5 3') + esc(n) + ': collegamento non cablato (' + catCount.get(n) + ')</div>').join('') +
+      ports +
       (notDrawn > 0 ? '<div class="lg-row lg-err">' + plural(notDrawn, 'cavo non disegnato', 'cavi non disegnati') + ' (riferimenti non validi)</div>' : '') + stats;
   }
   updateHistoryButtons();
@@ -2643,6 +3382,13 @@ function setupBoard() {
     wrap: byId('boardWrap')
   };
   svg.addEventListener('pointerdown', onBoardPointerDown);
+  // maniglie di collegamento visibili solo sul blocco sotto il puntatore
+  svg.addEventListener('pointerover', (e) => {
+    const el = e.target.closest('[data-comp]');
+    const u = el ? el.dataset.comp : null;
+    if (u !== B.hoverComp) { B.hoverComp = u; markHoverHandles(); }
+  });
+  svg.addEventListener('pointerleave', () => { B.hoverComp = null; markHoverHandles(); });
   window.addEventListener('pointermove', onBoardPointerMove);
   window.addEventListener('pointerup', onBoardPointerUp);
   window.addEventListener('pointercancel', onBoardPointerUp);
@@ -2687,8 +3433,6 @@ function setupBoard() {
     openGroupPanel(null, pre);
   });
   byId('btnFit').addEventListener('click', fitView);
-  byId('btnZoomIn').addEventListener('click', () => zoomCenter(1.2));
-  byId('btnZoomOut').addEventListener('click', () => zoomCenter(1 / 1.2));
   byId('zoomLabel').addEventListener('click', () => zoomCenter(1 / ui.zoom));
   byId('btnTogglePorts').addEventListener('click', () => { ui.showPorts = !ui.showPorts; saveUi(); renderBoard(); });
   byId('btnToggleGroups').addEventListener('click', () => { ui.showGroups = !ui.showGroups; saveUi(); renderBoard(); });
@@ -3167,6 +3911,10 @@ async function openObject(kind, uid) {
   }
 }
 /* Campi del form legati al draft */
+/* Rimando alla guida accanto all'etichetta di un campo */
+function helpLabel(label, topic) {
+  return [label, h('button', { type: 'button', class: 'help-link', title: 'Apri la guida: ' + label, 'aria-label': 'Guida: ' + label, onclick: (e) => { e.preventDefault(); openHelp(topic); } }, '?')];
+}
 function fld(label, control, o) {
   o = o || {};
   return h('div', { class: 'fld' + (o.wide ? ' wide' : ''), 'data-field': o.field || null },
@@ -3190,6 +3938,12 @@ function textareaFor(draft, key, attrs, onChange) {
   el.value = draft[key] == null ? '' : draft[key];
   el.addEventListener('input', () => { draft[key] = el.value; if (onChange) onChange(el.value); formChanged(); });
   return el;
+}
+function checkboxFor(draft, key, label, hint) {
+  const cb = h('input', { type: 'checkbox', checked: !!draft[key] });
+  cb.addEventListener('change', () => { draft[key] = cb.checked; formChanged(); });
+  return h('label', { class: 'check-line', style: { marginTop: '0' } }, cb,
+    h('span', null, h('b', null, label), hint ? h('div', { class: 'fld-hint' }, hint) : null));
 }
 function fillSelect(el, options, value) {
   el.innerHTML = '';
@@ -3257,7 +4011,7 @@ function reqChecklist(draft, defaults) {
     const q = search.value.trim().toLowerCase();
     const sel = new Set(draft._reqs);
     const rows = allReqs()
-      .filter((r) => !q || (r.id + ' ' + r.text + ' ' + r.type + ' ' + r.status).toLowerCase().includes(q))
+      .filter((r) => !q || (r.id + ' ' + (r.title || '') + ' ' + r.text + ' ' + r.type + ' ' + r.status).toLowerCase().includes(q))
       .sort((a, b) => (sel.has(b.uid) - sel.has(a.uid)) || cmpNat(a.id, b.id));
     if (!rows.length) list.appendChild(h('div', { class: 'ck-empty' }, q ? 'Nessun requisito corrisponde al filtro.' : 'Nessun requisito definito.'));
     rows.forEach((r) => {
@@ -3277,29 +4031,30 @@ function reqChecklist(draft, defaults) {
         h('div', null, h('span', { class: 'ck-id' }, r.id), ' ', pill(r.status), ' ', h('span', { class: 'muted small' }, r.type),
           isNew ? h('span', { class: 'muted small' }, ' · nuovo, creato al salvataggio') : null,
           others ? h('span', { class: 'muted small' }, ' · collegato anche a ' + plural(others, 'altro oggetto', 'altri oggetti')) : null),
-        h('div', { class: 'ck-text' }, r.text))));
+        h('div', { class: 'ck-text' }, r.title ? h('b', null, r.title + ' — ') : null, r.text))));
     });
   }
   search.addEventListener('input', render);
   const allIds = () => allReqs().map((r) => r.id);
   const qId = h('input', { class: 'inp', placeholder: 'ID nuovo requisito', value: nextId(defaults.prefix || 'REQ-', allIds()) });
+  const qTitle = h('input', { class: 'inp', placeholder: 'Titolo del requisito' });
   const qText = h('input', { class: 'inp', placeholder: 'Testo del requisito (… shall …)' });
   const qBtn = h('button', {
     type: 'button', class: 'btn sm', onclick: () => {
-      const id = qId.value.trim(), text = qText.value.trim();
-      if (!id || !text) { toast('Per creare un requisito servono ID e testo.', 'err'); return; }
+      const id = qId.value.trim(), title = qTitle.value.trim(), text = qText.value.trim();
+      if (!id || !title || !text) { toast('Per creare un requisito servono ID, titolo e testo.', 'err'); return; }
       if (allIds().some((x) => eqId(x, id))) { toast('L’ID requisito “' + id + '” esiste già.', 'err'); return; }
-      const r = { uid: newUid('r'), id, text, type: defaults.type || 'Interface', origin: 'Interface analysis', links: [], method: 'Test', owner: draft.owner || 'Da assegnare', status: 'Draft', notes: '' };
+      const r = { uid: newUid('r'), id, title, text, type: defaults.type || 'Interface', origin: 'Interface analysis', links: [], method: 'Test', owner: draft.owner || 'Da assegnare', status: 'Draft', shareable: false, notes: '' };
       draft._newReqs.push(r);
       draft._reqs.push(r.uid);
-      qText.value = '';
+      qText.value = ''; qTitle.value = '';
       qId.value = nextId(defaults.prefix || 'REQ-', allIds());
       render();
       formChanged();
     }
   }, '+ Crea e collega');
   wrap.append(search, list, h('div', { class: 'fld-hint', style: { marginTop: '8px' } }, 'Creazione rapida di un nuovo requisito collegato a questo oggetto (tipo ' + (defaults.type || 'Interface') + ', stato Draft):'),
-    h('div', { class: 'quick-add' }, qId, qText, qBtn));
+    h('div', { class: 'quick-add' }, qId, qTitle), h('div', { class: 'quick-add two' }, qText, qBtn));
   render();
   return wrap;
 }
@@ -3356,8 +4111,8 @@ function openComponentPanel(uid, preset, focusPortUid) {
         fld('ID', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id', hint: 'Identificativo univoco, es. VCU' }),
         fld('Nome', inputFor(d, 'name'), { required: true, field: 'name' }),
         fld('Descrizione', textareaFor(d, 'description', { rows: 2 }), { wide: true }),
-        fld('Dominio', selectFor(d, 'domain', state.lists.domains), { field: 'domain' }),
-        fld('Owner', selectFor(d, 'owner', ownerOptions()), { field: 'owner' }),
+        fld(helpLabel('Dominio', 'dominio'), selectFor(d, 'domain', state.lists.domains), { field: 'domain' }),
+        fld(helpLabel('Owner', 'owner'), selectFor(d, 'owner', ownerOptions()), { field: 'owner' }),
         fld('Fornitore', inputFor(d, 'supplier')),
         fld('Stato', selectFor(d, 'status', STATUSES)),
         fld('Gruppo funzionale', selectFor(d, 'groupUid', groupOpts, null, (v) => { d.groupUid = v || null; }), { field: 'groupUid' }),
@@ -3373,7 +4128,7 @@ function openComponentPanel(uid, preset, focusPortUid) {
       if (!isNew) {
         const ifs = (idx.ifacesByComp.get(uid) || []).slice().sort((a, b) => cmpNat(a.id, b.id));
         kids.push(h('div', { class: 'sp-section' }, h('h3', null, 'Interfacce collegate', h('span', { class: 'count' }, '(' + ifs.length + ')')),
-          ifs.length ? h('div', { class: 'rel-list' }, ifs.map((f) => relItem('interface', f.uid, f.id, portFull(f.portA) + ' ↔ ' + portFull(f.portB) + ' · ' + f.type))) : h('div', { class: 'muted' }, 'Nessuna interfaccia.')));
+          ifs.length ? h('div', { class: 'rel-list' }, ifs.map((f) => relItem('interface', f.uid, f.id, portFull(f.portA) + ' ↔ ' + portFull(f.portB) + ' · ' + ifClassText(f)))) : h('div', { class: 'muted' }, 'Nessuna interfaccia.')));
       }
       kids.push(h('div', { class: 'sp-section' }, h('h3', null, 'Requisiti associati al componente'), reqChecklist(d, { type: 'Installation', prefix: 'REQ-' + (str(d.id).trim() || 'CMP') + '-' })));
       return kids;
@@ -3429,7 +4184,7 @@ function portsEditor(draft, box, originalPorts, focusPortUid) {
   function startEdit(p) {
     editing = p ? { uid: p.uid, isNew: false, data: clone(p) } : {
       uid: newUid('p'), isNew: true,
-      data: { uid: null, id: nextId('J', draft.ports.map((x) => x.id), 1), label: '', type: state.lists.portTypes[0] || 'Other', direction: 'Bidirectional', notes: '' }
+      data: { uid: null, id: nextId('J', draft.ports.map((x) => x.id), 1), label: '', type: state.lists.portTypes[0] || 'Other', direction: 'Bidirectional', side: 'auto', notes: '' }
     };
     if (editing.isNew) editing.data.uid = editing.uid;
     render();
@@ -3488,6 +4243,7 @@ function portsEditor(draft, box, originalPorts, focusPortUid) {
     const lbIn = bind('label', h('input', { class: 'inp', value: dd.label, placeholder: 'es. RS-422 CONTROL' }));
     const tySel = h('select', { class: 'inp' }); fillSelect(tySel, state.lists.portTypes, dd.type); bind('type', tySel);
     const drSel = h('select', { class: 'inp' }); fillSelect(drSel, DIRECTIONS, dd.direction); bind('direction', drSel);
+    const sdSel = h('select', { class: 'inp' }); fillSelect(sdSel, PORT_SIDES, dd.side || 'auto'); bind('side', sdSel);
     const ntIn = bind('notes', h('input', { class: 'inp', value: dd.notes || '', placeholder: 'Note (facoltative)' }));
     [idIn, lbIn, ntIn].forEach((el) => el.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') { e.preventDefault(); confirmEdit(); }
@@ -3496,7 +4252,9 @@ function portsEditor(draft, box, originalPorts, focusPortUid) {
     return h('tr', { class: 'port-edit' }, h('td', { colspan: 6 },
       h('div', { class: 'port-edit-grid' },
         fld('ID porta', idIn, { required: true }), fld('Etichetta', lbIn, { required: true }),
-        fld('Tipo', tySel), fld('Direzione', drSel), fld('Note', ntIn, { wide: true })),
+        fld(helpLabel('Tipo', 'porta'), tySel), fld('Direzione', drSel),
+        fld(helpLabel('Lato sul diagramma', 'lati'), sdSel, { wide: true, hint: 'Solo grafico: il connettore è uno. “Automatico” fa uscire le linee dal lato rivolto verso l’altro blocco; un lato fisso serve per convenzioni di disegno (es. alimentazioni a sinistra).' }),
+        fld('Note', ntIn, { wide: true })),
       editing.err ? h('div', { class: 'msg-box err', style: { margin: '6px 0' } }, editing.err) : null,
       h('div', { class: 'row-actions' },
         h('button', { type: 'button', class: 'btn sm primary', onclick: confirmEdit }, editing.isNew ? 'Aggiungi' : 'Conferma'),
@@ -3513,7 +4271,7 @@ function portsEditor(draft, box, originalPorts, focusPortUid) {
         h('td', { class: 'muted' }, String(i + 1)),
         h('td', { class: 'id' }, p.id),
         h('td', null, p.label, p.notes ? h('div', { class: 'muted small' }, p.notes) : null),
-        h('td', { class: 'small' }, p.type, h('div', { class: 'muted' }, p.direction)),
+        h('td', { class: 'small' }, p.type, h('div', { class: 'muted' }, p.direction + (p.side === 'L' ? ' · lato sx' : (p.side === 'R' ? ' · lato dx' : '')))),
         h('td', null, usage(p)),
         h('td', { class: 'act' },
           h('button', { type: 'button', class: 'btn xs ghost', title: 'Sposta su', 'aria-label': 'Sposta su', disabled: i === 0, onclick: () => move(i, -1) }, '▲'),
@@ -3544,14 +4302,17 @@ function openInterfacePanel(uid, preset) {
   const draft = isNew ? {
     uid: newUid('i'), id: nextId('IF-', state.interfaces.map((f) => f.id)), name: '',
     compA: preset.compA || '', portA: preset.portA || '', compB: preset.compB || '', portB: preset.portB || '',
-    type: preset.type || '', description: '', owner: 'Da assegnare', status: 'Proposta'
+    category: preset.category || '', subtype: preset.subtype || '', protocol: '', description: '', owner: 'Da assegnare', status: 'Proposta'
   } : clone(src);
-  if (isNew && !draft.type && draft.portA) {
+  const cats = state.lists.ifCategories.map((c) => c.name);
+  if (isNew && !draft.category && draft.portA) {
+    // proposta di classificazione in base al tipo della porta di partenza
     const pa = portEntry(draft.portA);
-    const guess = pa && Object.keys(IF_PORT_COMPAT).find((t) => IF_PORT_COMPAT[t][0] === pa.port.type);
-    if (guess && state.lists.ifTypes.includes(guess)) draft.type = guess;
+    const guess = pa && PORT_DEFAULT_CAT[pa.port.type];
+    if (guess && cats.includes(guess[0])) { draft.category = guess[0]; if (subtypesOf(guess[0]).includes(guess[1])) draft.subtype = guess[1]; }
   }
-  if (!draft.type) draft.type = state.lists.ifTypes[0] || 'Other';
+  if (!draft.category) draft.category = cats.includes('Funzionale') ? 'Funzionale' : (cats[0] || '');
+  if (isNew && !draft.subtype) draft.subtype = subtypesOf(draft.category)[0] || '';
   draft._reqs = isNew ? [] : (idx.reqsByObj.get(uid) || []).map((r) => r.uid);
   draft._newReqs = [];
   openPanel({
@@ -3580,11 +4341,30 @@ function openInterfacePanel(uid, preset) {
           formChanged();
         }
       }, '⇄ Scambia A/B');
+      const subOpts = () => {
+        const l = subtypesOf(d.category);
+        return [{ value: '', label: '— nessun sottotipo —' }].concat(l, d.subtype && !l.includes(d.subtype) ? [{ value: d.subtype, label: d.subtype + ' (non più in elenco)' }] : []);
+      };
+      const subSel = selectFor(d, 'subtype', subOpts());
+      const catHint = h('span');
+      const paintCatHint = () => {
+        catHint.innerHTML = '';
+        catHint.append(h('span', { class: 'swatch', style: { background: categoryColor(d.category) } }),
+          categoryNeedsCables(d.category) ? 'Realizzata tramite cavi (vista cavi e controlli di cablaggio)' : 'Non realizzata da cavi (nessun controllo di cablaggio)');
+      };
+      paintCatHint();
+      const catSel = selectFor(d, 'category', state.lists.ifCategories.map((c) => c.name), null, () => {
+        if (!subtypesOf(d.category).includes(d.subtype)) d.subtype = subtypesOf(d.category)[0] || '';
+        fillSelect(subSel, subOpts(), d.subtype);
+        paintCatHint();
+      });
       const kids = [
         h('div', { class: 'form-grid' },
           fld('ID', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id', hint: 'Univoco; se cambia, cavi e requisiti restano collegati' }),
-          fld('Tipo / protocollo', selectFor(d, 'type', state.lists.ifTypes), { required: true, field: 'type' }),
-          fld('Nome', inputFor(d, 'name', { placeholder: 'es. VCU to Display control interface' }), { required: true, wide: true, field: 'name' })),
+          fld('Nome', inputFor(d, 'name', { placeholder: 'es. VCU to Display control interface' }), { required: true, field: 'name' }),
+          fld(helpLabel('Categoria', 'categoria'), catSel, { required: true, field: 'category', hint: catHint }),
+          fld('Sottotipo', subSel, { field: 'subtype', hint: 'I sottotipi di ogni categoria si configurano in Impostazioni' }),
+          fld('Protocollo / standard', datalistInput(d, 'protocol', state.lists.protocols, { placeholder: 'es. RS-422, 28 VDC (MIL-STD-1275), Fissaggio a vite…' }), { wide: true, field: 'protocol', hint: 'Specifica tecnica che regola l’interfaccia: protocollo, livello di tensione, norma, tipo di fissaggio o di fluido' })),
         h('div', { class: 'form-grid', style: { marginTop: '12px' } },
           h('div', { class: 'endpoint-box' }, h('h4', null, 'Lato A'),
             fld('Componente A', cASel, { required: true, field: 'compA' }), h('div', { style: { height: '8px' } }),
@@ -3598,7 +4378,10 @@ function openInterfacePanel(uid, preset) {
           fld('Owner', selectFor(d, 'owner', ownerOptions())),
           fld('Stato', selectFor(d, 'status', STATUSES)))
       ];
-      if (!isNew) {
+      if (!isNew && !categoryNeedsCables(d.category) && !(idx.cablesByIface.get(uid) || []).length) {
+        kids.push(h('div', { class: 'sp-section' }, h('h3', null, 'Realizzazione fisica'),
+          h('div', { class: 'msg-box info', style: { margin: '0' } }, 'La categoria ' + d.category + ' non è realizzata da cavi: l’interfaccia non viene segnalata come “senza cavi”.')));
+      } else if (!isNew) {
         const cbs = (idx.cablesByIface.get(uid) || []).slice().sort((a, b) => cmpNat(a.id, b.id));
         kids.push(h('div', { class: 'sp-section' },
           h('h3', null, 'Cavi che realizzano l’interfaccia', h('span', { class: 'count' }, '(' + cbs.length + ')'), h('span', { class: 'spacer' }),
@@ -3628,7 +4411,9 @@ function validateInterface(d) {
   const E = [], W = [];
   checkUniqueId(state.interfaces, d, 'dell’interfaccia', E);
   if (!str(d.name).trim()) E.push({ f: 'name', m: 'Il nome dell’interfaccia è obbligatorio.' });
-  if (!d.type) E.push({ f: 'type', m: 'Seleziona il tipo o protocollo.' });
+  if (!d.category) E.push({ f: 'category', m: 'Seleziona la categoria dell’interfaccia.' });
+  else if (!categoryOf(d.category)) W.push({ m: 'La categoria “' + d.category + '” non è più configurata nelle impostazioni.' });
+  if (d.subtype && !subtypesOf(d.category).includes(d.subtype)) W.push({ m: 'Il sottotipo “' + d.subtype + '” non è previsto per la categoria ' + d.category + '.' });
   const cA = idx.comp.get(d.compA), cB = idx.comp.get(d.compB);
   if (!cA) E.push({ f: 'compA', m: 'Il componente A non esiste: selezionane uno.' });
   if (!cB) E.push({ f: 'compB', m: 'Il componente B non esiste: selezionane uno.' });
@@ -3637,14 +4422,15 @@ function validateInterface(d) {
   if (d.portA && d.portA === d.portB) E.push({ f: 'portB', m: 'Porta A e porta B coincidono.' });
   if (cA && cB && cA.uid === cB.uid && d.portA !== d.portB) W.push({ m: 'Interfaccia interna allo stesso componente (loopback).' });
   const pA = portEntry(d.portA), pB = portEntry(d.portB);
-  if (pA && !portTypeCompatible(d.type, pA.port.type)) W.push({ m: 'La porta A è di tipo ' + pA.port.type + ', non coerente con ' + d.type + '.' });
-  if (pB && !portTypeCompatible(d.type, pB.port.type)) W.push({ m: 'La porta B è di tipo ' + pB.port.type + ', non coerente con ' + d.type + '.' });
+  if (pA && !portCompatible(d.category, d.subtype, pA.port.type)) W.push({ m: 'La porta A è di tipo ' + pA.port.type + ', non coerente con ' + ifClassText(d) + '.' });
+  if (pB && !portCompatible(d.category, d.subtype, pB.port.type)) W.push({ m: 'La porta B è di tipo ' + pB.port.type + ', non coerente con ' + ifClassText(d) + '.' });
   const dup = state.interfaces.filter((f) => f.uid !== d.uid && d.portA && d.portB && ((f.portA === d.portA && f.portB === d.portB) || (f.portA === d.portB && f.portB === d.portA)));
   if (dup.length) W.push({ m: 'Esiste già un’interfaccia fra le stesse porte: ' + dup.map((f) => f.id).join(', ') + '.' });
   const cbs = idx.cablesByIface.get(d.uid) || [];
   const mism = cbs.filter((c) => d.portA && d.portB && !cableMatchesInterface(c, d));
   if (mism.length) W.push({ m: 'I cavi ' + mism.map((c) => c.id).join(', ') + ' hanno estremi diversi dalle nuove porte: verificali dopo il salvataggio.' });
   if (!d._reqs.length) W.push({ m: 'Nessun requisito di interfaccia associato.' });
+  if (categoryOf(d.category) && !categoryNeedsCables(d.category) && (idx.cablesByIface.get(d.uid) || []).length) W.push({ m: 'La categoria ' + d.category + ' normalmente non è realizzata da cavi, ma l’interfaccia ha cavi associati.' });
   return { errors: E, warnings: W };
 }
 
@@ -3837,9 +4623,11 @@ function openRequirementPanel(uid, preset) {
   if (!isNew && !src) return;
   preset = preset || {};
   const draft = isNew ? {
-    uid: newUid('r'), id: nextId('REQ-', state.requirements.map((r) => r.id)), text: '', type: preset.type || 'Interface',
-    origin: 'System derived', links: preset.link ? [preset.link] : [], method: 'Test', owner: 'Da assegnare', status: 'Draft', notes: ''
+    uid: newUid('r'), id: nextId('REQ-', state.requirements.map((r) => r.id)), title: '', text: '', type: preset.type || 'Interface',
+    origin: 'System derived', links: preset.link ? [preset.link] : [], method: 'Test', owner: 'Da assegnare', status: 'Draft', shareable: false, notes: ''
   } : clone(src);
+  if (draft.title == null) draft.title = '';
+  draft.shareable = !!draft.shareable;
   draft.links = draft.links || [];
   openPanel({
     kind: 'requirement', uid: draft.uid, isNew, showOnBoard: true,
@@ -3878,18 +4666,22 @@ function openRequirementPanel(uid, preset) {
         h('div', { class: 'form-grid' },
           fld('ID requisito', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id' }),
           fld('Stato', selectFor(d, 'status', REQ_STATUSES)),
-          fld('Testo', textareaFor(d, 'text', { rows: 4, placeholder: 'The … shall …' }), { required: true, wide: true, field: 'text' }),
+          fld('Titolo', inputFor(d, 'title', { maxlength: 160, placeholder: 'Sintesi breve, es. Latenza degli aggiornamenti di controllo' }), { required: true, wide: true, field: 'title' }),
+          fld('Testo del requisito', textareaFor(d, 'text', { rows: 4, placeholder: 'The … shall …' }), { required: true, wide: true, field: 'text' }),
           fld('Tipo', selectFor(d, 'type', REQ_TYPES)),
           fld('Origine', selectFor(d, 'origin', REQ_ORIGINS)),
           fld('Metodo di verifica', selectFor(d, 'method', REQ_METHODS)),
           fld('Owner', selectFor(d, 'owner', ownerOptions())),
-          fld('Note / razionale', textareaFor(d, 'notes', { rows: 2 }), { wide: true })),
+          h('div', { class: 'fld wide' }, checkboxFor(d, 'shareable', 'Condivisibile con il fornitore',
+            'Se attivo, il requisito può essere incluso nell’esportazione Excel per il fornitore (colonne ID, Titolo, Testo, Metodo di verifica).')),
+          fld('Note / razionale (interne)', textareaFor(d, 'notes', { rows: 2 }), { wide: true, hint: 'Le note non vengono mai esportate verso il fornitore.' })),
         h('div', { class: 'sp-section', 'data-field': 'links' }, h('h3', null, 'Oggetti collegati'), linksBox)
       ];
     },
     validate: (d) => {
       const E = [], W = [];
       checkUniqueId(state.requirements, d, 'del requisito', E);
+      if (!str(d.title).trim()) E.push({ f: 'title', m: 'Il titolo del requisito è obbligatorio.' });
       if (!str(d.text).trim()) E.push({ f: 'text', m: 'Il testo del requisito è obbligatorio.' });
       d.links.forEach((l) => { if (!getObj(l.kind, l.uid)) E.push({ f: 'links', m: 'Un collegamento punta a un oggetto inesistente: rimuovilo con “Scollega”.' }); });
       if (!d.links.length) W.push({ m: 'Il requisito non è collegato ad alcun oggetto.' });
@@ -3899,7 +4691,9 @@ function openRequirementPanel(uid, preset) {
     save: (d) => {
       const clean = stripDraft(d);
       clean.id = str(clean.id).trim();
+      clean.title = str(clean.title).trim();
       clean.text = str(clean.text).trim();
+      clean.shareable = !!clean.shareable;
       return commit((st) => {
         const i = st.requirements.findIndex((r) => r.uid === clean.uid);
         if (i >= 0) st.requirements[i] = clean; else st.requirements.push(clean);
@@ -3921,6 +4715,7 @@ function openGroupPanel(uid, preset) {
     color: GROUP_COLORS[state.groups.length % GROUP_COLORS.length].v, owner: 'Da assegnare'
   } : clone(src);
   draft._members = isNew ? (preset.members || []) : state.components.filter((c) => c.groupUid === uid).map((c) => c.uid);
+  draft._newComps = [];   // componenti creati dal pannello del gruppo, salvati insieme al gruppo
   openPanel({
     kind: 'group', uid: draft.uid, isNew, showOnBoard: true,
     title: isNew ? 'Nuovo gruppo funzionale' : draft.id + ' — ' + draft.name,
@@ -3938,16 +4733,68 @@ function openGroupPanel(uid, preset) {
       };
       renderColors();
       const list = h('div', { class: 'checklist' });
-      state.components.slice().sort((a, b) => cmpNat(a.id, b.id)).forEach((c) => {
-        const other = c.groupUid && c.groupUid !== d.uid ? idx.group.get(c.groupUid) : null;
-        list.appendChild(h('label', { class: 'ck' }, h('input', {
-          type: 'checkbox', checked: d._members.includes(c.uid), onchange: (e) => {
-            if (e.target.checked) d._members.push(c.uid); else d._members = d._members.filter((u) => u !== c.uid);
-            formChanged();
+      const countEl = h('span', { class: 'count' });
+      const renderList = () => {
+        list.innerHTML = '';
+        countEl.textContent = '(' + (d._members.length + d._newComps.length) + ')';
+        d._newComps.forEach((nc) => {
+          list.appendChild(h('div', { class: 'ck ck-new' }, h('input', { type: 'checkbox', checked: true, disabled: true }),
+            h('div', { style: { flex: '1' } }, h('span', { class: 'ck-id' }, nc.id), ' ', nc.name,
+              h('div', { class: 'muted small' }, 'Nuovo · ' + nc.domain + ' · ' + nc.owner + ' · ' + plural(nc.ports.length, 'porta', 'porte') + ' · creato al salvataggio del gruppo')),
+            h('button', { type: 'button', class: 'btn xs danger', title: 'Non creare questo componente', onclick: () => { d._newComps = d._newComps.filter((x) => x !== nc); renderList(); formChanged(); } }, '✕')));
+        });
+        state.components.slice().sort((a, b) => cmpNat(a.id, b.id)).forEach((c) => {
+          const other = c.groupUid && c.groupUid !== d.uid ? idx.group.get(c.groupUid) : null;
+          list.appendChild(h('label', { class: 'ck' }, h('input', {
+            type: 'checkbox', checked: d._members.includes(c.uid), onchange: (e) => {
+              if (e.target.checked) d._members.push(c.uid); else d._members = d._members.filter((u) => u !== c.uid);
+              countEl.textContent = '(' + (d._members.length + d._newComps.length) + ')';
+              formChanged();
+            }
+          }), h('div', null, h('span', { class: 'ck-id' }, c.id), ' ', c.name, other ? h('span', { class: 'muted small' }, ' · ora in ' + other.id + ' (verrà spostato)') : null)));
+        });
+        if (!state.components.length && !d._newComps.length) list.appendChild(h('div', { class: 'ck-empty' }, 'Nessun componente: crealo qui sotto.'));
+      };
+      renderList();
+      // creazione rapida di un componente direttamente nel gruppo
+      const allIds = () => state.components.map((c) => c.id).concat(d._newComps.map((c) => c.id));
+      const nc = { id: nextId('CMP-', allIds(), 2), name: '', domain: state.lists.domains.includes('Altro') ? 'Altro' : state.lists.domains[0], owner: d.owner || 'Da assegnare', ports: '' };
+      const ncId = h('input', { class: 'inp', value: nc.id, maxlength: 40 });
+      const ncName = h('input', { class: 'inp', placeholder: 'es. Mission Computer' });
+      const ncDom = h('select', { class: 'inp' }); fillSelect(ncDom, state.lists.domains, nc.domain);
+      const ncOwn = h('select', { class: 'inp' }); fillSelect(ncOwn, ownerOptions(), nc.owner);
+      const ncPorts = h('input', { class: 'inp', placeholder: 'es. J1 28 VDC POWER; J2 ETHERNET DATA' });
+      const ncErr = h('div', { class: 'msg-box err', style: { display: 'none', margin: '6px 0 0' } });
+      const addBtn = h('button', {
+        type: 'button', class: 'btn sm primary', onclick: () => {
+          const id = ncId.value.trim(), name = ncName.value.trim();
+          const fail = (m) => { ncErr.textContent = m; ncErr.style.display = ''; };
+          if (!id || !name) return fail('ID e nome del componente sono obbligatori.');
+          if (allIds().some((x) => eqId(x, id))) return fail('L’ID “' + id + '” è già usato da un altro componente.');
+          const ports = [];
+          for (const chunk of ncPorts.value.split(/[;\n]/).map((x) => x.trim()).filter(Boolean)) {
+            const m = chunk.match(/^(\S+)\s*(.*)$/);
+            if (ports.some((p) => eqId(p.id, m[1]))) return fail('Porta duplicata: ' + m[1] + '.');
+            ports.push({ uid: newUid('p'), id: m[1], label: m[2] || m[1], type: 'Other', direction: 'Bidirectional', side: 'auto', notes: '' });
           }
-        }), h('div', null, h('span', { class: 'ck-id' }, c.id), ' ', c.name, other ? h('span', { class: 'muted small' }, ' · ora in ' + other.id + ' (verrà spostato)') : null)));
-      });
-      if (!state.components.length) list.appendChild(h('div', { class: 'ck-empty' }, 'Nessun componente definito.'));
+          ncErr.style.display = 'none';
+          d._newComps.push({ uid: newUid('c'), id, name, description: '', domain: ncDom.value, owner: ncOwn.value, supplier: '', status: 'Proposta', x: 0, y: 0, groupUid: d.uid, ports });
+          ncName.value = ''; ncPorts.value = '';
+          ncId.value = nextId('CMP-', allIds(), 2);
+          renderList();
+          formChanged();
+          ncName.focus();
+        }
+      }, '+ Aggiungi al gruppo');
+      [ncId, ncName, ncPorts].forEach((el) => el.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addBtn.click(); } }));
+      const quick = h('div', { class: 'endpoint-box', style: { marginTop: '10px' } },
+        h('h4', null, 'Nuovo componente in questo gruppo'),
+        h('div', { class: 'form-grid' },
+          fld('ID', ncId, { required: true }), fld('Nome', ncName, { required: true }),
+          fld('Dominio', ncDom), fld('Owner', ncOwn),
+          fld('Porte iniziali (facoltative)', ncPorts, { wide: true, hint: 'Una porta per voce, separate da “;”: ID seguito dall’etichetta. Tipo e direzione si completano poi nel componente.' })),
+        ncErr,
+        h('div', { class: 'row-actions' }, addBtn, h('span', { class: 'muted small' }, 'Il componente viene creato e posizionato nella cornice del gruppo quando salvi il gruppo.')));
       return [
         h('div', { class: 'form-grid' },
           fld('ID', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id' }),
@@ -3955,7 +4802,7 @@ function openGroupPanel(uid, preset) {
           fld('Descrizione', textareaFor(d, 'description', { rows: 2 }), { wide: true }),
           fld('Owner', selectFor(d, 'owner', ownerOptions())),
           fld('Colore sulla lavagna', colors)),
-        h('div', { class: 'sp-section' }, h('h3', null, 'Componenti del gruppo'), list,
+        h('div', { class: 'sp-section' }, h('h3', null, 'Componenti del gruppo', countEl), list, quick,
           h('div', { class: 'fld-hint', style: { marginTop: '6px' } }, 'Ogni componente appartiene al massimo a un gruppo. Sulla lavagna la cornice del gruppo racchiude i suoi componenti; trascinane l’intestazione per spostarli insieme.'))
       ];
     },
@@ -3963,7 +4810,8 @@ function openGroupPanel(uid, preset) {
       const E = [], W = [];
       checkUniqueId(state.groups, d, 'del gruppo', E);
       if (!str(d.name).trim()) E.push({ f: 'name', m: 'Il nome del gruppo è obbligatorio.' });
-      if (!d._members.length) W.push({ m: 'Il gruppo non contiene componenti: non sarà visibile sulla lavagna.' });
+      d._newComps.forEach((c) => { if (state.components.some((x) => eqId(x.id, c.id))) E.push({ m: 'L’ID del nuovo componente “' + c.id + '” è già usato.' }); });
+      if (!d._members.length && !d._newComps.length) W.push({ m: 'Il gruppo non contiene componenti: non sarà visibile sulla lavagna.' });
       return { errors: E, warnings: W };
     },
     save: (d) => {
@@ -3971,6 +4819,7 @@ function openGroupPanel(uid, preset) {
       clean.id = str(clean.id).trim();
       clean.name = str(clean.name).trim();
       const members = new Set(d._members);
+      const created = placeNewComponents(d._newComps.map((c) => Object.assign(clone(c), { groupUid: clean.uid })), d._members);
       return commit((st) => {
         const i = st.groups.findIndex((g) => g.uid === clean.uid);
         if (i >= 0) st.groups[i] = clean; else st.groups.push(clean);
@@ -3978,9 +4827,40 @@ function openGroupPanel(uid, preset) {
           if (members.has(c.uid)) c.groupUid = clean.uid;
           else if (c.groupUid === clean.uid) c.groupUid = null;
         });
-      }, isNew ? 'Gruppo ' + clean.id + ' creato' : 'Gruppo ' + clean.id + ' aggiornato');
+        created.forEach((c) => st.components.push(c));
+      }, (isNew ? 'Gruppo ' + clean.id + ' creato' : 'Gruppo ' + clean.id + ' aggiornato') + (created.length ? ' con ' + plural(created.length, 'nuovo componente', 'nuovi componenti') : ''));
     }
   });
+}
+/* Posiziona i nuovi componenti sotto ai membri del gruppo (o al centro della vista), senza sovrapposizioni */
+function placeNewComponents(list, memberUids) {
+  if (!list.length) return list;
+  const geom = geomMap(true);
+  const boxes = [];
+  geom.forEach((g) => boxes.push({ x0: g.x, y0: g.y, x1: g.x + g.w, y1: g.y + g.h }));
+  const mem = memberUids.map((u) => geom.get(u)).filter(Boolean);
+  let x, y;
+  if (mem.length) {
+    x = Math.min(...mem.map((g) => g.x));
+    y = Math.max(...mem.map((g) => g.y + g.h)) + 70;
+  } else if (B && ui.section === 'board') {
+    const r = B.svg.getBoundingClientRect();
+    x = (r.width / 2 - ui.panX) / ui.zoom - 120; y = (r.height / 2 - ui.panY) / ui.zoom - 80;
+  } else { const p = nextFreePosition(); x = p.x; y = p.y; }
+  x = snapV(x); y = snapV(y);
+  list.forEach((c) => {
+    const g = compGeom(c, true);
+    let cy = y;
+    for (let guard = 0; guard < 400; guard++) {
+      const box = { x0: x - 40, y0: cy - 50, x1: x + g.w + 40, y1: cy + g.h + 50 };
+      if (!boxes.some((b) => b.x0 < box.x1 && b.x1 > box.x0 && b.y0 < box.y1 && b.y1 > box.y0)) break;
+      cy += 20;
+    }
+    c.x = x; c.y = snapV(cy);
+    boxes.push({ x0: x, y0: c.y, x1: x + g.w, y1: c.y + g.h });
+    y = c.y + g.h + 60;
+  });
+  return list;
 }
 
 /* =====================================================================
@@ -4057,7 +4937,9 @@ const TABLES = {
     desc: 'Ogni interfaccia collega una porta del componente A a una porta del componente B. Può essere realizzata da zero, uno o più cavi.',
     rows: () => state.interfaces,
     filters: [
-      { key: 'type', label: 'Tipo', options: () => state.lists.ifTypes, test: (f, v) => f.type === v },
+      { key: 'category', label: 'Categoria', options: () => state.lists.ifCategories.map((c) => c.name), test: (f, v) => f.category === v },
+      { key: 'domains', label: 'Domini', options: () => [{ value: 'cross', label: 'Interdominio' }, { value: 'same', label: 'Stesso dominio' }], test: (f, v) => isCrossDomain(f) === (v === 'cross') },
+      { key: 'owner', label: 'Owner', options: () => state.lists.owners, test: (f, v) => f.owner === v },
       { key: 'status', label: 'Stato', options: () => STATUSES, test: (f, v) => f.status === v }
     ],
     columns: [
@@ -4067,7 +4949,9 @@ const TABLES = {
       { key: 'portA', label: 'Porta A', get: (f) => portIdOf(f.portA) || '', render: (f) => portCell(f.compA, f.portA) },
       { key: 'compB', label: 'Comp. B', get: (f) => compIdOf(f.compB) || '', render: (f) => compCell(f.compB) },
       { key: 'portB', label: 'Porta B', get: (f) => portIdOf(f.portB) || '', render: (f) => portCell(f.compB, f.portB) },
-      { key: 'type', label: 'Tipo / protocollo', cls: 'nowrap', get: (f) => f.type },
+      { key: 'category', label: 'Categoria', cls: 'nowrap', get: (f) => f.category, render: (f) => h('span', null, h('span', { class: 'swatch', style: { background: categoryColor(f.category) } }), f.category || '—') },
+      { key: 'subtype', label: 'Sottotipo', cls: 'nowrap', get: (f) => f.subtype },
+      { key: 'protocol', label: 'Protocollo / standard', cls: 'mid', get: (f) => f.protocol },
       { key: 'description', label: 'Descrizione dello scambio', cls: 'text', get: (f) => f.description },
       { key: 'reqs', label: 'Requisiti', get: (f) => reqIds(f.uid), render: (f) => reqChips(f.uid) },
       { key: 'ncab', label: 'N. cavi', cls: 'num', get: (f) => (idx.cablesByIface.get(f.uid) || []).length, render: (f) => { const n = (idx.cablesByIface.get(f.uid) || []).length; return n ? String(n) : h('span', { class: 'ico-warn', title: 'Nessun cavo' }, '0'); } },
@@ -4105,15 +4989,24 @@ const TABLES = {
   },
   requirements: {
     kind: 'requirement', title: 'Requisiti', add: '+ Requisito', onAdd: () => openRequirementPanel(null),
-    desc: 'Requisiti di interfaccia, di cavo, di connettore e di installazione, collegabili a interfacce, cavi, componenti e porte.',
+    desc: 'Requisiti collegabili a interfacce, cavi, componenti e porte. Seleziona le righe e usa “Esporta per fornitore” per generare il file Excel con i soli requisiti condivisibili.',
     rows: () => state.requirements,
+    selectable: true,
+    extraButtons: () => [h('button', { type: 'button', class: 'btn', id: 'btnSupplierXlsx', title: 'Esporta in Excel (ID, Titolo, Testo, Metodo di verifica) i requisiti selezionati che sono condivisibili con il fornitore', onclick: exportSupplierXlsx }, 'Esporta per fornitore (Excel)')],
+    onRender: (sec) => {
+      const sel = selectedReqs();
+      const btn = qs('#btnSupplierXlsx', sec);
+      if (btn) btn.textContent = 'Esporta per fornitore (Excel)' + (sel.length ? ' · ' + sel.filter((r) => r.shareable).length + '/' + sel.length + ' selez.' : '');
+    },
     filters: [
+      { key: 'share', label: 'Fornitore', options: () => [{ value: 'yes', label: 'Condivisibili' }, { value: 'no', label: 'Non condivisibili' }], test: (r, v) => (v === 'yes' ? !!r.shareable : !r.shareable) },
       { key: 'type', label: 'Tipo', options: () => REQ_TYPES, test: (r, v) => r.type === v },
       { key: 'status', label: 'Stato', options: () => REQ_STATUSES, test: (r, v) => r.status === v },
       { key: 'kind', label: 'Collegato a', options: () => [{ value: 'interface', label: 'Interfacce' }, { value: 'cable', label: 'Cavi' }, { value: 'component', label: 'Componenti' }, { value: 'port', label: 'Porte' }, { value: '__none', label: '(nessun oggetto)' }], test: (r, v) => (v === '__none' ? !(r.links || []).length : (r.links || []).some((l) => l.kind === v)) }
     ],
     columns: [
       { key: 'id', label: 'ID requisito', cls: 'id', get: (r) => r.id },
+      { key: 'title', label: 'Titolo', cls: 'mid', get: (r) => r.title, render: (r) => r.title ? h('b', null, r.title) : h('span', { class: 'ico-warn', title: 'Titolo mancante' }, '?') },
       { key: 'text', label: 'Testo', cls: 'text', get: (r) => r.text },
       { key: 'type', label: 'Tipo', cls: 'nowrap', get: (r) => r.type },
       { key: 'origin', label: 'Origine', cls: 'nowrap', get: (r) => r.origin },
@@ -4128,10 +5021,15 @@ const TABLES = {
       },
       { key: 'method', label: 'Metodo di verifica', cls: 'nowrap', get: (r) => r.method },
       { key: 'owner', label: 'Owner', cls: 'nowrap', get: (r) => r.owner },
-      { key: 'status', label: 'Stato', get: (r) => r.status, render: (r) => pill(r.status) }
+      { key: 'status', label: 'Stato', get: (r) => r.status, render: (r) => pill(r.status) },
+      { key: 'shareable', label: 'Fornitore', cls: 'nowrap', get: (r) => (r.shareable ? 'Sì' : 'No'), render: (r) => r.shareable ? h('span', { class: 'pill st-approved', title: 'Condivisibile con il fornitore' }, 'Condivisibile') : h('span', { class: 'muted' }, 'No') }
     ]
   }
 };
+function selectedReqs() {
+  const sel = (ui.sel && ui.sel.requirements) || new Set();
+  return state.requirements.filter((r) => sel.has(r.uid));
+}
 function nextFreePosition() {
   let maxY = 0, minX = Infinity;
   (lastGeom || new Map()).forEach((g) => { maxY = Math.max(maxY, g.y + g.h); minX = Math.min(minX, g.x); });
@@ -4153,12 +5051,13 @@ function buildTableSections() {
       h('h1', null, cfg.title), h('span', { class: 'count', 'data-role': 'count' }),
       search, filterEls,
       h('span', { class: 'spacer' }),
+      cfg.extraButtons ? cfg.extraButtons() : null,
       h('button', { type: 'button', class: 'btn', title: 'Esporta le righe visibili in CSV', onclick: () => exportCsv(name) }, 'Esporta CSV'),
       h('button', { type: 'button', class: 'btn primary', onclick: async () => { if (await guardDirty()) cfg.onAdd(); } }, cfg.add));
     const wrap = h('div', { class: 'table-wrap', 'data-role': 'table' });
     sec.appendChild(h('div', { class: 'section-body' }, head, h('p', { class: 'section-desc' }, cfg.desc), wrap));
     wrap.addEventListener('click', (e) => {
-      if (e.target.closest('[data-open],button,a,input')) return;
+      if (e.target.closest('[data-open],button,a,input,.td-sel')) return;
       const tr = e.target.closest('tr[data-uid]');
       if (tr) openObject(cfg.kind, tr.dataset.uid);
     });
@@ -4196,7 +5095,20 @@ function renderTableSection(name) {
   const wrap = qs('[data-role="table"]', sec);
   const scrollTop = wrap.scrollTop, scrollLeft = wrap.scrollLeft;
   wrap.innerHTML = '';
-  const thr = h('tr', null, h('th', { title: 'Anomalie' }, h('span', { class: 'th-plain' }, '')));
+  const thr = h('tr');
+  let sel = null;
+  if (cfg.selectable) {
+    ui.sel = ui.sel || {};
+    sel = ui.sel[name] = ui.sel[name] || new Set();
+    const live = new Set(cfg.rows().map((r) => r.uid));
+    [...sel].forEach((u) => { if (!live.has(u)) sel.delete(u); });
+    const allOn = rows.length > 0 && rows.every((r) => sel.has(r.uid));
+    const head = h('input', { type: 'checkbox', checked: allOn, title: 'Seleziona / deseleziona tutte le righe visibili', 'aria-label': 'Seleziona tutte le righe visibili' });
+    head.indeterminate = !allOn && rows.some((r) => sel.has(r.uid));
+    head.addEventListener('change', () => { rows.forEach((r) => { if (head.checked) sel.add(r.uid); else sel.delete(r.uid); }); renderTableSection(name); });
+    thr.appendChild(h('th', { class: 'td-sel' }, h('span', { class: 'th-plain' }, head)));
+  }
+  thr.appendChild(h('th', { title: 'Anomalie' }, h('span', { class: 'th-plain' }, '')));
   cfg.columns.forEach((c) => {
     const active = f.sort && f.sort.key === c.key;
     thr.appendChild(h('th', null, h('button', {
@@ -4208,7 +5120,12 @@ function renderTableSection(name) {
   const tb = h('tbody');
   const selUid = ui.selected && ui.selected.kind === cfg.kind ? ui.selected.uid : (panelCtx && panelCtx.kind === cfg.kind ? panelCtx.uid : null);
   rows.forEach((r) => {
-    const tr = h('tr', { 'data-uid': r.uid, class: r.uid === selUid ? 'selected' : null });
+    const tr = h('tr', { 'data-uid': r.uid, class: (r.uid === selUid ? 'selected' : '') + (sel && sel.has(r.uid) ? ' checked' : '') || null });
+    if (sel) {
+      const cb = h('input', { type: 'checkbox', checked: sel.has(r.uid), 'aria-label': 'Seleziona ' + r.id });
+      cb.addEventListener('change', () => { if (cb.checked) sel.add(r.uid); else sel.delete(r.uid); renderTableSection(name); });
+      tr.appendChild(h('td', { class: 'td-sel' }, cb));
+    }
     tr.appendChild(issueCell(r.uid));
     cfg.columns.forEach((c) => {
       const v = c.render ? c.render(r) : c.get(r);
@@ -4221,6 +5138,7 @@ function renderTableSection(name) {
   wrap.appendChild(table);
   if (!rows.length) wrap.appendChild(h('div', { class: 'empty' }, total ? 'Nessun elemento corrisponde ai filtri.' : 'Nessun elemento. Usa “' + cfg.add + '” per crearne uno.'));
   wrap.scrollTop = scrollTop; wrap.scrollLeft = scrollLeft;
+  if (cfg.onRender) cfg.onRender(sec, rows);
 }
 function exportCsv(name) {
   const cfg = TABLES[name];
@@ -4230,6 +5148,151 @@ function exportCsv(name) {
   rows.forEach((r) => lines.push(cfg.columns.map((c) => q(c.csv ? c.csv(r) : c.get(r))).join(';')));
   downloadFile('IDV_' + name + '_' + stamp() + '.csv', '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
   toast('Esportate ' + rows.length + ' righe in CSV', 'ok');
+}
+
+/* =====================================================================
+   17b. ESPORTAZIONE EXCEL (.xlsx generato localmente, senza librerie esterne)
+   ===================================================================== */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; }
+  return t;
+})();
+function crc32(bytes) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+/* Archivio ZIP non compresso (metodo "store"), sufficiente per i file Office Open XML */
+function zipStore(files, mime) {
+  const enc = new TextEncoder();
+  const parts = [], central = [];
+  let offset = 0;
+  const d = new Date();
+  const dosTime = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  const dosDate = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  files.forEach((f) => {
+    const name = enc.encode(f.name), data = enc.encode(f.data), crc = crc32(data);
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint16(6, 0x0800, true); lh.setUint16(8, 0, true);
+    lh.setUint16(10, dosTime, true); lh.setUint16(12, dosDate, true); lh.setUint32(14, crc, true);
+    lh.setUint32(18, data.length, true); lh.setUint32(22, data.length, true); lh.setUint16(26, name.length, true); lh.setUint16(28, 0, true);
+    parts.push(new Uint8Array(lh.buffer), name, data);
+    const ch = new DataView(new ArrayBuffer(46));
+    ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint16(10, 0, true);
+    ch.setUint16(12, dosTime, true); ch.setUint16(14, dosDate, true); ch.setUint32(16, crc, true);
+    ch.setUint32(20, data.length, true); ch.setUint32(24, data.length, true); ch.setUint16(28, name.length, true);
+    ch.setUint16(30, 0, true); ch.setUint16(32, 0, true); ch.setUint16(34, 0, true); ch.setUint16(36, 0, true); ch.setUint32(38, 0, true); ch.setUint32(42, offset, true);
+    central.push(new Uint8Array(ch.buffer), name);
+    offset += 30 + name.length + data.length;
+  });
+  const cdSize = central.reduce((n, c) => n + c.length, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+  return new Blob(parts.concat(central, [new Uint8Array(end.buffer)]), { type: mime || 'application/zip' });
+}
+function xmlEsc(v) {
+  return str(v).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+/* Cartella di lavoro con un foglio: intestazione evidenziata e congelata, filtro automatico, testo a capo */
+function buildXlsx(sheetName, headers, rows, widths, title) {
+  const col = (i) => String.fromCharCode(65 + i);
+  const safeName = str(sheetName).replace(/[\[\]:*?\/\\]/g, ' ').slice(0, 31) || 'Foglio1';
+  const last = col(headers.length - 1) + (rows.length + 1);
+  const cell = (ref, v, st) => '<c r="' + ref + '" t="inlineStr" s="' + st + '"><is><t xml:space="preserve">' + xmlEsc(v) + '</t></is></c>';
+  let data = '<row r="1">' + headers.map((hd, i) => cell(col(i) + '1', hd, 1)).join('') + '</row>';
+  rows.forEach((r, ri) => { data += '<row r="' + (ri + 2) + '">' + r.map((v, i) => cell(col(i) + (ri + 2), v, i === 0 ? 3 : 2)).join('') + '</row>'; });
+  const sheet = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+    '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+    '<sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>' +
+    '<sheetFormatPr defaultRowHeight="15"/><cols>' + widths.map((w, i) => '<col min="' + (i + 1) + '" max="' + (i + 1) + '" width="' + w + '" customWidth="1"/>').join('') + '</cols>' +
+    '<sheetData>' + data + '</sheetData><autoFilter ref="A1:' + last + '"/>' +
+    '<pageMargins left="0.5" right="0.5" top="0.6" bottom="0.6" header="0.3" footer="0.3"/></worksheet>';
+  const styles = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+    '<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+    '<fonts count="3"><font><sz val="11"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><color rgb="FFFFFFFF"/><name val="Calibri"/><family val="2"/></font><font><b/><sz val="11"/><name val="Calibri"/><family val="2"/></font></fonts>' +
+    '<fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF0B2140"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+    '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFC3CAD3"/></left><right style="thin"><color rgb="FFC3CAD3"/></right><top style="thin"><color rgb="FFC3CAD3"/></top><bottom style="thin"><color rgb="FFC3CAD3"/></bottom><diagonal/></border></borders>' +
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+    '<cellXfs count="4"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>' +
+    '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>' +
+    '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+    '<xf numFmtId="0" fontId="2" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf></cellXfs>' +
+    '<cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+  const workbook = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+    '<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">' +
+    '<sheets><sheet name="' + xmlEsc(safeName) + '" sheetId="1" r:id="rId1"/></sheets>' +
+    '<definedNames><definedName name="_xlnm._FilterDatabase" localSheetId="0" hidden="1">\'' + xmlEsc(safeName) + '\'!$A$1:$' + col(headers.length - 1) + '$' + (rows.length + 1) + '</definedName></definedNames></workbook>';
+  const now = new Date().toISOString().replace(/\.\d+Z$/, 'Z');
+  const core = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n' +
+    '<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">' +
+    '<dc:title>' + xmlEsc(title || safeName) + '</dc:title><dc:creator>IDV Interface Manager</dc:creator>' +
+    '<dcterms:created xsi:type="dcterms:W3CDTF">' + now + '</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">' + now + '</dcterms:modified></cp:coreProperties>';
+  return zipStore([
+    { name: '[Content_Types].xml', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">' +
+      '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>' +
+      '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>' +
+      '<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>' +
+      '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' +
+      '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>' },
+    { name: '_rels/.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>' +
+      '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>' },
+    { name: 'docProps/core.xml', data: core },
+    { name: 'xl/workbook.xml', data: workbook },
+    { name: 'xl/_rels/workbook.xml.rels', data: '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' +
+      '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>' +
+      '<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>' },
+    { name: 'xl/worksheets/sheet1.xml', data: sheet },
+    { name: 'xl/styles.xml', data: styles }
+  ], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+}
+function downloadBlob(name, blob) {
+  const url = URL.createObjectURL(blob);
+  const a = h('a', { href: url, download: name });
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+/* Esportazione per il fornitore: solo requisiti selezionati E condivisibili; nessun campo interno */
+async function exportSupplierXlsx() {
+  let chosen = selectedReqs();
+  if (!chosen.length) {
+    const visible = visibleRows('requirements').filter((r) => r.shareable);
+    if (!visible.length) { showModal({ title: 'Nessun requisito da esportare', body: 'Seleziona i requisiti con le caselle a sinistra. Vengono esportati solo quelli con il flag “Condivisibile con il fornitore” attivo.' }); return; }
+    const ok = await showModal({
+      title: 'Nessun requisito selezionato',
+      body: 'Vuoi esportare tutti i ' + plural(visible.length, 'requisito condivisibile visibile', 'requisiti condivisibili visibili') + ' con i filtri attuali?',
+      buttons: [{ label: 'Annulla', value: false }, { label: 'Esporta ' + visible.length, value: true, cls: 'primary' }]
+    });
+    if (!ok) return;
+    chosen = visible;
+  }
+  const out = chosen.filter((r) => r.shareable);
+  const excluded = chosen.filter((r) => !r.shareable);
+  if (!out.length) {
+    showModal({ title: 'Nessun requisito condivisibile', body: [h('p', null, 'Nessuno dei ' + plural(chosen.length, 'requisito selezionato', 'requisiti selezionati') + ' ha il flag “Condivisibile con il fornitore” attivo.'), h('p', { class: 'muted' }, 'Attiva il flag nel pannello del requisito oppure filtra per “Fornitore: Condivisibili”.')] });
+    return;
+  }
+  const noTitle = out.filter((r) => !str(r.title).trim());
+  if (excluded.length || noTitle.length) {
+    const ok = await showModal({
+      title: 'Conferma esportazione per il fornitore',
+      body: [h('p', null, 'Verranno esportati ' + plural(out.length, 'requisito', 'requisiti') + ' (colonne: ID, Titolo, Testo, Metodo di verifica).'),
+        excluded.length ? h('div', { class: 'msg-box warn' }, h('b', null, plural(excluded.length, 'requisito selezionato escluso', 'requisiti selezionati esclusi') + ' perché non condivisibili:'), h('ul', null, excluded.slice(0, 30).map((r) => h('li', null, r.id + ' — ' + (r.title || r.text))))) : null,
+        noTitle.length ? h('div', { class: 'msg-box warn' }, 'Requisiti senza titolo: ' + noTitle.map((r) => r.id).join(', ') + '.') : null],
+      buttons: [{ label: 'Annulla', value: false }, { label: 'Esporta Excel', value: true, cls: 'primary' }]
+    });
+    if (!ok) return;
+  }
+  out.sort((a, b) => cmpNat(a.id, b.id));
+  const blob = buildXlsx('Requisiti', ['ID', 'Titolo', 'Testo', 'Metodo di verifica'],
+    out.map((r) => [r.id, r.title, r.text, r.method]), [18, 42, 90, 22], 'Requisiti per il fornitore — ' + (state.meta.name || ''));
+  const base = (state.meta.name || 'progetto').replace(/[^\w\-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 40) || 'progetto';
+  downloadBlob('Requisiti_fornitore_' + base + '_' + stamp() + '.xlsx', blob);
+  toast('Esportati ' + plural(out.length, 'requisito', 'requisiti') + ' per il fornitore in Excel', 'ok');
 }
 
 /* =====================================================================
@@ -4264,7 +5327,8 @@ function renderDashboard() {
     ['ifNoCable', 'Interfacce senza cavi'], ['ifNoReq', 'Interfacce senza requisiti'], ['cblNoPin', 'Cavi senza pinout'],
     ['cblNoConn', 'Cavi senza connettore'], ['reqNotApproved', 'Requisiti non approvati'], ['toVerify', 'Oggetti in stato “Da verificare”'],
     ['portUnused', 'Porte non utilizzate'], ['badRef', 'Riferimenti non validi'], ['dupId', 'ID duplicati'], ['missing', 'Campi obbligatori mancanti'],
-    ['cblMismatch', 'Cavi con estremi diversi dall’interfaccia'], ['typeMismatch', 'Tipo porta / protocollo incoerente'], ['reqNoLink', 'Requisiti senza collegamento'], ['compNoPorts', 'Componenti senza porte']
+    ['cblMismatch', 'Cavi con estremi diversi dall’interfaccia'], ['typeMismatch', 'Tipo porta non coerente con la categoria'], ['reqNoLink', 'Requisiti senza collegamento'], ['reqNoTitle', 'Requisiti senza titolo'],
+    ['compNoPorts', 'Componenti senza porte']
   ];
   root.appendChild(h('h2', { class: 'dash-h2' }, 'Controlli di completezza e coerenza'));
   const checks = h('div', { class: 'checks' });
@@ -4320,7 +5384,7 @@ function renderDashboard() {
     comps.forEach((cb) => {
       if (ca.uid === cb.uid) { tr.appendChild(h('td', { class: 'diag', title: ca.name }, ca.id)); return; }
       const fs = state.interfaces.filter((f) => f.compA === ca.uid && f.compB === cb.uid);
-      tr.appendChild(h('td', { class: fs.length ? 'has' : null, title: fs.length ? fs.map((f) => f.id + ' — ' + f.type).join('\n') : ca.id + ' → ' + cb.id + ': nessuna interfaccia' },
+      tr.appendChild(h('td', { class: fs.length ? 'has' : null, title: fs.length ? fs.map((f) => f.id + ' — ' + ifClassText(f)).join('\n') : ca.id + ' → ' + cb.id + ': nessuna interfaccia' },
         fs.map((f) => h('span', { class: 'chip mono link', 'data-open': 'interface:' + f.uid }, f.id))));
     });
     n2.appendChild(tr);
@@ -4360,7 +5424,7 @@ function renderDashboard() {
 }
 
 /* =====================================================================
-   19. IMPORTAZIONE / ESPORTAZIONE JSON (con validazione)
+   19. FILE SCARICATI E VALIDAZIONE DEI DATI (archivio, file di progetto)
    ===================================================================== */
 function stamp() {
   const d = new Date(), p = (n) => String(n).padStart(2, '0');
@@ -4375,18 +5439,13 @@ function downloadFile(name, content, type) {
   a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
-function exportJson() {
-  const payload = { format: APP.format, schema: APP.schema, exportedAt: new Date().toISOString(), data: state };
-  downloadFile('IDV_Interfaces_' + stamp() + '.json', JSON.stringify(payload, null, 2), 'application/json');
-  toast('Dati esportati in JSON', 'ok');
-}
-/* Normalizza e valida un oggetto dati (importazione o localStorage).
+/* Normalizza e valida un oggetto dati (progetto nell'archivio, file di progetto, versione).
    I riferimenti possono essere uid interni oppure ID leggibili (es. "VCU", "J2", "IF-CTRL-01"). */
 function normalizeData(raw) {
   const errors = [], warnings = [];
   let d = raw;
   if (d && typeof d === 'object' && !Array.isArray(d) && d.data && typeof d.data === 'object' && (d.format || d.schema)) {
-    if (d.format && d.format !== APP.format) warnings.push('Formato dichiarato “' + d.format + '” diverso da “' + APP.format + '”: verrà comunque tentata l’importazione.');
+    if (d.format && d.format !== APP.format && d.format !== APP.projectFormat) warnings.push('Formato dichiarato “' + d.format + '” diverso da “' + APP.format + '”: verrà comunque tentata l’importazione.');
     d = d.data;
   }
   if (!d || typeof d !== 'object' || Array.isArray(d)) { errors.push('Il file non contiene un oggetto JSON con i dati dello schema.'); return { errors, warnings }; }
@@ -4410,12 +5469,42 @@ function normalizeData(raw) {
   const pick = (v, list, def) => (list.includes(v) ? v : (v == null || v === '' ? def : String(v)));
   const out = {
     schema: APP.schema,
-    meta: { name: isObj(d.meta) && d.meta.name ? String(d.meta.name) : 'Schema importato', created: (isObj(d.meta) && d.meta.created) || new Date().toISOString(), modified: (isObj(d.meta) && d.meta.modified) || new Date().toISOString() },
+    meta: {
+      name: isObj(d.meta) && d.meta.name ? String(d.meta.name) : 'Schema importato', program: isObj(d.meta) ? str(d.meta.program) : '',
+      created: (isObj(d.meta) && d.meta.created) || new Date().toISOString(), modified: (isObj(d.meta) && d.meta.modified) || new Date().toISOString(),
+      modifiedBy: isObj(d.meta) ? str(d.meta.modifiedBy) : ''
+    },
     lists: clone(DEFAULT_LISTS), groups: [], components: [], interfaces: [], cables: [], requirements: []
   };
-  if (isObj(d.lists)) Object.keys(DEFAULT_LISTS).forEach((k) => {
-    if (Array.isArray(d.lists[k])) { const v = d.lists[k].map(String).map((s) => s.trim()).filter(Boolean); if (v.length) out.lists[k] = Array.from(new Set(v)); }
-  });
+  const cleanList = (arr) => Array.from(new Set(arr.map(String).map((x) => x.trim()).filter(Boolean)));
+  if (isObj(d.lists)) {
+    SIMPLE_LISTS.forEach((k) => {
+      if (Array.isArray(d.lists[k])) { const v = cleanList(d.lists[k]); if (v.length) out.lists[k] = v; }
+    });
+    // schema 1: la vecchia lista "ifTypes" diventa suggerimento di protocollo
+    if (Array.isArray(d.lists.ifTypes)) out.lists.protocols = cleanList(out.lists.protocols.concat(d.lists.ifTypes.filter((t) => !['Other', 'Mechanical', 'Power DC', 'Controllo discreto'].includes(t))));
+    if (Array.isArray(d.lists.ifCategories)) {
+      const cats = [];
+      d.lists.ifCategories.forEach((c) => {
+        if (!isObj(c) || !str(c.name).trim() || cats.some((x) => x.name === str(c.name).trim())) return;
+        cats.push({
+          name: str(c.name).trim(), color: /^#[0-9a-f]{3,8}$/i.test(str(c.color)) ? c.color : CATEGORY_COLORS[cats.length % CATEGORY_COLORS.length],
+          cables: c.cables !== false, subtypes: Array.isArray(c.subtypes) ? cleanList(c.subtypes) : []
+        });
+      });
+      if (cats.length) out.lists.ifCategories = cats;
+    }
+  }
+  const ensureCategory = (name, sub) => {
+    let c = out.lists.ifCategories.find((x) => x.name === name);
+    if (!c) {
+      c = { name, color: CATEGORY_COLORS[out.lists.ifCategories.length % CATEGORY_COLORS.length], cables: true, subtypes: [] };
+      out.lists.ifCategories.push(c);
+      warnings.push('Categoria di interfaccia “' + name + '” non presente nelle impostazioni: aggiunta automaticamente.');
+    }
+    if (sub && !c.subtypes.includes(sub)) c.subtypes.push(sub);
+  };
+  let migratedIf = 0;
   (d.groups || []).forEach((g, i) => {
     if (!isObj(g)) { errors.push('Gruppo #' + (i + 1) + ': non è un oggetto.'); return; }
     if (!str(g.id).trim()) errors.push('Gruppo #' + (i + 1) + ': ID mancante.');
@@ -4429,7 +5518,7 @@ function normalizeData(raw) {
     const ports = (Array.isArray(c.ports) ? c.ports : []).map((p, j) => {
       if (!isObj(p)) { errors.push('Componente ' + c.id + ', porta #' + (j + 1) + ': non è un oggetto.'); return null; }
       if (!str(p.id).trim()) errors.push('Componente ' + c.id + ', porta #' + (j + 1) + ': ID mancante.');
-      return { uid: takeUid(p.uid, 'p'), id: str(p.id).trim(), label: str(p.label), type: pick(p.type, out.lists.portTypes, 'Other'), direction: pick(p.direction, DIRECTIONS, 'Not applicable'), notes: str(p.notes) };
+      return { uid: takeUid(p.uid, 'p'), id: str(p.id).trim(), label: str(p.label), type: pick(p.type, out.lists.portTypes, 'Other'), direction: pick(p.direction, DIRECTIONS, 'Not applicable'), side: ['L', 'R'].includes(p.side) ? p.side : 'auto', notes: str(p.notes) };
     }).filter(Boolean);
     const hasPos = Number.isFinite(Number(c.x)) && Number.isFinite(Number(c.y)) && c.x !== null && c.y !== null && c.x !== '' && c.y !== '';
     if (!hasPos) warnings.push('Componente ' + (c.id || '#' + (i + 1)) + ': posizione assente, assegnata automaticamente.');
@@ -4463,8 +5552,18 @@ function normalizeData(raw) {
     if (!str(f.id).trim()) errors.push('Interfaccia #' + (i + 1) + ': ID mancante.');
     const label = 'Interfaccia ' + (f.id || '#' + (i + 1));
     const a = endpoint(f, 'A', label), b = endpoint(f, 'B', label);
-    out.interfaces.push({ uid: takeUid(f.uid, 'i'), id: str(f.id).trim(), name: str(f.name), compA: a.comp, portA: a.port, compB: b.comp, portB: b.port, type: pick(f.type, out.lists.ifTypes, 'Other'), description: str(f.description), owner: pick(f.owner, out.lists.owners, 'Da assegnare'), status: pick(f.status, STATUSES, 'Da verificare') });
+    let category = str(f.category).trim(), subtype = str(f.subtype).trim(), protocol = str(f.protocol).trim();
+    if (!category && f.type != null && str(f.type).trim()) {
+      const m = LEGACY_IF_TYPES[str(f.type).trim()];
+      if (m) { category = m[0]; subtype = subtype || m[1]; protocol = protocol || m[2]; }
+      else { category = 'Funzionale'; protocol = protocol || str(f.type).trim(); }
+      migratedIf++;
+    }
+    if (!category) category = 'Funzionale';
+    ensureCategory(category, subtype);
+    out.interfaces.push({ uid: takeUid(f.uid, 'i'), id: str(f.id).trim(), name: str(f.name), compA: a.comp, portA: a.port, compB: b.comp, portB: b.port, category, subtype, protocol, description: str(f.description), owner: pick(f.owner, out.lists.owners, 'Da assegnare'), status: pick(f.status, STATUSES, 'Da verificare') });
   });
+  if (migratedIf) warnings.push(plural(migratedIf, 'interfaccia convertita', 'interfacce convertite') + ' dal vecchio campo “Tipo / protocollo” a categoria, sottotipo e protocollo: verificare la classificazione.');
   const ifRef = (v) => out.interfaces.find((f) => f.uid === v) || out.interfaces.find((f) => eqId(f.id, v)) || null;
   d.cables.forEach((c, i) => {
     if (!isObj(c)) { errors.push('Cavo #' + (i + 1) + ': non è un oggetto.'); return; }
@@ -4507,7 +5606,7 @@ function normalizeData(raw) {
     const label = 'Requisito ' + (r.id || '#' + (i + 1));
     const raws = Array.isArray(r.links) ? r.links : (r.link ? [r.link] : []);
     out.requirements.push({
-      uid: takeUid(r.uid, 'r'), id: str(r.id).trim(), text: str(r.text), type: pick(r.type, REQ_TYPES, 'Interface'), origin: pick(r.origin, REQ_ORIGINS, 'System derived'),
+      uid: takeUid(r.uid, 'r'), id: str(r.id).trim(), title: str(r.title), text: str(r.text), type: pick(r.type, REQ_TYPES, 'Interface'), origin: pick(r.origin, REQ_ORIGINS, 'System derived'), shareable: !!r.shareable,
       links: raws.map((l) => resolveLink(l, label)).filter(Boolean), method: pick(r.method, REQ_METHODS, 'Test'),
       owner: pick(r.owner, out.lists.owners, 'Da assegnare'), status: pick(r.status, REQ_STATUSES, 'Draft'), notes: str(r.notes)
     });
@@ -4533,69 +5632,182 @@ function normalizeData(raw) {
   if (badRoutes) warnings.push(plural(badRoutes, 'percorso grafico non valido', 'percorsi grafici non validi') + ' ignorati: verranno ricalcolati automaticamente.');
   return { errors, warnings, data: out };
 }
-async function importJsonFile(file) {
-  let text;
-  try { text = await file.text(); } catch (e) { showModal({ title: 'Importazione non riuscita', body: 'Impossibile leggere il file: ' + e.message }); return; }
-  let raw;
-  try { raw = JSON.parse(text); } catch (e) {
-    showModal({ title: 'Importazione non riuscita', body: [h('p', null, 'Il file “' + file.name + '” non è un JSON valido.'), h('div', { class: 'err-log' }, e.message)] });
-    return;
-  }
-  const res = normalizeData(raw);
-  if (res.errors.length) {
-    showModal({
-      title: 'File non valido: importazione annullata', wide: true,
-      body: [h('p', null, 'Sono stati rilevati ' + plural(res.errors.length, 'errore bloccante', 'errori bloccanti') + ' in “' + file.name + '”. I dati correnti non sono stati modificati.'),
-        h('div', { class: 'msg-box err' }, h('ul', null, res.errors.slice(0, 80).map((e) => h('li', null, e))))]
-    });
-    return;
-  }
-  const dd = res.data;
-  const body = [h('p', null, 'Il file “' + file.name + '” è valido e contiene: ',
-    h('b', null, plural(dd.groups.length, 'gruppo', 'gruppi') + ', ' + plural(dd.components.length, 'componente', 'componenti') + ', ' +
-      plural(dd.components.reduce((s, c) => s + c.ports.length, 0), 'porta', 'porte') + ', ' + plural(dd.interfaces.length, 'interfaccia', 'interfacce') + ', ' +
-      plural(dd.cables.length, 'cavo', 'cavi') + ', ' + plural(dd.requirements.length, 'requisito', 'requisiti')), '.'),
-  h('p', null, 'I dati attuali verranno sostituiti (l’operazione può essere annullata con “Annulla”).')];
-  if (res.warnings.length) body.push(h('div', { class: 'msg-box warn' }, h('b', null, plural(res.warnings.length, 'avviso', 'avvisi') + ':'), h('ul', null, res.warnings.slice(0, 60).map((w) => h('li', null, w)))));
-  const ok = await showModal({ title: 'Conferma importazione', body, wide: res.warnings.length > 0, buttons: [{ label: 'Annulla', value: false }, { label: 'Importa e sostituisci', value: true, cls: 'primary' }] });
-  if (!ok) return;
-  dd.meta.modified = new Date().toISOString();
-  replaceState(dd, 'Importazione completata: ' + plural(dd.components.length, 'componente', 'componenti') + ', ' + plural(dd.interfaces.length, 'interfaccia', 'interfacce') + ', ' + plural(dd.cables.length, 'cavo', 'cavi'));
-  if (ui.section === 'board') fitView(); else ui.fitted = true;
-}
-
 /* =====================================================================
-   20. IMPOSTAZIONI (nome progetto e liste di valori)
+   20. IMPOSTAZIONI (progetto, utente, categorie, liste di valori) E GUIDA
    ===================================================================== */
 async function openSettings() {
-  const nameIn = h('input', { class: 'inp', value: state.meta.name || '', style: { width: '100%' } });
+  const nameIn = h('input', { class: 'inp', value: state.meta.name || '', maxlength: 120 });
+  const progIn = h('input', { class: 'inp', value: state.meta.program || '', maxlength: 120, placeholder: 'es. Programma Y / cliente' });
+  const userIn = h('input', { class: 'inp', value: prefs.user || '', maxlength: 80, placeholder: 'es. M. Rossi — System Integration' });
+  // ---- categorie di interfaccia e sottotipi ----
+  const used = new Map();
+  state.interfaces.forEach((f) => used.set(f.category, (used.get(f.category) || 0) + 1));
+  const rows = state.lists.ifCategories.map((c) => ({ orig: c.name, name: c.name, color: c.color, cables: c.cables !== false, subtypes: c.subtypes.join('\n') }));
+  const catBody = h('tbody');
+  const paintCats = () => {
+    catBody.innerHTML = '';
+    rows.forEach((r, i) => {
+      const n = r.orig ? used.get(r.orig) || 0 : 0;
+      const name = h('input', { class: 'inp', value: r.name, maxlength: 40, 'aria-label': 'Nome categoria', oninput: (e) => { r.name = e.target.value; } });
+      const color = h('input', { type: 'color', class: 'cat-color', value: r.color, title: 'Colore sul diagramma', oninput: (e) => { r.color = e.target.value; } });
+      const cables = h('input', { type: 'checkbox', checked: r.cables, onchange: (e) => { r.cables = e.target.checked; } });
+      const subs = h('textarea', { class: 'inp', rows: Math.max(3, r.subtypes.split('\n').length), spellcheck: 'false', 'aria-label': 'Sottotipi', oninput: (e) => { r.subtypes = e.target.value; } });
+      subs.value = r.subtypes;
+      catBody.appendChild(h('tr', null,
+        h('td', null, color), h('td', null, name),
+        h('td', null, h('label', { class: 'inline-check', title: 'Se attivo, l’interfaccia deve essere realizzata da almeno un cavo ed è disegnata nella vista cavi' }, cables, ' cavi')),
+        h('td', null, subs),
+        h('td', { class: 'small nowrap' }, plural(n, 'interfaccia', 'interfacce')),
+        h('td', { class: 'act' }, h('button', {
+          type: 'button', class: 'btn xs danger', disabled: n > 0 || rows.length < 2,
+          title: n > 0 ? 'Categoria usata da ' + plural(n, 'interfaccia', 'interfacce') + ': riassegnale prima di eliminarla' : 'Elimina categoria',
+          onclick: () => { rows.splice(i, 1); paintCats(); }
+        }, '✕'))));
+    });
+  };
+  paintCats();
+  const addCat = h('button', {
+    type: 'button', class: 'btn sm', onclick: () => {
+      rows.push({ orig: null, name: '', color: CATEGORY_COLORS[rows.length % CATEGORY_COLORS.length], cables: true, subtypes: '' });
+      paintCats();
+      const inputs = catBody.querySelectorAll('tr:last-child input.inp');
+      if (inputs.length) inputs[0].focus();
+    }
+  }, '+ Aggiungi categoria');
+  // ---- liste semplici ----
   const areas = {};
   const grid = h('div', { class: 'settings-grid' });
-  Object.keys(DEFAULT_LISTS).forEach((k) => {
+  SIMPLE_LISTS.forEach((k) => {
     const ta = h('textarea', { class: 'inp', spellcheck: 'false' });
     ta.value = state.lists[k].join('\n');
     areas[k] = ta;
     grid.appendChild(fld(LIST_LABELS[k], ta, { hint: 'Un valore per riga' }));
   });
+  const sec = (title, desc) => [h('h3', { class: 'set-title' }, title), desc ? h('p', { class: 'muted small' }, desc) : null];
   const ok = await showModal({
     title: 'Impostazioni', wide: true,
-    body: [fld('Nome del progetto / schema', nameIn), h('div', { style: { height: '12px' } }),
-      h('p', { class: 'muted' }, 'Liste di valori usate nei menu a tendina. I valori già assegnati agli oggetti restano validi anche se rimossi dall’elenco.'), grid],
+    body: [
+      sec('Progetto e utente'),
+      h('div', { class: 'form-grid three' },
+        fld('Nome del progetto', nameIn, { required: true }),
+        fld('Programma / cliente', progIn),
+        fld('Il tuo nome (questo browser)', userIn, { hint: 'Registrato come autore delle modifiche e delle versioni' })),
+      sec('Categorie di interfaccia e sottotipi',
+        'Ogni interfaccia appartiene a una categoria (es. Elettrica) e, facoltativamente, a un sottotipo (es. Alimentazione). Puoi rinominare le categorie (le interfacce vengono aggiornate), aggiungerne di nuove e ampliare i sottotipi, uno per riga. I sottotipi già assegnati restano validi anche se rimossi dall’elenco.'),
+      h('table', { class: 'mini cat-table' },
+        h('thead', null, h('tr', null, ['Colore', 'Categoria', 'Realizzata con cavi', 'Sottotipi (uno per riga)', 'Uso', ''].map((t) => h('th', null, t)))), catBody),
+      h('div', { class: 'row-actions' }, addCat),
+      sec('Liste di valori', 'Usate nei menu a tendina e come suggerimenti. I valori già assegnati agli oggetti restano validi anche se rimossi dall’elenco.'),
+      grid],
     buttons: [{ label: 'Annulla', value: false }, {
       label: 'Salva impostazioni', value: true, cls: 'primary',
       validate: () => {
+        if (!nameIn.value.trim()) { toast('Il nome del progetto è obbligatorio.', 'err'); nameIn.focus(); return false; }
+        const names = rows.map((r) => r.name.trim());
+        if (!rows.length) { toast('Serve almeno una categoria di interfaccia.', 'err'); return false; }
+        if (names.some((n) => !n)) { toast('Ogni categoria deve avere un nome.', 'err'); return false; }
+        const dup = names.find((n, i) => names.findIndex((m) => m.toLowerCase() === n.toLowerCase()) !== i);
+        if (dup) { toast('Categoria duplicata: “' + dup + '”.', 'err'); return false; }
         for (const k of Object.keys(areas)) {
-          if (!areas[k].value.split('\n').map((s) => s.trim()).filter(Boolean).length) { toast('La lista “' + LIST_LABELS[k] + '” non può essere vuota.', 'err'); return false; }
+          if (!areas[k].value.split('\n').map((x) => x.trim()).filter(Boolean).length) { toast('La lista “' + LIST_LABELS[k] + '” non può essere vuota.', 'err'); return false; }
         }
         return true;
       }
     }]
   });
   if (!ok) return;
+  if (userIn.value.trim() !== prefs.user) { prefs.user = userIn.value.trim(); saveUi(); }
+  const renames = new Map(rows.filter((r) => r.orig && r.orig !== r.name.trim()).map((r) => [r.orig, r.name.trim()]));
   commit((st) => {
-    st.meta.name = nameIn.value.trim() || 'Schema senza nome';
-    Object.keys(areas).forEach((k) => { st.lists[k] = Array.from(new Set(areas[k].value.split('\n').map((s) => s.trim()).filter(Boolean))); });
+    st.meta.name = nameIn.value.trim();
+    st.meta.program = progIn.value.trim();
+    st.lists.ifCategories = rows.map((r) => ({
+      name: r.name.trim(), color: /^#[0-9a-f]{6}$/i.test(r.color) ? r.color : '#5b6b7d', cables: !!r.cables,
+      subtypes: Array.from(new Set(r.subtypes.split('\n').map((x) => x.trim()).filter(Boolean)))
+    }));
+    st.interfaces.forEach((f) => { if (renames.has(f.category)) f.category = renames.get(f.category); });
+    SIMPLE_LISTS.forEach((k) => { st.lists[k] = Array.from(new Set(areas[k].value.split('\n').map((x) => x.trim()).filter(Boolean))); });
   }, 'Impostazioni salvate');
+}
+/* ---------- Guida in linea ---------- */
+function openHelp(topic) {
+  const S = (id, title, ...kids) => h('section', { class: 'help-sec', id: 'help-' + id }, h('h3', null, title), kids);
+  const P = (...k) => h('p', null, k);
+  const UL = (...items) => h('ul', null, items.map((x) => h('li', null, x)));
+  const B = (t) => h('b', null, t);
+  const cats = state.lists.ifCategories;
+  const secs = [
+    S('modello', 'Il modello in breve',
+      P('Lo schema è organizzato su cinque livelli, dal più generale al più fisico:'),
+      UL([B('Gruppo funzionale'), ' – raggruppamento architetturale (es. Sistema C4I, Piattaforma). Dalla sua finestra puoi creare direttamente nuovi componenti.'],
+        [B('Componente'), ' – apparato o elemento del sistema (es. VCU, Radio).'],
+        [B('Porta'), ' – punto di accesso del componente: un connettore, un morsetto, un punto di fissaggio, un raccordo idraulico.'],
+        [B('Interfaccia logica'), ' – lo scambio concordato fra una porta del componente A e una porta del componente B (cosa si scambia).'],
+        [B('Cavo fisico'), ' – la realizzazione fisica di un’interfaccia elettrica o funzionale, con connettori e pinout (come si realizza).']),
+      P('I ', B('requisiti'), ' possono essere collegati a qualunque oggetto. Tutte le viste (lavagna, tabelle, dashboard) leggono gli stessi dati e si aggiornano insieme.')),
+    S('lati', 'Lato sinistro e lato destro di una porta',
+      P('Ogni porta è ', B('un unico punto di accesso'), ' (ad es. un solo connettore J1). I quadratini che compaiono sul bordo sinistro e sul bordo destro del blocco sono soltanto ',
+        B('due punti di aggancio grafici della stessa porta'), ': stesso connettore, stessi pin, stesse interfacce.'),
+      UL(['Non hanno significato funzionale: il verso (ingresso/uscita) è dato dall’attributo ', B('Direzione'), ' della porta (IN, OUT, I/O), non dal lato.'],
+        ['Non hanno significato fisico: non indicano la posizione del connettore sull’apparato. Se serve documentarla, usa la descrizione della porta.'],
+        ['Il router sceglie automaticamente il lato rivolto verso il componente collegato, per accorciare le linee e ridurre gli incroci. Se una porta ha collegamenti verso componenti a sinistra e a destra, vengono disegnati entrambi i quadratini.'],
+        ['I lati non usati restano nascosti e compaiono (tratteggiati) passando con il mouse sul blocco: da lì puoi trascinare per creare un nuovo collegamento.'],
+        ['Se vuoi una convenzione di disegno fissa (es. alimentazioni sempre a sinistra), imposta nella porta il campo ', B('Lato sul diagramma'), ' = Sempre a sinistra / Sempre a destra.'])),
+    S('owner', 'Owner',
+      P('L’Owner è ', B('l’ente o il team responsabile'), ' dell’oggetto: lo definisce, lo mantiene aggiornato, chiude i punti aperti e ne porta avanti l’approvazione. È presente su gruppi, componenti, interfacce e requisiti.'),
+      UL(['Per un componente è tipicamente il team interno o il fornitore che lo fornisce (es. Supplier Radio).'],
+        ['Per un’interfaccia è chi coordina l’accordo fra i due lati (ICD): di solito l’integratore, anche quando i due componenti appartengono a fornitori diversi.'],
+        ['Per un requisito è chi ne cura il testo e la verifica.'],
+        ['Usa ruoli o team (System Integration, Supplier X), non nomi di persone: la lista è configurabile in Impostazioni.'],
+        ['Serve a filtrare le tabelle (es. tutte le interfacce in carico a C3 Integration) e a sapere a chi spetta chiudere ogni punto aperto segnalato dalla Dashboard.'])),
+    S('dominio', 'Dominio',
+      P('Il Dominio è ', B('la disciplina tecnica'), ' a cui appartiene un componente (C3/Comunicazioni, RF, Power, HMI, Navigazione…). È diverso dal Gruppo funzionale (dove si colloca nell’architettura) e dall’Owner (chi ne è responsabile).'),
+      UL(['Sulla lavagna determina il colore della banda del blocco, per riconoscere a colpo d’occhio le discipline.'],
+        ['Nelle tabelle permette di filtrare per disciplina.'],
+        ['Un’interfaccia fra componenti di domini diversi è ', B('interdominio'), ': coinvolge competenze e spesso team o fornitori diversi, ed è in genere la più critica per l’integrazione. Nella tabella Interfacce il filtro “Domini → Interdominio” le isola.'])),
+    S('porta', 'Tipo di porta e direzione',
+      P('Il Tipo di porta descrive ', B('la natura fisica o tecnologica'), ' del punto di accesso: Power, Ground, RF, Ethernet, Serial, Audio, Discrete, Video, Mechanical, Fluid, Other.'),
+      UL(['Sulla lavagna compare come sigla accanto alla porta (PWR, ETH, RF, MEC, FLD…).'],
+        ['Viene confrontato con la categoria dell’interfaccia: ad es. un’interfaccia Elettrica / Alimentazione su una porta Ethernet genera un avviso in Dashboard.'],
+        ['Quando trascini un collegamento da una porta, la categoria dell’interfaccia viene proposta in base al tipo (Power → Elettrica / Alimentazione, Ethernet → Funzionale / Scambio dati…).'],
+        ['Casi d’uso: un connettore di alimentazione (Power), un punto di massa (Ground), un connettore dati (Ethernet/Serial), una staffa o un punto di fissaggio (Mechanical), un raccordo del liquido di raffreddamento (Fluid).']),
+      P('Regola consigliata: ', B('una porta per ogni connettore o punto fisico'), '. Se un connettore porta più funzioni (es. alimentazione e dati), più interfacce possono usare la stessa porta. La ', B('Direzione'), ' (Input, Output, Bidirectional) è riferita al componente che possiede la porta.')),
+    S('categoria', 'Categoria, sottotipo e protocollo dell’interfaccia',
+      P('Ogni interfaccia è classificata su tre livelli:'),
+      UL([B('Categoria'), ' – la natura dello scambio. Configurate attualmente: ', cats.map((c) => c.name).join(', '), '.'],
+        [B('Sottotipo'), ' – la specializzazione all’interno della categoria (es. Elettrica: Alimentazione, Segnale, Messa a terra; Funzionale: Scambio dati, Controllo, Comando, Monitoraggio).'],
+        [B('Protocollo / standard'), ' – la specifica tecnica che regola l’interfaccia: protocollo di comunicazione, livello di tensione, norma, tipo di fissaggio o di fluido. Campo libero con suggerimenti.']),
+      h('table', { class: 'mini help-table' }, h('thead', null, h('tr', null, h('th', null, 'Esempio'), h('th', null, 'Categoria / Sottotipo'), h('th', null, 'Protocollo / standard'))),
+        h('tbody', null, [['VCU → Display, comandi e stati', 'Funzionale / Controllo', 'Ethernet 1000BASE-T'], ['Alimentazione Radio', 'Elettrica / Alimentazione', '28 VDC (MIL-STD-1275)'],
+          ['Massa del display', 'Elettrica / Messa a terra', 'Resistenza di bonding ≤ 2.5 mΩ'], ['Fissaggio Radio al rack', 'Meccanica / Statica', 'Fissaggio a vite'],
+          ['Mandata refrigerante', 'Fluidica / Raffreddamento', 'Glicole 50% (circuito chiuso)']].map((r) => h('tr', null, r.map((x) => h('td', null, x)))))),
+      P(B('Funzionale o Elettrica?'), ' “Funzionale” descrive ', h('i', null, 'che cosa'), ' viene scambiato (dati, comandi, stati) indipendentemente dal mezzo; “Elettrica” descrive l’energia o il segnale elettrico in sé (alimentazione, massa, segnale analogico, RF).'),
+      P('Le categorie e i sottotipi sono estendibili in ', B('Impostazioni'), ': puoi aggiungere sottotipi, nuove categorie, cambiarne il colore e indicare se sono ', B('realizzate tramite cavi'), '. Per le categorie non cablate (di default Meccanica e Fluidica) non viene segnalata la mancanza di cavi e, nella vista cavi, l’interfaccia è disegnata tratteggiata come “non cablata”.')),
+    S('requisiti', 'Requisiti ed esportazione per il fornitore',
+      UL(['Campi principali: ', B('ID'), ', ', B('Titolo'), ' (sintesi breve), ', B('Testo del requisito'), ' (forma consigliata: “The … shall …”), ', B('Metodo di verifica'), ' (Test, Inspection, Analysis, Demonstration).'],
+        [B('Condivisibile con il fornitore'), ': indica che il requisito può essere trasmesso all’esterno. Le note interne non vengono mai esportate.'],
+        ['Esportazione: nella tabella Requisiti seleziona le righe con le caselle (o filtra “Fornitore → Condivisibili”) e usa ', B('Esporta per fornitore (Excel)'), '. Il file .xlsx contiene le colonne ID, Titolo, Testo, Metodo di verifica e include solo i requisiti condivisibili.'],
+        ['Puoi creare requisiti anche dal pannello di un componente, di un’interfaccia o di un cavo: restano collegati all’oggetto.'])),
+    S('lavagna', 'Lavagna: comandi',
+      UL(['Rotella del mouse o gesto del trackpad: zoom; trascina lo sfondo per spostare la vista; “Adatta” mostra tutto lo schema; clic sulla percentuale: zoom 100%.'],
+        ['Trascina i blocchi o le cornici dei gruppi per spostarli; i collegamenti vengono reinstradati automaticamente con linee ortogonali.'],
+        ['Trascina da una porta a un’altra per creare un’interfaccia (vista interfacce) o un cavo (vista cavi).'],
+        ['Trascina un tratto di linea per modificarne il percorso; doppio clic sul tratto per tornare al percorso automatico.'],
+        [B('Auto-Rerouting'), ' ricalcola tutti i percorsi della vista corrente minimizzando incroci e piegature.'],
+        ['Annulla / Ripeti: Ctrl+Z / Ctrl+Y (anche per le modifiche al percorso). Canc elimina l’oggetto selezionato.'])),
+    S('progetti', 'Progetti, salvataggio e lavoro in team',
+      UL(['Ogni progetto è indipendente (componenti, interfacce, requisiti, liste e categorie). Da ', B('Progetti'), ' puoi crearne, aprirne, rinominarne, duplicarne ed eliminarne (con cestino).'],
+        ['Ogni modifica è salvata automaticamente nell’archivio del browser (indicatore “✓ Salvato” in alto). Riaprendo la pagina si riapre l’ultimo progetto.'],
+        [B('Versioni'), ': vengono create alla creazione del progetto, ogni 20 minuti di lavoro, prima di ripristini e aggiornamenti da file, oppure a mano (“Salva versione ora”, ad es. per una baseline). Qualunque versione si può ripristinare senza perdere lo stato attuale.'],
+        [B('Salva su file'), ' crea un file .idvproj: è la copia di sicurezza da conservare su una cartella di rete o di progetto e il modo per passare il progetto a un collega, che lo apre con “Apri da file”.']),
+      h('div', { class: 'msg-box info' }, B('Più utenti: '), 'l’archivio è locale a ciascun browser. Per lavorare in più persone condividete i file .idvproj (es. in una cartella di progetto) e concordate chi modifica un progetto in un dato momento: due modifiche in parallelo allo stesso progetto non vengono unite automaticamente. ' +
+        'Un archivio centrale condiviso con modifica simultanea richiede un’installazione lato server. Svuotare i dati del browser cancella l’archivio locale: salvate periodicamente su file.'))
+  ];
+  const toc = h('nav', { class: 'help-toc' }, secs.map((sec) => h('button', {
+    type: 'button', class: 'btn xs ghost', onclick: () => { sec.scrollIntoView({ block: 'start', behavior: 'smooth' }); }
+  }, sec.querySelector('h3').textContent)));
+  showModal({ title: 'Guida', wide: true, body: [toc, h('div', { class: 'help' }, secs)], buttons: [{ label: 'Chiudi', value: null, cls: 'primary' }] });
+  if (topic) setTimeout(() => { const el = byId('help-' + topic); if (el) el.scrollIntoView({ block: 'start' }); }, 0);
 }
 function showErrorLog() {
   const errs = window.__idvErrors || [];
@@ -4650,8 +5862,8 @@ function renderNav() {
       el.title = e + ' errori, ' + (n - e) + ' avvisi';
     } else el.textContent = String(counts[k]);
   });
-  byId('projectName').textContent = state.meta.name || '';
-  byId('projectName').title = state.meta.name || '';
+  byId('projectName').textContent = (state.meta.name || 'Progetto senza nome') + (state.meta.program ? ' · ' + state.meta.program : '');
+  byId('projectName').title = 'Progetto aperto: ' + (state.meta.name || '') + (state.meta.program ? '\nProgramma: ' + state.meta.program : '') + '\nClic per gestire i progetti';
   updateHistoryButtons();
   const dl = byId('boardFindList');
   dl.innerHTML = '';
@@ -4669,26 +5881,15 @@ function setupGlobalHandlers() {
   qsa('#mainNav button').forEach((b) => b.addEventListener('click', () => showSection(b.dataset.section)));
   byId('btnUndo').addEventListener('click', undo);
   byId('btnRedo').addEventListener('click', redo);
-  byId('btnExport').addEventListener('click', exportJson);
-  byId('btnImport').addEventListener('click', () => byId('fileImport').click());
-  byId('fileImport').addEventListener('change', (e) => {
+  byId('btnProjects').addEventListener('click', safely(openProjectManager));
+  byId('projectName').addEventListener('click', safely(openProjectManager));
+  byId('fileProject').addEventListener('change', (e) => {
     const file = e.target.files && e.target.files[0];
     e.target.value = '';
-    if (file) importJsonFile(file);
+    if (file) safely(openProjectFile)(file);
   });
-  byId('btnSettings').addEventListener('click', openSettings);
-  byId('btnReset').addEventListener('click', async () => {
-    const r = await confirmDialog({
-      title: 'Ripristinare lo schema dimostrativo?',
-      body: [h('p', null, 'Tutti i dati attuali (componenti, porte, interfacce, cavi, requisiti e posizioni) verranno sostituiti con lo schema di esempio.'),
-        h('p', { class: 'muted' }, 'Suggerimento: esporta prima i dati in JSON se vuoi conservarli. L’operazione può comunque essere annullata con “Annulla”.')],
-      confirmLabel: 'Ripristina esempio', danger: true
-    });
-    if (!r.ok) return;
-    replaceState(buildDemo(), 'Schema dimostrativo ripristinato');
-    ui.fitted = true;
-    if (ui.section === 'board') fitView();
-  });
+  byId('btnSettings').addEventListener('click', safely(openSettings));
+  byId('btnHelp').addEventListener('click', () => openHelp());
   byId('appStatus').addEventListener('click', showErrorLog);
   byId('spClose').addEventListener('click', () => requestClosePanel());
   byId('modalBack').addEventListener('mousedown', (e) => { if (e.target === byId('modalBack')) closeModal(null); });
@@ -4721,32 +5922,40 @@ function setupGlobalHandlers() {
       if (['component', 'interface', 'cable', 'group'].includes(ui.selected.kind)) { e.preventDefault(); deleteObject(ui.selected.kind, ui.selected.uid); }
     }
   });
-  window.addEventListener('beforeunload', () => { saveUi(); });
+  window.addEventListener('beforeunload', () => { saveUi(); writeEmergencyCopy(); });
+  window.addEventListener('pagehide', writeEmergencyCopy);
   window.addEventListener('resize', positionPanel);
 }
 
 /* =====================================================================
    22. AVVIO (solo a DOM disponibile)
    ===================================================================== */
-function init() {
+async function init() {
   try {
     const hadUi = loadUi();
-    const loaded = loadModel();
-    state = loaded.data;
+    state = buildEmpty('—', '');   // modello provvisorio finché l'archivio non è pronto
     rebuildIndex();
-    syncRoutes();
-    computeIssues();
-    saveModel();
     setupBoard();
     buildTableSections();
     setupGlobalHandlers();
-    if (!hadUi) ui.fitted = true;
-    renderNav();
+    setSaveState('saving');
+    await Store.init();
+    await recoverEmergencyCopy();
+    const list = (await Store.listProjects()).filter((p) => !p.deleted).sort((a, b) => (a.updated < b.updated ? 1 : -1));
+    const last = await Store.getMeta('lastProject');
+    let id = list.some((p) => p.id === last) ? last : (list.length ? list[0].id : null);
+    const first = !id;
+    if (first) id = await migrateOrCreateFirstProject();
+    if (!hadUi || first) ui.fitted = true;
+    let opened = await openProject(id, { silent: true, keepView: hadUi && !first });
+    if (!opened && list.length > 1) opened = await openProject(list.find((p) => p.id !== id).id, { silent: true });
     showSection(ui.section);
     window.__idvReady = true;
     window.__idvPaintStatus();
-    if (loaded.source === 'invalid') toast('I dati salvati non erano validi (' + (loaded.detail || '') + '): caricato lo schema dimostrativo.', 'warn', 9000);
-    else if (loaded.source === 'demo') toast('Schema dimostrativo caricato. Le modifiche vengono salvate automaticamente nel browser.', 'info', 5000);
+    if (Store.mode === 'memory') toast('Il browser non consente di salvare dati: le modifiche andranno perse alla chiusura. Usa Progetti → Salva su file.', 'err', 12000);
+    else if (Store.mode === 'ls') toast('Archivio IndexedDB non disponibile: i progetti sono salvati nel localStorage (spazio limitato).', 'warn', 8000);
+    else if (first) toast('Benvenuto: è stato creato il progetto dimostrativo. Le modifiche vengono salvate automaticamente; da “Progetti” puoi crearne di nuovi.', 'info', 7000);
+    requestPersistentStorage();
   } catch (err) {
     if (window.__idvRecordError) window.__idvRecordError('Inizializzazione non riuscita: ' + (err && err.message ? err.message : err), err && err.stack);
     console.error(err);
@@ -4757,7 +5966,9 @@ window.IDV = {
   get state() { return state; }, get issues() { return issues; }, ui,
   get routeStats() { return Object.assign({}, lastRouteStats); },
   get routes() { return [...lastItems.values()].map((it) => ({ key: it.key, id: it.L.obj.id, kind: it.L.kind, sA: it.sA, sB: it.sB, manual: it.manual, pts: it.pts.map((q) => [q.x, q.y]) })); },
-  get history() { return { past: history.past.map((e) => e.label), future: history.future.map((e) => e.label) }; }
+  get history() { return { past: history.past.map((e) => e.label), future: history.future.map((e) => e.label) }; },
+  get project() { return project ? { id: project.id, name: state.meta.name, storage: Store.mode } : null; },
+  flush: () => flushSave()
 };
 
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
