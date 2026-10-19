@@ -2,6 +2,57 @@
 
 Ogni versione dell'applicazione indica il formato dei dati (`schema`) che produce. I progetti salvati con un formato precedente vengono convertiti automaticamente all'apertura. Prima della conversione viene conservata una copia identica dei dati originali come versione del progetto.
 
+## 3.3 — formato dati 5
+
+**Menu a tendina modificabili**
+- Aprendo un menu delle schede compare l'elenco delle voci con:
+  - il simbolo "−" accanto a ogni voce, per toglierla dall'elenco del progetto;
+  - "＋ Aggiungi…" in fondo, per inserire un valore nuovo;
+  - "⚙ Gestisci", che apre la gestione dell'elenco.
+- Rimuovere una voce non modifica gli oggetti che la usano: la conservano e la mostrano come "non in elenco". Le categorie usate da interfacce non si rimuovono.
+- Il menu si usa anche da tastiera (Invio apre, frecce, Invio sceglie, Esc chiude).
+- Anche la direzione della porta è ora un elenco configurabile. Resta fisso solo il lato della porta sul diagramma.
+
+**Impostazioni**
+- Organizzate in schede: Generale, Valori dei campi, Categorie di interfaccia, Campi personalizzati.
+- "Valori dei campi" gestisce tutti gli elenchi del progetto, compresi i sottotipi delle categorie e i campi personalizzati a elenco. Per ogni voce si può:
+  - aggiungere;
+  - rinominare (gli oggetti che la usano vengono aggiornati);
+  - eliminare;
+  - spostare.
+
+  Per ogni voce è indicato quanti oggetti la usano.
+
+**Tabelle**
+- Pulsante "Colonne" in Gruppi, Componenti, Interfacce, Cavi e Requisiti per scegliere le colonne visibili. La scelta è salvata nel browser e vale nelle sessioni successive.
+- Esporta CSV usa le colonne mostrate.
+- Il CSV delle Interfacce ha colonne fisse: ID Interfaccia, Rev Interfaccia, Categoria, Gruppo di derivazione A, Componente A, Porta A, Gruppo di derivazione B, Componente B, Porta B, ID Cavo, Tipo Cavo, PN Fornitore Cavo, PN IDV Cavo, Stato, Sottotipo, Note / Descrizione dello Scambio. Seguono i campi personalizzati delle interfacce, con una riga per ogni cavo.
+
+**Interfacce**
+- Nuovo campo "Revisione (Rev)" con il pulsante "↑ Nuova revisione" (A → B, 01 → 02).
+- Il cambio di revisione è registrato nello storico.
+- La revisione compare nel titolo della scheda, nella tabella, sulla lavagna e nel CSV.
+
+**Cavi**
+- Torna il campo "Tipo cavo", come elenco configurabile (RF, Twisted Pair, Coassiale, Schermato, Fibra Ottica, Ethernet, Alimentazione, Altro).
+- Nuovi campi "PN fornitore" e "PN IDV". "PN IDV" è il campo che prima si chiamava "Specifica / part number": i valori già inseriti compaiono lì.
+
+**Campi personalizzati**
+- Definibili in Impostazioni per gruppi, componenti, interfacce, cavi e requisiti.
+- Tipi disponibili: testo, numero, elenco, data, casella.
+- Compaiono:
+  - nelle schede;
+  - come colonne delle tabelle;
+  - nella ricerca e nell'ordinamento;
+  - nei filtri (elenco e casella);
+  - nelle esportazioni CSV.
+
+**Migrazione dal formato 4**
+- Tipi di cavo: nuovo elenco predefinito più i tipi già usati dai cavi esistenti, che restano invariati.
+- Aggiunto l'elenco configurabile delle direzioni delle porte.
+- Revisione vuota per le interfacce esistenti.
+- Nessun campo personalizzato.
+
 ## 3.2 — formato dati 4
 
 **Lavagna**

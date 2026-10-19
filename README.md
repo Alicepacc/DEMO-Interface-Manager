@@ -2,7 +2,7 @@
 
 Applicazione web in un unico file (`IDV_Interface_Manager.html`) per disegnare e gestire architetture di sistema, interfacce, interconnessioni e requisiti.
 
-Il modello ha cinque livelli: gruppi funzionali, componenti, porte, interfacce logiche e cavi fisici. Include anche requisiti, allegati, dashboard di completezza, lavagna con instradamento ortogonale e progetti multipli.
+Il modello ha cinque livelli: gruppi funzionali, componenti, porte, interfacce logiche e cavi fisici. Include anche requisiti, allegati, campi personalizzati, dashboard di completezza, lavagna con instradamento ortogonale e progetti multipli.
 
 Non richiede installazione né server: basta aprire il file in un browser recente (Chrome, Edge, Firefox). Per salvare i progetti in una cartella condivisa (OneDrive, Teams/SharePoint, cartella di rete) serve Microsoft Edge o Google Chrome.
 
@@ -17,8 +17,8 @@ Sostituire o aggiornare il file HTML **non tocca i dati**. Con l'archivio del br
 
 ## Versioni e migrazione dei dati
 
-- `APP.version` è la versione dell'applicazione, per esempio `3.2`.
-- `APP.schema` è la versione del **formato dei dati**, per esempio `4`.
+- `APP.version` è la versione dell'applicazione, per esempio `3.3`.
+- `APP.schema` è la versione del **formato dei dati**, per esempio `5`.
 
 Ogni progetto, versione, esportazione e backup registra il formato con cui è stato salvato.
 
@@ -122,7 +122,8 @@ Regola pratica: un solo utente alla volta modifica un progetto; per lavorare in 
 Le verifiche automatiche, in Playwright, coprono:
 
 - lavagna, instradamento e punti di instradamento, spostamento con mouse e frecce di blocchi, gruppi ed etichette;
-- schede e menu a tendina con "＋ Aggiungi…";
+- schede e menu a tendina modificabili ("−" per rimuovere una voce, "＋ Aggiungi…"), gestione dei valori in Impostazioni con rinomina propagata agli oggetti;
+- colonne visibili per tabella, campi personalizzati (colonne, filtri, ricerca, ordinamento, CSV), revisione delle interfacce ed esportazione CSV delle interfacce;
 - filtri, allegati e progetti;
 - importazione ed esportazione, backup e migrazione dei dati;
 - sincronizzazione GitHub, su un server simulato;

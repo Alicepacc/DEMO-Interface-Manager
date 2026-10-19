@@ -510,6 +510,31 @@ svg.label-move, svg.label-move * { cursor: grabbing !important; }
 .inline-row { display: flex; gap: 6px; align-items: center; }
 .inline-row .inp { flex: 1; }
 option.opt-add { color: var(--primary); font-weight: 600; }
+.flt-wrap { display: contents; }
+.cols-pop { position: fixed; z-index: 160; width: 280px; overflow: auto; background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 10px 28px rgba(0,0,0,.2); padding: 8px 10px; font-size: 13px; }
+.cols-head { padding: 2px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.cols-item { display: flex; align-items: center; gap: 8px; padding: 3px 2px; cursor: pointer; }
+.cols-item input:disabled + span { color: var(--muted); }
+.cols-tag { margin-left: auto; font-size: 10.5px; color: var(--primary-600); background: var(--primary-50); border-radius: 3px; padding: 0 5px; }
+.cols-foot { display: flex; align-items: center; justify-content: space-between; gap: 8px; border-top: 1px solid var(--border); margin-top: 6px; padding-top: 8px; }
+th.th-custom .th-btn { color: var(--primary-600); }
+.lsel-pop { position: fixed; z-index: 160; display: flex; flex-direction: column; background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 10px 28px rgba(0,0,0,.2); font-size: 13px; overflow: hidden; }
+.lsel-q { margin: 6px; height: 28px; width: auto; }
+.lsel-list { overflow: auto; padding: 3px 0; flex: 1 1 auto; min-height: 0; }
+.lsel-opt { display: flex; align-items: center; gap: 6px; padding: 4px 6px 4px 10px; cursor: pointer; min-height: 28px; }
+.lsel-opt:hover, .lsel-opt.hi { background: var(--primary-50); }
+.lsel-opt.sel { font-weight: 600; color: var(--primary-600); }
+.lsel-opt.sel::before { content: '✓'; width: 12px; margin-left: -4px; }
+.lsel-opt.disabled { color: var(--muted); cursor: default; }
+.lsel-lbl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lsel-rm { flex: none; width: 22px; height: 22px; border: 1px solid transparent; border-radius: 4px; background: none; color: var(--muted); font: 700 15px/1 var(--font); cursor: pointer; padding: 0; }
+.lsel-opt:hover .lsel-rm, .lsel-opt.hi .lsel-rm { border-color: var(--border); background: #fff; }
+.lsel-rm:hover { color: var(--err); border-color: var(--err) !important; background: var(--err-bg) !important; }
+.lsel-foot { flex: none; display: flex; border-top: 1px solid var(--border); background: var(--surface-2); }
+.lsel-add { flex: 1; border: 0; background: none; color: var(--primary); font: 600 13px var(--font); text-align: left; padding: 8px 10px; cursor: pointer; }
+.lsel-manage { flex: none; border: 0; border-left: 1px solid var(--border); background: none; color: var(--text-2); font: 12px var(--font); padding: 0 10px; cursor: pointer; }
+.lsel-add:hover, .lsel-manage:hover { background: var(--primary-50); }
+.lsel-empty { padding: 8px 10px; color: var(--muted); }
 .sp-section { margin-top: 20px; }
 .sp-section > h3 {
   font-size: 13px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px;
@@ -580,11 +605,29 @@ tr.port-edit > td { background: #f2f7fe; border-bottom: 1px solid #c9daf3; }
 .dep-block.unlink h4 { color: #7a4c00; }
 .dep-block ul { margin: 0; padding-left: 18px; max-height: 160px; overflow: auto; }
 .check-line { display: flex; gap: 8px; align-items: flex-start; margin-top: 12px; padding: 8px 10px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
-.settings-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-.settings-grid textarea { min-height: 170px; font-size: 12px; }
 .set-title { font-size: 13.5px; margin: 16px 0 6px; color: var(--navy-800); }
 .set-title:first-child { margin-top: 0; }
 .cat-table td { vertical-align: top; }
+.set-tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin: -4px 0 14px; flex-wrap: wrap; }
+.set-tab { border: 1px solid transparent; border-bottom: 0; background: none; padding: 7px 14px; font: 600 13px var(--font); color: var(--text-2); cursor: pointer; border-radius: 6px 6px 0 0; margin-bottom: -1px; }
+.set-tab:hover { background: var(--surface-2); }
+.set-tab.on { background: #fff; border-color: var(--border); color: var(--primary-600); }
+.set-pane { min-height: 440px; }
+.set-pane[hidden] { display: none; }
+.val-pane { display: grid; grid-template-columns: 260px 1fr; gap: 16px; min-height: 420px; }
+.val-nav { border-right: 1px solid var(--border); padding-right: 10px; max-height: 62vh; overflow: auto; }
+.val-nav-head { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 10px 0 4px; }
+.val-nav-head:first-child { margin-top: 0; }
+.val-nav-item { display: flex; justify-content: space-between; gap: 8px; width: 100%; text-align: left; border: 0; background: none; padding: 5px 8px; border-radius: 4px; font: 13px var(--font); color: var(--text); cursor: pointer; }
+.val-nav-item:hover { background: var(--surface-2); }
+.val-nav-item.on { background: var(--primary-50); color: var(--primary-600); font-weight: 600; }
+.val-ed { max-height: 62vh; overflow: auto; padding-right: 4px; }
+.val-table td { vertical-align: middle; }
+.val-table td:nth-child(2) { width: 60%; }
+.val-table td:nth-child(2) .muted { display: block; margin-top: 2px; }
+.cf-table td { vertical-align: middle; }
+tr.cf-deleted td { background: #fff7f7; }
+@media (max-width: 760px) { .val-pane { grid-template-columns: 1fr; } .val-nav { border-right: 0; max-height: none; } }
 .cat-table textarea.inp { min-height: 54px; font-size: 12px; }
 .cat-table td:nth-child(2) { width: 22%; }
 .cat-table td:nth-child(4) { width: 42%; }
@@ -669,7 +712,7 @@ table.n2 td .chip { margin: 1px; }
 .status-bars .sb-bar span { display: block; height: 100%; background: #2a78d6; border-radius: 3px; }
 .status-bars .sb-n { text-align: right; font-variant-numeric: tabular-nums; font-weight: 700; }
 @media (max-width: 760px) {
-  .form-grid, .form-grid.three, .settings-grid { grid-template-columns: 1fr; }
+  .form-grid, .form-grid.three { grid-template-columns: 1fr; }
   .search { min-width: 150px; }
   .board-hint { display: none; }
   .port-edit-grid { grid-template-columns: 1fr 1fr; }
@@ -821,8 +864,8 @@ const APP = {
   format: 'IDV-Interface-Manager',
   projectFormat: 'IDV-Interface-Manager-Project',
   backupFormat: 'IDV-Interface-Manager-Backup',
-  version: '3.2',          // versione dell'applicazione (codice)
-  schema: 4,               // versione del formato dei dati di progetto (vedi migrateLists / normalizeData)
+  version: '3.3',          // versione dell'applicazione (codice)
+  schema: 5,               // versione del formato dei dati di progetto (vedi migrateLists / normalizeData)
   legacyModelKey: 'idv-interface-manager.model.v1',
   uiKey: 'idv-interface-manager.ui.v1',
   dbName: 'idv-interface-manager'
@@ -853,31 +896,46 @@ const DEFAULT_LISTS = {
     'Discreto 28 V / aperto', '28 VDC (MIL-STD-1275)', '24 VDC', '115 VAC 400 Hz', 'Audio analogico', 'Video analogico', 'RF 50 Ω',
     'Fissaggio a vite', 'Supporti antivibranti', 'Glicole 50% (circuito chiuso)', 'Raccordo rapido',
     'TCP/IP', 'UDP multicast', 'DDS (OMG Data Distribution Service)', 'REST / HTTP', 'MQTT', 'Fibra OM3 / LC', 'Fibra OS2 / LC'],
-  cableTypes: ['Twisted pair 120 Ω', 'Shielded twisted pair (STP)', 'Drain wire / shield', 'Cat5e SF/UTP', 'Cat6A S/FTP', 'Coax RG-58', 'Coax RG-142', 'Coax LMR-400', 'Power 2 x AWG16', 'Power 2 x AWG12', 'Treccia di massa', 'Multicore schermato', 'Fibra ottica'],
+  cableTypes: ['RF', 'Twisted Pair', 'Coassiale', 'Schermato', 'Fibra Ottica', 'Ethernet', 'Alimentazione', 'Altro'],
   connectors: ['D-Sub 9 (DE-9)', 'D-Sub 15 (DA-15)', 'D-Sub 25 (DB-25)', 'D-Sub 9 shell', 'MIL-DTL-38999 Series III', 'MIL-DTL-26482', 'M12 D-coded', 'M12 X-coded', 'M12 A-coded', 'RJ45', 'TNC', 'N-type', 'SMA', 'BNC', 'Terminal block', 'Ring lug'],
   // configurabili dal formato dati 4 (prima erano elenchi fissi)
   statuses: ['Da verificare', 'Proposta', 'In revisione', 'Concordata', 'Baselined', 'Verified', 'Rejected'],
   reqStatuses: ['Draft', 'Proposed', 'In review', 'Approved', 'Rejected', 'Verified'],
   reqTypes: ['Interface', 'Performance', 'Cable', 'Connector', 'Pinout', 'Power', 'EMC', 'Safety', 'Installation', 'Mechanical', 'Fluidic', 'Software', 'Network', 'RF', 'Verification'],
   reqOrigins: ['Customer', 'System derived', 'Interface analysis', 'Supplier', 'Standard', 'Design decision'],
-  reqMethods: ['Test', 'Inspection', 'Analysis', 'Demonstration', 'Inspection + Test']
+  reqMethods: ['Test', 'Inspection', 'Analysis', 'Demonstration', 'Inspection + Test'],
+  // configurabile dal formato dati 5
+  directions: ['Input', 'Output', 'Bidirectional', 'Not applicable']
 };
-/* Elenchi semplici conservati nei dati del progetto (cableTypes resta per compatibilità: il campo non è più mostrato) */
-const SIMPLE_LISTS = ['domains', 'owners', 'portTypes', 'protocols', 'cableTypes', 'connectors', 'statuses', 'reqStatuses', 'reqTypes', 'reqOrigins', 'reqMethods'];
-/* Elenchi modificabili in Impostazioni */
-const SETTINGS_LISTS = ['domains', 'owners', 'portTypes', 'statuses', 'reqStatuses', 'reqTypes', 'reqOrigins', 'reqMethods', 'protocols', 'connectors'];
+/* Elenchi semplici conservati nei dati del progetto (tutti modificabili in Impostazioni → Valori dei campi) */
+const SIMPLE_LISTS = ['domains', 'owners', 'portTypes', 'directions', 'statuses', 'cableTypes', 'reqStatuses', 'reqTypes', 'reqOrigins', 'reqMethods', 'protocols', 'connectors'];
+/* Elenchi di suggerimenti: il campo accetta anche valori liberi e l'elenco può essere vuoto */
+const SUGGEST_LISTS = new Set(['protocols', 'connectors']);
 const LIST_LABELS = {
-  domains: 'Domini', owners: 'Owner', portTypes: 'Tipi di porta', protocols: 'Protocolli / standard (suggerimenti)',
-  cableTypes: 'Tipi di cavo (suggerimenti)', connectors: 'Connettori (suggerimenti)',
+  domains: 'Domini', owners: 'Owner', portTypes: 'Tipi di porta', directions: 'Direzioni delle porte', protocols: 'Protocolli / standard (suggerimenti)',
+  cableTypes: 'Tipi di cavo', connectors: 'Connettori (suggerimenti)',
   statuses: 'Stati di componenti, interfacce e cavi', reqStatuses: 'Stati dei requisiti', reqTypes: 'Tipi di requisito',
   reqOrigins: 'Origini dei requisiti', reqMethods: 'Metodi di verifica'
 };
+/* Campi degli oggetti che usano ciascun elenco (conteggi, rinomina e rimozione dei valori) */
+const LIST_USES = {
+  domains: [['components', 'domain']],
+  owners: [['groups', 'owner'], ['components', 'owner'], ['interfaces', 'owner'], ['requirements', 'owner']],
+  portTypes: [['ports', 'type']], directions: [['ports', 'direction']],
+  statuses: [['components', 'status'], ['interfaces', 'status'], ['cables', 'status']],
+  cableTypes: [['cables', 'type']],
+  reqStatuses: [['requirements', 'status']], reqTypes: [['requirements', 'type']], reqOrigins: [['requirements', 'origin']], reqMethods: [['requirements', 'method']],
+  protocols: [['interfaces', 'protocol']], connectors: [['cables', 'connA'], ['cables', 'connB']]
+};
+/* Campi personalizzati (formato dati 5): entità che li possono avere e tipi disponibili */
+const CF_ENTITIES = { group: 'groups', component: 'components', interface: 'interfaces', cable: 'cables', requirement: 'requirements' };
+const CF_ENTITY_LABELS = { group: 'Gruppi funzionali', component: 'Componenti', interface: 'Interfacce', cable: 'Cavi', requirement: 'Requisiti' };
+const CF_TYPES = { text: 'Testo', number: 'Numero', list: 'Elenco', date: 'Data', checkbox: 'Casella (sì/no)' };
 const PORT_SIDES = [
   { value: 'auto', label: 'Automatico (lato verso il collegamento)' },
   { value: 'L', label: 'Sempre a sinistra' },
   { value: 'R', label: 'Sempre a destra' }
 ];
-const DIRECTIONS = ['Input', 'Output', 'Bidirectional', 'Not applicable'];
 const DIR_ABBR = { 'Input': 'IN', 'Output': 'OUT', 'Bidirectional': 'I/O', 'Not applicable': '' };
 const APPROVED_STATUSES = new Set(['Concordata', 'Baselined', 'Verified']);
 const SHIELDING = ['None', 'Overall shield', 'Individual pair shield', 'Overall + individual shield', 'Coaxial shield', 'Other'];
@@ -1044,6 +1102,7 @@ const ui = {
   selected: null,          // {kind, uid}
   activeWp: null,          // punto di instradamento attivo {key, k}
   filter: { hidden: [], hideComps: false },   // filtro della lavagna: 'C:categoria' / 'S:categoria/sottotipo' nascosti
+  cols: {},                // colonne nascoste di ogni tabella: { interfaces: ['protocol', 'cf:…'], … }
   filters: {},             // per tabella: {q, sort:{key,dir}, ...}
   dashCat: null
 };
@@ -1104,12 +1163,12 @@ function buildDemo() {
   const ANT = comp('ANT', 'V/UHF Antenna', 'Antenna a stilo V/UHF montata sul tetto del veicolo.', 'RF', 'RF Integration', 'Supplier Antenna', 'Proposta', 940, 620, gC3, [
     port('J1', 'RF FEED', 'RF', 'Bidirectional')]);
   const P = (c, id) => c.ports.find((p) => p.id === id).uid;
-  const iface = (id, name, a, pa, b, pb, cls, description, owner, status) =>
-    ({ uid: U('i'), id, name, compA: a.uid, portA: P(a, pa), compB: b.uid, portB: P(b, pb), category: cls[0], subtype: cls[1], protocol: cls[2], description, owner, status });
-  const IF_CTRL = iface('IF-CTRL-01', 'VCU to Display control interface', VCU, 'J2', HMI, 'J2', ['Funzionale', 'Controllo', 'RS-422'], 'Comandi operatore, stati e allarmi scambiati in full-duplex fra VCU e display.', 'Vehicle Integration', 'Concordata');
+  const iface = (id, name, a, pa, b, pb, cls, description, owner, status, rev) =>
+    ({ uid: U('i'), id, rev: rev || 'A', name, compA: a.uid, portA: P(a, pa), compB: b.uid, portB: P(b, pb), category: cls[0], subtype: cls[1], protocol: cls[2], description, owner, status, custom: {} });
+  const IF_CTRL = iface('IF-CTRL-01', 'VCU to Display control interface', VCU, 'J2', HMI, 'J2', ['Funzionale', 'Controllo', 'RS-422'], 'Comandi operatore, stati e allarmi scambiati in full-duplex fra VCU e display.', 'Vehicle Integration', 'Concordata', 'B');
   const IF_GPS = iface('IF-GPS-01', 'GPS position data to VCU', GPS, 'J2', VCU, 'J3', ['Funzionale', 'Scambio dati', 'RS-232 · NMEA 0183'], 'Messaggi NMEA 0183 di posizione, velocità e tempo (1 Hz).', 'Navigation Integration', 'In revisione');
   const IF_RAD = iface('IF-RADIO-01', 'VCU to Tactical Radio data link', VCU, 'J4', RAD, 'J2', ['Funzionale', 'Scambio dati', 'Ethernet 100BASE-TX'], 'Traffico dati IP fra VCU e radio tattica.', 'C3 Integration', 'Proposta');
-  const IF_PV = iface('IF-PWR-VCU', 'VCU 28 VDC supply', PDU, 'J2', VCU, 'J1', ['Elettrica', 'Alimentazione', '28 VDC (MIL-STD-1275)'], 'Alimentazione 28 VDC nominali, 10 A max.', 'Electrical Integration', 'Baselined');
+  const IF_PV = iface('IF-PWR-VCU', 'VCU 28 VDC supply', PDU, 'J2', VCU, 'J1', ['Elettrica', 'Alimentazione', '28 VDC (MIL-STD-1275)'], 'Alimentazione 28 VDC nominali, 10 A max.', 'Electrical Integration', 'Baselined', 'C');
   const IF_PH = iface('IF-PWR-HMI', 'Display 28 VDC supply', PDU, 'J3', HMI, 'J1', ['Elettrica', 'Alimentazione', '28 VDC (MIL-STD-1275)'], 'Alimentazione 28 VDC nominali, 4 A max.', 'Electrical Integration', 'Concordata');
   const IF_PR = iface('IF-PWR-RAD', 'Radio 28 VDC supply', PDU, 'J4', RAD, 'J1', ['Elettrica', 'Alimentazione', '28 VDC (MIL-STD-1275)'], 'Alimentazione 28 VDC nominali, 15 A max in trasmissione.', 'Electrical Integration', 'Da verificare');
   const IF_MH = iface('IF-MEC-HMI', 'Display mounting', HMI, 'M1', STR, 'M1', ['Meccanica', 'Statica', 'Fissaggio a vite'], 'Fissaggio rigido del display alla struttura: 4 viti M5, 2 spine di centraggio, coppia 5 N·m.', 'Vehicle Integration', 'Concordata');
@@ -1121,33 +1180,32 @@ function buildDemo() {
   const IF_CR = iface('IF-COOL-RET', 'Radio coolant return', RAD, 'F2', CLU, 'F2', ['Fluidica', 'Raffreddamento', 'Glicole 50% (circuito chiuso)'], 'Ritorno del refrigerante all’unità di raffreddamento.', 'Vehicle Integration', 'Proposta');
 
   const pin = (pinA, sigA, pinB, sigB, wire) => ({ pinA, sigA, pinB, sigB, wire: wire || '' });
-  const cable = (id, f, name, type, connA, connB, pinout, length, shielding, partNumber, notes, status, reverse) => ({
+  const cable = (id, f, name, type, connA, connB, pinout, length, shielding, partNumber, notes, status, supplierPn) => ({
     uid: U('w'), id, ifaceUid: f.uid, name,
-    compA: reverse ? f.compB : f.compA, portA: reverse ? f.portB : f.portA,
-    compB: reverse ? f.compA : f.compB, portB: reverse ? f.portA : f.portB,
-    type, connA, connB, pinout, length, lengthUnit: 'm', shielding, partNumber, notes, status
+    compA: f.compA, portA: f.portA, compB: f.compB, portB: f.portB,
+    type, connA, connB, pinout, length, lengthUnit: 'm', shielding, partNumber, supplierPn: supplierPn || '', notes, status, custom: {}
   });
   const cables = [
-    cable('CBL-CTRL-TX', IF_CTRL, 'RS-422 transmit pair', 'Twisted pair 120 Ω', 'D-Sub 9 (DE-9)', 'D-Sub 9 (DE-9)',
-      [pin('2', 'TX+', '3', 'RX+', 'WH/BU'), pin('7', 'TX-', '8', 'RX-', 'BU')], 3.5, 'Individual pair shield', 'SPEC-CBL-422-TX', 'Coppia differenziale di trasmissione VCU → HMI.', 'Concordata'),
-    cable('CBL-CTRL-RX', IF_CTRL, 'RS-422 receive pair', 'Twisted pair 120 Ω', 'D-Sub 9 (DE-9)', 'D-Sub 9 (DE-9)',
-      [pin('3', 'RX+', '2', 'TX+', 'WH/OG'), pin('8', 'RX-', '7', 'TX-', 'OG')], 3.5, 'Individual pair shield', 'SPEC-CBL-422-RX', 'Coppia differenziale di ricezione HMI → VCU.', 'Concordata'),
-    cable('CBL-CTRL-SH', IF_CTRL, 'Shield / drain', 'Drain wire / shield', 'D-Sub 9 shell', 'D-Sub 9 shell',
+    cable('CBL-CTRL-TX', IF_CTRL, 'RS-422 transmit pair', 'Twisted Pair', 'D-Sub 9 (DE-9)', 'D-Sub 9 (DE-9)',
+      [pin('2', 'TX+', '3', 'RX+', 'WH/BU'), pin('7', 'TX-', '8', 'RX-', 'BU')], 3.5, 'Individual pair shield', 'SPEC-CBL-422-TX', 'Coppia differenziale di trasmissione VCU → HMI.', 'Concordata', 'Belden 9841'),
+    cable('CBL-CTRL-RX', IF_CTRL, 'RS-422 receive pair', 'Twisted Pair', 'D-Sub 9 (DE-9)', 'D-Sub 9 (DE-9)',
+      [pin('3', 'RX+', '2', 'TX+', 'WH/OG'), pin('8', 'RX-', '7', 'TX-', 'OG')], 3.5, 'Individual pair shield', 'SPEC-CBL-422-RX', 'Coppia differenziale di ricezione HMI → VCU.', 'Concordata', 'Belden 9841'),
+    cable('CBL-CTRL-SH', IF_CTRL, 'Shield / drain', 'Schermato', 'D-Sub 9 shell', 'D-Sub 9 shell',
       [pin('Shell', 'SHIELD', 'Shell', 'SHIELD', 'Drain')], 3.5, 'Overall shield', 'SPEC-CBL-422-SH', 'Terminazione dello schermo a 360° sui gusci dei connettori, entrambi i lati.', 'Proposta'),
-    cable('CBL-GPS-01', IF_GPS, 'RS-232 NMEA data', 'Shielded twisted pair (STP)', 'D-Sub 9 (DE-9)', 'D-Sub 9 (DE-9)',
+    cable('CBL-GPS-01', IF_GPS, 'RS-232 NMEA data', 'Schermato', 'D-Sub 9 (DE-9)', 'D-Sub 9 (DE-9)',
       [pin('3', 'TXD', '2', 'RXD'), pin('2', 'RXD', '3', 'TXD'), pin('5', 'GND', '5', 'GND')], 2, 'Overall shield', 'SPEC-CBL-232-01', '', 'In revisione'),
-    cable('CBL-ETH-01', IF_RAD, 'Ethernet 100BASE-TX', 'Cat5e SF/UTP', 'M12 D-coded', 'RJ45',
+    cable('CBL-ETH-01', IF_RAD, 'Ethernet 100BASE-TX', 'Ethernet', 'M12 D-coded', 'RJ45',
       [], 4, 'Overall shield', '', 'Pinout da concordare con il fornitore della radio.', 'Proposta'),
-    cable('CBL-PWR-VCU', IF_PV, '28 VDC VCU feed', 'Power 2 x AWG16', 'MIL-DTL-38999 Series III', 'MIL-DTL-38999 Series III',
+    cable('CBL-PWR-VCU', IF_PV, '28 VDC VCU feed', 'Alimentazione', 'MIL-DTL-38999 Series III', 'MIL-DTL-38999 Series III',
       [pin('A', '+28V', 'A', '+28V', 'RD'), pin('B', 'RTN', 'B', 'RTN', 'BK')], 1.8, 'None', 'SPEC-CBL-PWR-16', '', 'Baselined'),
-    cable('CBL-PWR-HMI', IF_PH, '28 VDC display feed', 'Power 2 x AWG16', 'MIL-DTL-38999 Series III', '',
+    cable('CBL-PWR-HMI', IF_PH, '28 VDC display feed', 'Alimentazione', 'MIL-DTL-38999 Series III', '',
       [pin('A', '+28V', '1', '+28V', 'RD'), pin('B', 'RTN', '2', 'RTN', 'BK')], 2.6, 'None', 'SPEC-CBL-PWR-16', 'Connettore lato display da confermare.', 'Proposta'),
-    cable('CBL-PWR-RAD', IF_PR, '28 VDC radio feed', 'Power 2 x AWG12', 'MIL-DTL-38999 Series III', 'MIL-DTL-38999 Series III',
+    cable('CBL-PWR-RAD', IF_PR, '28 VDC radio feed', 'Alimentazione', 'MIL-DTL-38999 Series III', 'MIL-DTL-38999 Series III',
       [pin('A', '+28V', 'A', '+28V', 'RD'), pin('B', 'RTN', 'B', 'RTN', 'BK')], 3, 'None', 'SPEC-CBL-PWR-12', '', 'Da verificare'),
-    cable('CBL-GND-HMI', IF_GH, 'Ground strap', 'Treccia di massa', 'Ring lug', 'Ring lug',
+    cable('CBL-GND-HMI', IF_GH, 'Ground strap', 'Altro', 'Ring lug', 'Ring lug',
       [pin('G1', 'GND', 'G1', 'CHASSIS', 'Treccia')], 0.3, 'None', 'SPEC-GND-STRAP-01', '', 'Concordata'),
-    cable('CBL-RF-RAD', IF_RF, 'Radio–antenna coax', 'Coax LMR-400', 'TNC', 'N-type',
-      [pin('C', 'RF', 'C', 'RF', 'Centrale'), pin('S', 'SHIELD', 'S', 'SHIELD', 'Calza')], 5.5, 'Coaxial shield', 'SPEC-CBL-COAX-400', '', 'In revisione')
+    cable('CBL-RF-RAD', IF_RF, 'Radio–antenna coax', 'Coassiale', 'TNC', 'N-type',
+      [pin('C', 'RF', 'C', 'RF', 'Centrale'), pin('S', 'SHIELD', 'S', 'SHIELD', 'Calza')], 5.5, 'Coaxial shield', 'SPEC-CBL-COAX-400', '', 'In revisione', 'Times Microwave LMR-400')
   ];
   const lk = (kind, obj) => ({ kind, uid: obj.uid });
   const lkPort = (c, pid) => ({ kind: 'port', uid: P(c, pid) });
@@ -1178,7 +1236,8 @@ function buildDemo() {
     cables,
     requirements,
     routing: { interfaces: {}, cables: {} },
-    labels: { interfaces: {}, cables: {} }
+    labels: { interfaces: {}, cables: {} },
+    customFields: []
   };
 }
 /* Progetto vuoto (nuovo programma) */
@@ -1189,7 +1248,8 @@ function buildEmpty(name, program) {
     lists: clone(DEFAULT_LISTS),
     groups: [], components: [], interfaces: [], cables: [], requirements: [],
     routing: { interfaces: {}, cables: {} },
-    labels: { interfaces: {}, cables: {} }
+    labels: { interfaces: {}, cables: {} },
+    customFields: []
   };
 }
 
@@ -1319,7 +1379,7 @@ function saveUi() {
   try {
     localStorage.setItem(APP.uiKey, JSON.stringify({
       section: ui.section, mode: ui.mode, zoom: ui.zoom, panX: ui.panX, panY: ui.panY, fitted: ui.fitted,
-      showPorts: ui.showPorts, showGroups: ui.showGroups, showLabels: ui.showLabels, user: prefs.user, filter: ui.filter
+      showPorts: ui.showPorts, showGroups: ui.showGroups, showLabels: ui.showLabels, user: prefs.user, filter: ui.filter, cols: ui.cols
     }));
   } catch (e) { /* preferenze non critiche */ }
 }
@@ -1340,6 +1400,7 @@ function loadUi() {
       ui.showGroups = u.showGroups !== false;
       ui.showLabels = u.showLabels !== false;
       if (typeof u.user === 'string') prefs.user = u.user.slice(0, 80);
+      if (u.cols && typeof u.cols === 'object') Object.keys(u.cols).forEach((k) => { if (Array.isArray(u.cols[k])) ui.cols[k] = u.cols[k].filter((x) => typeof x === 'string').slice(0, 200); });
       if (u.filter && Array.isArray(u.filter.hidden)) ui.filter = { hidden: u.filter.hidden.filter((x) => typeof x === 'string').slice(0, 500), hideComps: !!u.filter.hideComps };
       return true;
     }
@@ -2747,8 +2808,8 @@ const FIELD_IT = {
   id: 'ID', name: 'nome', description: 'descrizione', domain: 'dominio', owner: 'owner', supplier: 'fornitore', status: 'stato', groupUid: 'gruppo',
   ports: 'porte', attachments: 'allegati', color: 'colore', category: 'categoria', subtype: 'sottotipo', protocol: 'protocollo', compA: 'componente A',
   portA: 'porta A', compB: 'componente B', portB: 'porta B', ifaceUid: 'interfaccia', type: 'tipo', connA: 'connettore A', connB: 'connettore B',
-  pinout: 'pinout', length: 'lunghezza', lengthUnit: 'unità', shielding: 'schermatura', partNumber: 'part number', notes: 'note', title: 'titolo',
-  text: 'testo', origin: 'origine', links: 'collegamenti', method: 'metodo di verifica', shareable: 'condivisibile'
+  pinout: 'pinout', length: 'lunghezza', lengthUnit: 'unità', shielding: 'schermatura', partNumber: 'PN IDV', supplierPn: 'PN fornitore', notes: 'note', title: 'titolo',
+  text: 'testo', origin: 'origine', links: 'collegamenti', method: 'metodo di verifica', shareable: 'condivisibile', rev: 'revisione', custom: 'campi personalizzati'
 };
 function diffData(a, b) {
   const kinds = [['groups', 'Gruppi funzionali'], ['components', 'Componenti'], ['interfaces', 'Interfacce'], ['cables', 'Cavi'], ['requirements', 'Requisiti']];
@@ -2762,9 +2823,11 @@ function diffData(a, b) {
       const p = A.get(uid);
       if (!p) return;
       const f = [];
+      // campo vuoto e campo assente (versioni salvate con un formato precedente) sono equivalenti
+      const norm = (v) => (v === '' || (isPlainObj(v) && !Object.keys(v).length) ? undefined : v);
       new Set(Object.keys(o).concat(Object.keys(p))).forEach((key) => {
         if (key === 'x' || key === 'y' || key === 'uid') return;
-        if (JSON.stringify(o[key]) !== JSON.stringify(p[key])) f.push(FIELD_IT[key] || key);
+        if (JSON.stringify(norm(o[key])) !== JSON.stringify(norm(p[key]))) f.push(FIELD_IT[key] || key);
       });
       if (o.x !== p.x || o.y !== p.y) moved++;
       if (f.length) changed.push({ id: o.id, was: p.id !== o.id ? p.id : null, f });
@@ -2776,7 +2839,7 @@ function diffData(a, b) {
     const ra = (a.routing && a.routing[m]) || {}, rb = (b.routing && b.routing[m]) || {};
     new Set(Object.keys(ra).concat(Object.keys(rb))).forEach((key) => { if (JSON.stringify(ra[key]) !== JSON.stringify(rb[key])) routes++; });
   });
-  return { kinds: out, lists: JSON.stringify(a.lists) !== JSON.stringify(b.lists), routes, meta: a.meta.name !== b.meta.name || a.meta.program !== b.meta.program };
+  return { kinds: out, lists: JSON.stringify(a.lists) !== JSON.stringify(b.lists) || JSON.stringify(a.customFields || []) !== JSON.stringify(b.customFields || []), routes, meta: a.meta.name !== b.meta.name || a.meta.program !== b.meta.program };
 }
 async function openDiffDialog(pid, vid) {
   await flushSave();
@@ -3636,7 +3699,7 @@ function geomMap(showPorts) {
 }
 function portTag(p) {
   const a = PORT_ABBR[p.type] || (p.type ? String(p.type).slice(0, 3).toUpperCase() : '');
-  const d = DIR_ABBR[p.direction] || '';
+  const d = p.direction in DIR_ABBR ? DIR_ABBR[p.direction] : str(p.direction).slice(0, 3).toUpperCase();
   return d ? a + ' · ' + d : a;
 }
 function anchorPoint(geom, portUid, side) {
@@ -4718,11 +4781,12 @@ function linkTooltip(L) {
   if (L.kind === 'cable') {
     const f = idx.iface.get(L.obj.ifaceUid);
     return 'Cavo ' + L.obj.id + (L.obj.name ? ' — ' + L.obj.name : '') + '\n' + portFull(L.obj.portA) + ' ↔ ' + portFull(L.obj.portB) +
+      '\nTipo: ' + (L.obj.type || '—') + (L.obj.supplierPn ? ' · PN fornitore ' + L.obj.supplierPn : '') + (L.obj.partNumber ? ' · PN IDV ' + L.obj.partNumber : '') +
       '\nConnettori: ' + (L.obj.connA || '—') + ' / ' + (L.obj.connB || '—') +
       '\nPinout: ' + (pinoutSummary(L.obj) || 'non definito') + '\nInterfaccia: ' + (f ? f.id : '—');
   }
   const nC = (idx.cablesByIface.get(L.obj.uid) || []).length;
-  return 'Interfaccia ' + L.obj.id + ' — ' + (L.obj.name || '') + '\n' + portFull(L.obj.portA) + ' ↔ ' + portFull(L.obj.portB) +
+  return 'Interfaccia ' + L.obj.id + (L.obj.rev ? ' rev ' + L.obj.rev : '') + ' — ' + (L.obj.name || '') + '\n' + portFull(L.obj.portA) + ' ↔ ' + portFull(L.obj.portB) +
     '\nCategoria: ' + (L.obj.category || '—') + (L.obj.subtype ? ' / ' + L.obj.subtype : '') +
     '\nProtocollo / standard: ' + (L.obj.protocol || '—') + '\nStato: ' + (L.obj.status || '—') +
     (categoryNeedsCables(L.obj.category) ? '\nCavi: ' + nC : '\nNon realizzata da cavi');
@@ -4895,7 +4959,7 @@ function renderBoard() {
       '<path class="link-hit" d="' + dHit + '"/><path class="' + cls + '" d="' + d + '"/>' + segHits + '</g>';
     if (ui.showLabels) {
       const idPart = L.obj.id;
-      const rest = L.kind === 'cable' ? (L.obj.name ? '  ' + L.obj.name : '') : (L.kind === 'ghost' && !L.noCable ? '  nessun cavo' : '  ' + ifTypeText(L.obj));
+      const rest = L.kind === 'cable' ? (L.obj.type || L.obj.name ? '  ' + (L.obj.type || L.obj.name) : '') : (L.kind === 'ghost' && !L.noCable ? '  nessun cavo' : '  ' + ifTypeText(L.obj));
       const restFit = fitText(rest, F.label, 190);
       labels.push({
         li, idPart, rest: restFit, w: textW(idPart, F.lblId) + textW(restFit, F.label) + 12, h: 16,
@@ -6068,6 +6132,7 @@ function openPanel(cfg) {
 }
 function closePanel(force) {
   if (!panelCtx && !force) return;
+  closeListPopover();
   panelCtx = null;
   byId('sidePanel').classList.remove('open');
   byId('spBody').innerHTML = '';
@@ -6216,17 +6281,93 @@ function fillSelect(el, options, value) {
   if (el._add) appendAddOption(el);
   el.value = v;
 }
-/* add (facoltativo): { label, onAdd } aggiunge in fondo l'opzione "＋ label" (vedi makeAddable) */
+/* add (facoltativo): { label, onAdd, listKey } aggiunge in fondo l'opzione "＋ label"; con listKey le voci
+   dell'elenco si possono anche rimuovere dal menu (vedi makeAddable) */
 function selectFor(draft, key, options, attrs, onChange, add) {
   const el = h('select', Object.assign({ class: 'inp' }, attrs || {}));
-  if (add) makeAddable(el, add.label, add.onAdd);
+  if (add) makeAddable(el, add.label, add.onAdd, add.listKey);
   fillSelect(el, options, draft[key]);
   el.addEventListener('change', () => { draft[key] = el.value; if (onChange) onChange(el.value); formChanged(); });
   return el;
 }
-/* ---------- Opzione "＋ Aggiungi…" nei menu a tendina ----------
-   Scegliendola si inserisce un nuovo valore nell'elenco (o si crea un nuovo oggetto), che viene subito selezionato.
-   Va attivata prima degli altri gestori "change" della select: l'opzione stessa non arriva mai al modulo. */
+/* ---------- Elenchi configurabili: registro unico ----------
+   Chiavi: elenchi semplici (state.lists), 'ifCategories', 'sub:<categoria>' (sottotipi), 'cf:<id>' (campo personalizzato a elenco). */
+function cfDef(id, st) { return ((st || state).customFields || []).find((f) => f.id === id) || null; }
+function listDef(key) {
+  if (key === 'ifCategories') {
+    return { key, label: 'Categorie di interfaccia', values: (st) => (st || state).lists.ifCategories.map((c) => c.name), set: (st, arr) => { st.lists.ifCategories = arr.map((n) => st.lists.ifCategories.find((c) => c.name === n)).filter(Boolean); } };
+  }
+  if (key.indexOf('sub:') === 0) {
+    const cat = key.slice(4);
+    const of = (st) => (st || state).lists.ifCategories.find((c) => c.name === cat);
+    return { key, label: 'Sottotipi di ' + cat, values: (st) => (of(st) || { subtypes: [] }).subtypes, set: (st, arr) => { const c = of(st); if (c) c.subtypes = arr; }, empty: true };
+  }
+  if (key.indexOf('cf:') === 0) {
+    const id = key.slice(3);
+    const f = cfDef(id);
+    return { key, label: f ? f.label + ' (campo personalizzato)' : 'Campo personalizzato', values: (st) => (cfDef(id, st) || { options: [] }).options, set: (st, arr) => { const x = cfDef(id, st); if (x) x.options = arr; }, empty: true };
+  }
+  return { key, label: LIST_LABELS[key] || key, values: (st) => (st || state).lists[key] || [], set: (st, arr) => { st.lists[key] = arr; }, empty: SUGGEST_LISTS.has(key) };
+}
+/* Visita i campi degli oggetti che usano un elenco: fn(oggetto, nome del campo) */
+function eachListUse(st, key, fn) {
+  if (key === 'ifCategories') { st.interfaces.forEach((o) => fn(o, 'category')); return; }
+  if (key.indexOf('sub:') === 0) { const cat = key.slice(4); st.interfaces.forEach((o) => { if (o.category === cat) fn(o, 'subtype'); }); return; }
+  if (key.indexOf('cf:') === 0) {
+    const f = cfDef(key.slice(3), st);
+    if (f) (st[CF_ENTITIES[f.entity]] || []).forEach((o) => { if (o.custom) fn(o.custom, f.id); });
+    return;
+  }
+  (LIST_USES[key] || []).forEach(([coll, field]) => {
+    if (coll === 'ports') st.components.forEach((c) => c.ports.forEach((p) => fn(p, field)));
+    else (st[coll] || []).forEach((o) => fn(o, field));
+  });
+}
+function countListUse(key, value, st) {
+  let n = 0;
+  eachListUse(st || state, key, (o, f) => { if (o[f] === value) n++; });
+  return n;
+}
+/* Nuovo valore in un elenco del progetto (gli stessi elenchi si modificano in Impostazioni → Valori dei campi) */
+function addList(listKey, label) {
+  return {
+    label: label || 'Aggiungi…',
+    listKey,
+    onAdd: async () => {
+      const def = listDef(listKey);
+      const v = await promptDialog('Nuovo valore — ' + def.label, [{ key: 'value', label: 'Valore', required: true, max: 80 }], 'Aggiungi',
+        'Il valore viene aggiunto all’elenco del progetto e sarà disponibile anche per gli altri oggetti (gli elenchi si gestiscono in Impostazioni → Valori dei campi).');
+      if (!v || !v.value) return null;
+      const ex = def.values().find((x) => x.toLowerCase() === v.value.toLowerCase());
+      if (ex) return ex;
+      commit((st) => { def.set(st, def.values(st).concat([v.value])); }, 'Aggiunto “' + v.value + '” all’elenco ' + def.label);
+      return v.value;
+    }
+  };
+}
+/* Select "nuda" (riempita poi con fillSelect) per un elenco configurabile */
+function listSelect(listKey) { const a = addList(listKey); return makeAddable(h('select', { class: 'inp' }), a.label, a.onAdd, listKey); }
+/* Rimozione di una voce dall'elenco (dal menu a tendina): gli oggetti che la usano la conservano */
+async function removeListValue(key, value) {
+  const def = listDef(key);
+  const vals = def.values();
+  if (!vals.includes(value)) return false;
+  const n = countListUse(key, value);
+  if (key === 'ifCategories' && n) { toast('La categoria “' + value + '” è usata da ' + plural(n, 'interfaccia', 'interfacce') + ': assegna loro un’altra categoria prima di rimuoverla.', 'warn', 7000); return false; }
+  if (vals.length <= 1 && !def.empty) { toast('L’elenco “' + def.label + '” deve contenere almeno un valore.', 'warn'); return false; }
+  const r = await confirmDialog({
+    title: 'Rimuovere “' + value + '” dall’elenco?',
+    body: [h('p', null, 'Elenco: ', h('b', null, def.label), '.'),
+      h('p', null, n ? plural(n, 'oggetto usa', 'oggetti usano') + ' questo valore: lo conservano e lo mostrano come “non in elenco”. Per sostituirlo ovunque con un altro valore usa Impostazioni → Valori dei campi.' : 'Il valore non è usato da nessun oggetto.')],
+    confirmLabel: 'Rimuovi', danger: true
+  });
+  if (!r.ok) return false;
+  commit((st) => { def.set(st, def.values(st).filter((x) => x !== value)); }, 'Rimosso “' + value + '” dall’elenco ' + def.label);
+  return true;
+}
+/* ---------- Menu a tendina modificabili ----------
+   L'opzione "＋ …" in fondo aggiunge un valore (o crea un oggetto) e lo seleziona. Il menu si apre in un elenco
+   proprio, con il simbolo "−" accanto a ogni voce rimovibile; la select resta il controllo vero (tastiera, valore). */
 const ADD_OPT = '\u2063add';
 function appendAddOption(el) {
   const o = document.createElement('option');
@@ -6235,11 +6376,21 @@ function appendAddOption(el) {
   o.className = 'opt-add';
   el.appendChild(o);
 }
-function makeAddable(el, label, onAdd) {
-  el._add = { label };
+function makeAddable(el, label, onAdd, listKey) {
+  el._add = { label, onAdd, listKey };
   if (el.options.length) appendAddOption(el);
   let prev = el.value;
   el.addEventListener('focus', () => { prev = el.value; });
+  el.addEventListener('mousedown', (e) => {
+    if (e.button !== 0 || el.disabled) return;
+    e.preventDefault();
+    el.focus();
+    if (listPop && listPop.el === el) closeListPopover(); else openListPopover(el);
+  });
+  el.addEventListener('keydown', (e) => {
+    if (listPop && listPop.el === el) return;   // elenco aperto: i tasti li gestisce listPopoverKey
+    if (e.key === 'Enter' || e.key === ' ' || e.key === 'F4' || (e.altKey && e.key === 'ArrowDown')) { e.preventDefault(); openListPopover(el); }
+  });
   el.addEventListener('change', (e) => {
     if (el.value !== ADD_OPT) { prev = el.value; return; }
     e.stopImmediatePropagation();
@@ -6260,20 +6411,113 @@ function makeAddable(el, label, onAdd) {
   });
   return el;
 }
-/* Nuovo valore in un elenco del progetto (gli stessi elenchi si modificano in Impostazioni) */
-function addList(listKey, label) {
-  return {
-    label: label || 'Aggiungi…',
-    onAdd: async () => {
-      const v = await promptDialog('Nuovo valore — ' + LIST_LABELS[listKey], [{ key: 'value', label: 'Valore', required: true, max: 80 }], 'Aggiungi',
-        'Il valore viene aggiunto all’elenco del progetto e sarà disponibile anche per gli altri oggetti (l’elenco si modifica in Impostazioni).');
-      if (!v || !v.value) return null;
-      const ex = state.lists[listKey].find((x) => x.toLowerCase() === v.value.toLowerCase());
-      if (ex) return ex;
-      commit((st) => { st.lists[listKey].push(v.value); }, 'Aggiunto “' + v.value + '” all’elenco ' + LIST_LABELS[listKey]);
-      return v.value;
-    }
+let listPop = null;   // { el, box, items, hi }
+function closeListPopover() {
+  if (!listPop) return;
+  listPop.box.remove();
+  listPop = null;
+}
+function openListPopover(el) {
+  closeListPopover();
+  const listKey = typeof el._add.listKey === 'function' ? el._add.listKey() : el._add.listKey;
+  const def = listKey ? listDef(listKey) : null;
+  const inList = new Set(def ? def.values() : []);
+  const opts = Array.from(el.options).filter((o) => o.value !== ADD_OPT);
+  const box = h('div', { class: 'lsel-pop', role: 'listbox', 'aria-label': def ? def.label : 'Scelta' });
+  const q = opts.length > 12 ? h('input', { type: 'search', class: 'inp lsel-q', placeholder: 'Filtra…', 'aria-label': 'Filtra le voci' }) : null;
+  const list = h('div', { class: 'lsel-list' });
+  const pick = (v) => {
+    closeListPopover();
+    el.focus();
+    if (el.value !== v) { el.value = v; el.dispatchEvent(new Event('change')); }
   };
+  const items = [];
+  const paint = () => {
+    list.innerHTML = '';
+    items.length = 0;
+    const f = q ? q.value.trim().toLowerCase() : '';
+    opts.forEach((o) => {
+      if (f && !o.textContent.toLowerCase().includes(f)) return;
+      const removable = !!def && o.value !== '' && inList.has(o.value);
+      const row = h('div', { class: 'lsel-opt' + (o.value === el.value ? ' sel' : '') + (o.disabled ? ' disabled' : ''), role: 'option', 'aria-selected': o.value === el.value ? 'true' : 'false', 'data-v': o.value },
+        h('span', { class: 'lsel-lbl' }, o.textContent),
+        removable ? h('button', { type: 'button', class: 'lsel-rm', title: 'Rimuovi “' + o.value + '” dall’elenco', 'aria-label': 'Rimuovi ' + o.value }, '−') : null);
+      row.addEventListener('mousedown', (e) => e.preventDefault());
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.lsel-rm')) {
+          closeListPopover();
+          removeListValue(listKey, o.value).then((ok) => {
+            if (!ok) return;
+            const cur = el.value;
+            o.remove();
+            if (cur === o.value) {   // il valore resta all'oggetto: compare come "non in elenco"
+              const x = document.createElement('option');
+              x.value = cur; x.textContent = cur + ' (non in elenco)';
+              el.insertBefore(x, el.querySelector('option.opt-add'));
+              el.value = cur;
+            }
+          }).catch(reportError);
+          return;
+        }
+        if (!o.disabled) pick(o.value);
+      });
+      list.appendChild(row);
+      if (!o.disabled) items.push(row);
+    });
+    if (!list.childElementCount) list.appendChild(h('div', { class: 'lsel-empty' }, 'Nessuna voce.'));
+  };
+  const add = h('button', { type: 'button', class: 'lsel-add' }, '＋ ' + el._add.label);
+  add.addEventListener('mousedown', (e) => e.preventDefault());
+  add.addEventListener('click', () => { closeListPopover(); el.value = ADD_OPT; el.dispatchEvent(new Event('change')); });
+  const manage = listKey ? h('button', { type: 'button', class: 'lsel-manage', title: 'Gestisci l’elenco in Impostazioni (aggiungi, rinomina, elimina, ordina)', 'aria-label': 'Gestisci elenco' }, '⚙ Gestisci') : null;
+  if (manage) {
+    manage.addEventListener('mousedown', (e) => e.preventDefault());
+    manage.addEventListener('click', () => { closeListPopover(); openSettings(listKey === 'ifCategories' ? 'categories' : 'values', listKey).catch(reportError); });
+  }
+  if (q) {
+    box.appendChild(q);
+    q.addEventListener('input', paint);
+  }
+  box.append(list, h('div', { class: 'lsel-foot' }, add, manage));
+  paint();
+  document.body.appendChild(box);
+  const r = el.getBoundingClientRect();
+  const w = Math.max(r.width, 220);
+  box.style.width = w + 'px';
+  box.style.left = Math.min(r.left, window.innerWidth - w - 8) + 'px';
+  const below = window.innerHeight - r.bottom - 8, above = r.top - 8;
+  const hgt = Math.min(box.offsetHeight, 340);
+  if (below >= hgt || below >= above) { box.style.top = (r.bottom + 2) + 'px'; box.style.maxHeight = Math.max(140, below) + 'px'; }
+  else { box.style.top = Math.max(8, r.top - 2 - Math.min(hgt, above)) + 'px'; box.style.maxHeight = above + 'px'; }
+  listPop = { el, box, items, hi: -1 };
+  const selRow = list.querySelector('.lsel-opt.sel');
+  if (selRow) selRow.scrollIntoView({ block: 'nearest' });
+  if (q) q.focus();
+}
+/* Tastiera nell'elenco aperto: frecce, Invio, Esc */
+function listPopoverKey(e) {
+  if (!listPop) return false;
+  const lp = listPop;
+  if (e.key === 'Escape') { e.preventDefault(); closeListPopover(); lp.el.focus(); return true; }
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    const items = Array.from(lp.box.querySelectorAll('.lsel-opt:not(.disabled)'));
+    if (!items.length) return true;
+    let i = items.findIndex((x) => x.classList.contains('hi'));
+    if (i < 0) i = items.findIndex((x) => x.classList.contains('sel'));
+    i = clamp(i + (e.key === 'ArrowDown' ? 1 : -1), 0, items.length - 1);
+    items.forEach((x, j) => x.classList.toggle('hi', j === i));
+    items[i].scrollIntoView({ block: 'nearest' });
+    return true;
+  }
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const hi = lp.box.querySelector('.lsel-opt.hi') || (lp.box.querySelectorAll('.lsel-opt:not(.disabled)').length === 1 ? lp.box.querySelector('.lsel-opt:not(.disabled)') : null);
+    if (hi) hi.click();
+    return true;
+  }
+  if (e.key === 'Tab') closeListPopover();
+  return false;
 }
 /* Valori nuovi scritti nei campi con suggerimenti (protocollo, connettori): entrano nell'elenco dei suggerimenti */
 function rememberSuggestion(st, listKey, value) {
@@ -6334,7 +6578,7 @@ async function quickCreatePort(compUid) {
     { key: 'id', label: 'ID porta', required: true, max: 20, value: nextId('J', c.ports.map((p) => p.id), 1) },
     { key: 'label', label: 'Etichetta (facoltativa)', placeholder: 'es. RS-422 CONTROL' },
     { key: 'type', label: 'Tipo', options: state.lists.portTypes, value: state.lists.portTypes[0] || 'Other' },
-    { key: 'direction', label: 'Direzione', options: DIRECTIONS, value: 'Bidirectional' }
+    { key: 'direction', label: 'Direzione', options: state.lists.directions, value: state.lists.directions.includes('Bidirectional') ? 'Bidirectional' : state.lists.directions[0] }
   ], 'Crea porta');
   if (!v) return null;
   if (c.ports.some((p) => eqId(p.id, v.id))) { toast('Il componente ' + c.id + ' ha già una porta “' + v.id + '”.', 'err'); return null; }
@@ -6443,6 +6687,65 @@ function stripDraft(d) {
   Object.keys(d).forEach((k) => { if (k[0] !== '_') o[k] = d[k]; });
   return clone(o);
 }
+/* ---------- Campi personalizzati: modulo, pulizia dei valori, testo da mostrare ---------- */
+function customFieldsOf(entity) { return (state.customFields || []).filter((f) => f.entity === entity); }
+function customFieldsSection(entity, d) {
+  const defs = customFieldsOf(entity);
+  if (!defs.length) return null;
+  d.custom = d.custom || {};
+  const c = d.custom;
+  const ctl = (f) => {
+    if (f.type === 'checkbox') {
+      const cb = h('input', { type: 'checkbox', checked: !!c[f.id] });
+      cb.addEventListener('change', () => { c[f.id] = cb.checked; formChanged(); });
+      return h('label', { class: 'check-line', style: { marginTop: '0' } }, cb, h('span', null, 'Sì'));
+    }
+    if (f.type === 'list') return selectFor(c, f.id, [{ value: '', label: '—' }].concat(f.options), null, null, addList('cf:' + f.id));
+    if (f.type === 'number') return inputFor(c, f.id, { type: 'number', step: 'any' });
+    if (f.type === 'date') return inputFor(c, f.id, { type: 'date' });
+    return inputFor(c, f.id, { maxlength: 500 });
+  };
+  return h('div', { class: 'sp-section', 'data-role': 'custom-fields' },
+    h('h3', null, 'Campi personalizzati', h('span', { class: 'spacer' }),
+      h('button', { type: 'button', class: 'btn xs ghost', title: 'Definisci i campi personalizzati in Impostazioni', onclick: () => openSettings('custom') }, 'Gestisci…')),
+    h('div', { class: 'form-grid' }, defs.map((f) => fld(f.label, ctl(f), { field: 'cf:' + f.id }))));
+}
+function cleanCustom(custom, entity) {
+  const out = {};
+  const src = custom || {};
+  customFieldsOf(entity).forEach((f) => {
+    const v = src[f.id];
+    if (v == null || v === '' || v === false || (f.type === 'number' && !Number.isFinite(Number(v)))) return;
+    out[f.id] = f.type === 'number' ? Number(v) : (f.type === 'checkbox' ? true : str(v).trim());
+    if (out[f.id] === '') delete out[f.id];
+  });
+  return out;
+}
+function cfText(f, o) {
+  const v = o && o.custom ? o.custom[f.id] : undefined;
+  if (f.type === 'checkbox') return v ? 'Sì' : 'No';
+  if (v == null || v === '') return '';
+  if (f.type === 'date') { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(v); return m ? m[3] + '/' + m[2] + '/' + m[1] : str(v); }
+  if (f.type === 'number') return String(v).replace('.', ',');
+  return str(v);
+}
+/* Revisione successiva: A → B, Z → AA, 01 → 02, B3 → B4; vuota → A */
+function nextRev(r) {
+  r = str(r).trim();
+  if (!r) return 'A';
+  let m = /^(.*?)(\d+)$/.exec(r);
+  if (m) { const n = String(Number(m[2]) + 1); return m[1] + (n.length < m[2].length ? n.padStart(m[2].length, '0') : n); }
+  m = /^(.*?)([A-Za-z]+)$/.exec(r);
+  if (m) {
+    const up = m[2] === m[2].toUpperCase(), chars = m[2].toUpperCase().split('');
+    let i = chars.length - 1;
+    while (i >= 0 && chars[i] === 'Z') { chars[i] = 'A'; i--; }
+    if (i < 0) chars.unshift('A'); else chars[i] = String.fromCharCode(chars[i].charCodeAt(0) + 1);
+    const t = chars.join('');
+    return m[1] + (up ? t : t.toLowerCase());
+  }
+  return r + '.1';
+}
 function checkUniqueId(list, d, label, E) {
   const id = str(d.id).trim();
   if (!id) E.push({ f: 'id', m: 'L’ID ' + label + ' è obbligatorio.' });
@@ -6460,9 +6763,10 @@ function openComponentPanel(uid, preset, focusPortUid) {
     uid: newUid('c'), id: nextId('CMP-', state.components.map((c) => c.id), 2), name: '', description: '',
     domain: 'Altro', owner: 'Da assegnare', supplier: '', status: 'Proposta',
     x: preset && Number.isFinite(preset.x) ? preset.x : nextFreePosition().x, y: preset && Number.isFinite(preset.y) ? preset.y : nextFreePosition().y,
-    groupUid: (preset && preset.groupUid) || null, ports: [], attachments: []
+    groupUid: (preset && preset.groupUid) || null, ports: [], attachments: [], custom: {}
   } : clone(src);
   if (!Array.isArray(draft.attachments)) draft.attachments = [];
+  if (!draft.custom) draft.custom = {};
   draft._reqs = isNew ? [] : (idx.reqsByObj.get(uid) || []).map((r) => r.uid);
   draft._newReqs = [];
   const originalPorts = new Set(isNew ? [] : src.ports.map((p) => p.uid));
@@ -6489,7 +6793,7 @@ function openComponentPanel(uid, preset, focusPortUid) {
       );
       const portsBox = h('div');
       portsEd = portsEditor(d, portsBox, originalPorts, focusPortUid);
-      const kids = [grid,
+      const kids = [grid, customFieldsSection('component', d),
         h('div', { class: 'sp-section' }, h('h3', null, 'Porte', h('span', { class: 'count', 'data-ports-count': '' }, '(' + d.ports.length + ')'), h('span', { class: 'spacer' }),
           h('span', { class: 'muted small', style: { fontWeight: '400' } }, 'L’ordine definisce la posizione sulla lavagna')), portsBox)];
       if (!isNew) {
@@ -6530,6 +6834,7 @@ function openComponentPanel(uid, preset, focusPortUid) {
       const cur = idx.comp.get(clean.uid);
       clean.x = cur ? Number(cur.x) || 0 : Number(clean.x) || 0; clean.y = cur ? Number(cur.y) || 0 : Number(clean.y) || 0;
       clean.groupUid = clean.groupUid || null;
+      clean.custom = cleanCustom(clean.custom, 'component');
       clean.ports.forEach((p) => { p.id = str(p.id).trim(); });
       return commit((st) => {
         if (dep) applyCascade(st, dep);
@@ -6849,8 +7154,8 @@ function portsEditor(draft, box, originalPorts, focusPortUid) {
     const bind = (key, el) => { el.addEventListener('input', () => { dd[key] = el.value; }); el.addEventListener('change', () => { dd[key] = el.value; }); return el; };
     const idIn = bind('id', h('input', { class: 'inp', value: dd.id, maxlength: 20 }));
     const lbIn = bind('label', h('input', { class: 'inp', value: dd.label, placeholder: 'es. RS-422 CONTROL' }));
-    const tySel = makeAddable(h('select', { class: 'inp' }), 'Aggiungi…', addList('portTypes').onAdd); fillSelect(tySel, state.lists.portTypes, dd.type); bind('type', tySel);
-    const drSel = h('select', { class: 'inp' }); fillSelect(drSel, DIRECTIONS, dd.direction); bind('direction', drSel);
+    const tySel = listSelect('portTypes'); fillSelect(tySel, state.lists.portTypes, dd.type); bind('type', tySel);
+    const drSel = listSelect('directions'); fillSelect(drSel, state.lists.directions, dd.direction); bind('direction', drSel);
     const sdSel = h('select', { class: 'inp' }); fillSelect(sdSel, PORT_SIDES, dd.side || 'auto'); bind('side', sdSel);
     const ntIn = bind('notes', h('input', { class: 'inp', value: dd.notes || '', placeholder: 'Note (facoltative)' }));
     [idIn, lbIn, ntIn].forEach((el) => el.addEventListener('keydown', (e) => {
@@ -6910,8 +7215,11 @@ function openInterfacePanel(uid, preset) {
   const draft = isNew ? {
     uid: newUid('i'), id: nextId('IF-', state.interfaces.map((f) => f.id)), name: '',
     compA: preset.compA || '', portA: preset.portA || '', compB: preset.compB || '', portB: preset.portB || '',
-    category: preset.category || '', subtype: preset.subtype || '', protocol: '', description: '', owner: 'Da assegnare', status: 'Proposta'
+    category: preset.category || '', subtype: preset.subtype || '', protocol: '', description: '', owner: 'Da assegnare', status: 'Proposta',
+    rev: 'A', custom: {}
   } : clone(src);
+  if (!draft.custom) draft.custom = {};
+  const ifTitle = (d) => (d.id || '?') + (d.rev ? ' rev ' + d.rev : '') + ' — ' + (d.name || '');
   const cats = state.lists.ifCategories.map((c) => c.name);
   if (isNew && !draft.category && draft.portA) {
     // proposta di classificazione in base al tipo della porta di partenza
@@ -6925,10 +7233,10 @@ function openInterfacePanel(uid, preset) {
   draft._newReqs = [];
   openPanel({
     kind: 'interface', uid: draft.uid, isNew, showOnBoard: true,
-    title: isNew ? 'Nuova interfaccia logica' : draft.id + ' — ' + draft.name,
+    title: isNew ? 'Nuova interfaccia logica' : ifTitle(draft),
     subtitle: 'Collegamento logico fra una porta del componente A e una porta del componente B',
     draft,
-    onChange: (d) => { byId('spTitle').textContent = (d.id || '?') + ' — ' + (d.name || ''); },
+    onChange: (d) => { byId('spTitle').textContent = ifTitle(d); },
     build: (d) => {
       const pASel = selectFor(d, 'portA', portOptions(d.compA, d.uid), null, null, { label: 'Nuova porta…', onAdd: () => quickCreatePort(d.compA) });
       const pBSel = selectFor(d, 'portB', portOptions(d.compB, d.uid), null, null, { label: 'Nuova porta…', onAdd: () => quickCreatePort(d.compB) });
@@ -6953,7 +7261,7 @@ function openInterfacePanel(uid, preset) {
         const l = subtypesOf(d.category);
         return [{ value: '', label: '— nessun sottotipo —' }].concat(l, d.subtype && !l.includes(d.subtype) ? [{ value: d.subtype, label: d.subtype + ' (non più in elenco)' }] : []);
       };
-      const subSel = selectFor(d, 'subtype', subOpts(), null, null, { label: 'Nuovo sottotipo…', onAdd: () => quickCreateSubtype(d.category) });
+      const subSel = selectFor(d, 'subtype', subOpts(), null, null, { label: 'Nuovo sottotipo…', onAdd: () => quickCreateSubtype(d.category), listKey: () => 'sub:' + d.category });
       const catHint = h('span');
       const paintCatHint = () => {
         catHint.innerHTML = '';
@@ -6965,13 +7273,19 @@ function openInterfacePanel(uid, preset) {
         if (!subtypesOf(d.category).includes(d.subtype)) d.subtype = subtypesOf(d.category)[0] || '';
         fillSelect(subSel, subOpts(), d.subtype);
         paintCatHint();
-      }, { label: 'Nuova categoria…', onAdd: quickCreateCategory });
+      }, { label: 'Nuova categoria…', onAdd: quickCreateCategory, listKey: 'ifCategories' });
+      const revIn = inputFor(d, 'rev', { maxlength: 20, placeholder: 'es. A, B… oppure 01, 02…' });
+      const revBtn = h('button', {
+        type: 'button', class: 'btn sm', title: 'Passa alla revisione successiva (es. A → B, 01 → 02)',
+        onclick: () => { d.rev = nextRev(d.rev); revIn.value = d.rev; formChanged(); }
+      }, '↑ Nuova revisione');
       const kids = [
         h('div', { class: 'form-grid' },
           fld('ID', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id', hint: 'Univoco; se cambia, cavi e requisiti restano collegati' }),
-          fld('Nome', inputFor(d, 'name', { placeholder: 'es. VCU to Display control interface' }), { required: true, field: 'name' }),
+          fld(helpLabel('Revisione (Rev)', 'revisioni'), h('div', { class: 'inline-row' }, revIn, revBtn), { field: 'rev', hint: isNew ? 'Revisione iniziale dell’interfaccia' : 'Revisione salvata: ' + (src.rev || '—') }),
+          fld('Nome', inputFor(d, 'name', { placeholder: 'es. VCU to Display control interface' }), { required: true, field: 'name', wide: true }),
           fld(helpLabel('Categoria', 'categoria'), catSel, { required: true, field: 'category', hint: catHint }),
-          fld('Sottotipo', subSel, { field: 'subtype', hint: 'Categorie e sottotipi si gestiscono anche in Impostazioni' }),
+          fld('Sottotipo', subSel, { field: 'subtype', hint: 'Voci dei menu: − rimuove, ＋ aggiunge, ⚙ gestisce l’elenco' }),
           fld('Protocollo / standard', datalistInput(d, 'protocol', state.lists.protocols, { placeholder: 'es. RS-422, 28 VDC (MIL-STD-1275), Fissaggio a vite…' }), { wide: true, field: 'protocol', hint: 'Scegli un suggerimento o scrivi un valore nuovo: al salvataggio viene aggiunto ai suggerimenti' })),
         h('div', { class: 'form-grid', style: { marginTop: '12px' } },
           h('div', { class: 'endpoint-box' }, h('h4', null, 'Lato A'),
@@ -6986,6 +7300,7 @@ function openInterfacePanel(uid, preset) {
           fld('Owner', selectFor(d, 'owner', ownerOptions(), null, null, addList('owners'))),
           fld('Stato', selectFor(d, 'status', state.lists.statuses, null, null, addList('statuses'))))
       ];
+      kids.push(customFieldsSection('interface', d));
       if (!isNew && !categoryNeedsCables(d.category) && !(idx.cablesByIface.get(uid) || []).length) {
         kids.push(h('div', { class: 'sp-section' }, h('h3', null, 'Realizzazione fisica'),
           h('div', { class: 'msg-box info', style: { margin: '0' } }, 'La categoria ' + d.category + ' non è realizzata da cavi: l’interfaccia non viene segnalata come “senza cavi”.')));
@@ -7007,12 +7322,15 @@ function openInterfacePanel(uid, preset) {
       const clean = stripDraft(d);
       clean.id = str(clean.id).trim();
       clean.name = str(clean.name).trim();
+      clean.rev = str(clean.rev).trim();
+      clean.custom = cleanCustom(clean.custom, 'interface');
+      const revNote = !isNew && str(src.rev) !== clean.rev ? ' (rev ' + (src.rev || '—') + ' → ' + (clean.rev || '—') + ')' : '';
       return commit((st) => {
         const i = st.interfaces.findIndex((f) => f.uid === clean.uid);
         if (i >= 0) st.interfaces[i] = clean; else st.interfaces.push(clean);
         applyReqLinks(st, 'interface', clean.uid, d._reqs, d._newReqs);
         rememberSuggestion(st, 'protocols', clean.protocol);
-      }, isNew ? 'Interfaccia ' + clean.id + ' creata' : 'Interfaccia ' + clean.id + ' aggiornata');
+      }, isNew ? 'Interfaccia ' + clean.id + (clean.rev ? ' rev ' + clean.rev : '') + ' creata' : 'Interfaccia ' + clean.id + ' aggiornata' + revNote);
     }
   });
 }
@@ -7059,11 +7377,12 @@ function openCablePanel(uid, preset) {
       compA: preset.compA || (f ? f.compA : ''), portA: preset.portA || (f ? f.portA : ''),
       compB: preset.compB || (f ? f.compB : ''), portB: preset.portB || (f ? f.portB : ''),
       type: '', connA: '', connB: '', pinout: [], length: null, lengthUnit: 'm', shielding: 'None',
-      partNumber: '', notes: '', status: 'Proposta'
+      partNumber: '', supplierPn: '', notes: '', status: 'Proposta', custom: {}
     };
   } else {
     draft = clone(src);
     draft.pinout = (draft.pinout || []).map((r) => Object.assign({ pinA: '', sigA: '', pinB: '', sigB: '', wire: '' }, r));
+    if (!draft.custom) draft.custom = {};
   }
   draft._reqs = isNew ? [] : (idx.reqsByObj.get(uid) || []).map((r) => r.uid);
   draft._newReqs = [];
@@ -7118,8 +7437,11 @@ function openCablePanel(uid, preset) {
         h('div', { class: 'fld-hint', style: { marginTop: '6px' } }, 'Connettori: scegli un suggerimento o scrivi un valore nuovo; al salvataggio viene aggiunto ai suggerimenti.'),
         h('div', { class: 'row-actions' }, h('button', { type: 'button', class: 'btn sm', onclick: () => { syncFromIface(); formChanged(); } }, '↺ Allinea estremi all’interfaccia')),
         h('div', { class: 'form-grid', style: { marginTop: '12px' } },
-          fld('Specifica / part number', inputFor(d, 'partNumber'), { wide: true }),
+          fld('Tipo cavo', selectFor(d, 'type', [{ value: '', label: '— non indicato —' }].concat(state.lists.cableTypes), null, null, addList('cableTypes')), { field: 'type' }),
+          fld('PN fornitore', inputFor(d, 'supplierPn', { placeholder: 'Codice del costruttore del cavo' }), { field: 'supplierPn' }),
+          fld('PN IDV', inputFor(d, 'partNumber', { placeholder: 'Codice / specifica interna' }), { field: 'partNumber' }),
           fld('Note', textareaFor(d, 'notes', { rows: 2 }), { wide: true })),
+        customFieldsSection('cable', d),
         h('div', { class: 'sp-section', 'data-field': 'pinout' }, h('h3', null, 'Pinout', h('span', { class: 'spacer' }), h('span', { class: 'muted small', style: { fontWeight: '400' } }, 'Pin e segnale lato A → pin e segnale lato B')), pinoutEditor(d))
       ];
       if (!isNew) kids.push(routeInfoBox('cables', uid));
@@ -7132,6 +7454,7 @@ function openCablePanel(uid, preset) {
       const clean = stripDraft(d);
       clean.id = str(clean.id).trim();
       clean.pinout = pinoutRows(clean).map((r) => ({ pinA: str(r.pinA).trim(), sigA: str(r.sigA).trim(), pinB: str(r.pinB).trim(), sigB: str(r.sigB).trim(), wire: str(r.wire).trim() }));
+      clean.custom = cleanCustom(clean.custom, 'cable');
       clean.length = clean.length === '' || clean.length == null ? null : Number(clean.length);
       return commit((st) => {
         const i = st.cables.findIndex((c) => c.uid === clean.uid);
@@ -7230,8 +7553,9 @@ function openRequirementPanel(uid, preset) {
   preset = preset || {};
   const draft = isNew ? {
     uid: newUid('r'), id: nextId('REQ-', state.requirements.map((r) => r.id)), title: '', text: '', type: preset.type || 'Interface',
-    origin: 'System derived', links: preset.link ? [preset.link] : [], method: 'Test', owner: 'Da assegnare', status: 'Draft', shareable: false, notes: ''
+    origin: 'System derived', links: preset.link ? [preset.link] : [], method: 'Test', owner: 'Da assegnare', status: 'Draft', shareable: false, notes: '', custom: {}
   } : clone(src);
+  if (!draft.custom) draft.custom = {};
   if (draft.title == null) draft.title = '';
   draft.shareable = !!draft.shareable;
   draft.links = draft.links || [];
@@ -7281,6 +7605,7 @@ function openRequirementPanel(uid, preset) {
           h('div', { class: 'fld wide' }, checkboxFor(d, 'shareable', 'Condivisibile con il fornitore',
             'Se attivo, il requisito può essere incluso nell’esportazione Excel per il fornitore (colonne ID, Titolo, Testo, Metodo di verifica).')),
           fld('Note / razionale (interne)', textareaFor(d, 'notes', { rows: 2 }), { wide: true, hint: 'Le note non vengono mai esportate verso il fornitore.' })),
+        customFieldsSection('requirement', d),
         h('div', { class: 'sp-section', 'data-field': 'links' }, h('h3', null, 'Oggetti collegati'), linksBox)
       ];
     },
@@ -7300,6 +7625,7 @@ function openRequirementPanel(uid, preset) {
       clean.title = str(clean.title).trim();
       clean.text = str(clean.text).trim();
       clean.shareable = !!clean.shareable;
+      clean.custom = cleanCustom(clean.custom, 'requirement');
       return commit((st) => {
         const i = st.requirements.findIndex((r) => r.uid === clean.uid);
         if (i >= 0) st.requirements[i] = clean; else st.requirements.push(clean);
@@ -7318,8 +7644,9 @@ function openGroupPanel(uid, preset) {
   preset = preset || {};
   const draft = isNew ? {
     uid: newUid('g'), id: nextId('GF-', state.groups.map((g) => g.id), 2), name: '', description: '',
-    color: GROUP_COLORS[state.groups.length % GROUP_COLORS.length].v, owner: 'Da assegnare'
+    color: GROUP_COLORS[state.groups.length % GROUP_COLORS.length].v, owner: 'Da assegnare', custom: {}
   } : clone(src);
+  if (!draft.custom) draft.custom = {};
   draft._members = isNew ? (preset.members || []) : state.components.filter((c) => c.groupUid === uid).map((c) => c.uid);
   draft._newComps = [];   // componenti creati dal pannello del gruppo, salvati insieme al gruppo
   openPanel({
@@ -7367,8 +7694,8 @@ function openGroupPanel(uid, preset) {
       const nc = { id: nextId('CMP-', allIds(), 2), name: '', domain: state.lists.domains.includes('Altro') ? 'Altro' : state.lists.domains[0], owner: d.owner || 'Da assegnare', ports: '' };
       const ncId = h('input', { class: 'inp', value: nc.id, maxlength: 40 });
       const ncName = h('input', { class: 'inp', placeholder: 'es. Mission Computer' });
-      const ncDom = makeAddable(h('select', { class: 'inp' }), 'Aggiungi…', addList('domains').onAdd); fillSelect(ncDom, state.lists.domains, nc.domain);
-      const ncOwn = makeAddable(h('select', { class: 'inp' }), 'Aggiungi…', addList('owners').onAdd); fillSelect(ncOwn, ownerOptions(), nc.owner);
+      const ncDom = listSelect('domains'); fillSelect(ncDom, state.lists.domains, nc.domain);
+      const ncOwn = listSelect('owners'); fillSelect(ncOwn, ownerOptions(), nc.owner);
       const ncPorts = h('input', { class: 'inp', placeholder: 'es. J1 28 VDC POWER; J2 ETHERNET DATA' });
       const ncErr = h('div', { class: 'msg-box err', style: { display: 'none', margin: '6px 0 0' } });
       const addBtn = h('button', {
@@ -7408,6 +7735,7 @@ function openGroupPanel(uid, preset) {
           fld('Descrizione', textareaFor(d, 'description', { rows: 2 }), { wide: true }),
           fld('Owner', selectFor(d, 'owner', ownerOptions(), null, null, addList('owners'))),
           fld('Colore sulla lavagna', colors)),
+        customFieldsSection('group', d),
         h('div', { class: 'sp-section' }, h('h3', null, 'Componenti del gruppo', countEl), list, quick,
           h('div', { class: 'fld-hint', style: { marginTop: '6px' } }, 'Ogni componente appartiene al massimo a un gruppo. Sulla lavagna la cornice del gruppo racchiude i suoi componenti; trascinane l’intestazione per spostarli insieme.'))
       ];
@@ -7424,6 +7752,7 @@ function openGroupPanel(uid, preset) {
       const clean = stripDraft(d);
       clean.id = str(clean.id).trim();
       clean.name = str(clean.name).trim();
+      clean.custom = cleanCustom(clean.custom, 'group');
       const members = new Set(d._members);
       const created = placeNewComponents(d._newComps.map((c) => Object.assign(clone(c), { groupUid: clean.uid })), d._members);
       return commit((st) => {
@@ -7549,6 +7878,7 @@ const TABLES = {
     ],
     columns: [
       { key: 'id', label: 'ID', cls: 'id', get: (f) => f.id },
+      { key: 'rev', label: 'Rev', cls: 'nowrap', get: (f) => f.rev || '' },
       { key: 'name', label: 'Nome', cls: 'mid', get: (f) => f.name },
       { key: 'compA', label: 'Comp. A', get: (f) => compIdOf(f.compA) || '', render: (f) => compCell(f.compA) },
       { key: 'portA', label: 'Porta A', get: (f) => portIdOf(f.portA) || '', render: (f) => portCell(f.compA, f.portA) },
@@ -7570,6 +7900,7 @@ const TABLES = {
     rows: () => state.cables,
     filters: [
       { key: 'iface', label: 'Interfaccia', options: () => state.interfaces.slice().sort((a, b) => cmpNat(a.id, b.id)).map((f) => ({ value: f.uid, label: f.id })), test: (c, v) => c.ifaceUid === v },
+      { key: 'type', label: 'Tipo', options: () => state.lists.cableTypes, test: (c, v) => c.type === v },
       { key: 'status', label: 'Stato', options: () => state.lists.statuses, test: (c, v) => c.status === v }
     ],
     defaultSort: { key: 'iface', dir: 1 },
@@ -7577,6 +7908,7 @@ const TABLES = {
       { key: 'id', label: 'ID cavo', cls: 'id', get: (c) => c.id },
       { key: 'iface', label: 'Interfaccia', get: (c) => { const f = idx.iface.get(c.ifaceUid); return f ? f.id : ''; }, render: (c) => { const f = idx.iface.get(c.ifaceUid); return f ? refChip('interface', f.uid, f.id) : h('span', { class: 'chip bad' }, '⚠ non valida'); } },
       { key: 'name', label: 'Funzione', cls: 'mid', get: (c) => c.name },
+      { key: 'type', label: 'Tipo cavo', cls: 'nowrap', get: (c) => c.type || '' },
       { key: 'compA', label: 'Comp. A', get: (c) => compIdOf(c.compA) || '', render: (c) => compCell(c.compA) },
       { key: 'portA', label: 'Porta A', get: (c) => portIdOf(c.portA) || '', render: (c) => portCell(c.compA, c.portA) },
       { key: 'compB', label: 'Comp. B', get: (c) => compIdOf(c.compB) || '', render: (c) => compCell(c.compB) },
@@ -7584,7 +7916,8 @@ const TABLES = {
       { key: 'connA', label: 'Connettore A', cls: 'nowrap', get: (c) => c.connA, render: (c) => c.connA || h('span', { class: 'ico-warn', title: 'Connettore lato A mancante' }, '?') },
       { key: 'connB', label: 'Connettore B', cls: 'nowrap', get: (c) => c.connB, render: (c) => c.connB || h('span', { class: 'ico-warn', title: 'Connettore lato B mancante' }, '?') },
       { key: 'pinout', label: 'Pinout', cls: 'mid', get: (c) => pinoutSummary(c), render: (c) => pinoutSummary(c) ? h('span', { class: 'mono small' }, pinoutSummary(c)) : h('span', { class: 'muted' }, 'non definito') },
-      { key: 'pn', label: 'Specifica / P/N', cls: 'nowrap', get: (c) => c.partNumber },
+      { key: 'supplierPn', label: 'PN fornitore', cls: 'nowrap', get: (c) => c.supplierPn || '' },
+      { key: 'pn', label: 'PN IDV', cls: 'nowrap', get: (c) => c.partNumber || '' },
       { key: 'reqs', label: 'Requisiti', get: (c) => reqIds(c.uid), render: (c) => reqChips(c.uid) },
       { key: 'status', label: 'Stato', get: (c) => c.status, render: (c) => pill(c.status) }
     ]
@@ -7637,6 +7970,35 @@ function nextFreePosition() {
   (lastGeom || new Map()).forEach((g) => { maxY = Math.max(maxY, g.y + g.h); minX = Math.min(minX, g.x); });
   return { x: snapV(isFinite(minX) ? minX : 40), y: snapV(maxY + 60) };
 }
+/* Colonne di una tabella: quelle predefinite + i campi personalizzati dell'entità */
+function customColumns(kind) {
+  return customFieldsOf(kind).map((f) => ({
+    key: 'cf:' + f.id, label: f.label, custom: true, cls: f.type === 'number' ? 'num' : (f.type === 'text' ? 'mid' : 'nowrap'),
+    get: (o) => {
+      const v = o.custom ? o.custom[f.id] : undefined;
+      if (f.type === 'number') return v == null || v === '' ? -Infinity : Number(v);
+      if (f.type === 'checkbox') return v ? 'Sì' : 'No';
+      return v == null ? '' : str(v);
+    },
+    csv: (o) => cfText(f, o),
+    render: (o) => cfText(f, o)
+  }));
+}
+function tableColumns(name) { const cfg = TABLES[name]; return cfg.columns.concat(customColumns(cfg.kind)); }
+function hiddenCols(name) { return new Set(ui.cols[name] || []); }
+function shownColumns(name) { const hid = hiddenCols(name); return tableColumns(name).filter((c) => c.key === 'id' || !hid.has(c.key)); }
+/* Filtri: quelli predefiniti + i campi personalizzati a elenco e a casella */
+function tableFilters(name) {
+  const cfg = TABLES[name];
+  const val = (o, id) => (o.custom ? o.custom[id] : undefined);
+  return cfg.filters.concat(customFieldsOf(cfg.kind).filter((f) => f.type === 'list' || f.type === 'checkbox').map((f) => (f.type === 'list' ? {
+    key: 'cf:' + f.id, label: f.label, options: () => f.options.concat([{ value: '__empty', label: '(vuoto)' }]),
+    test: (o, v) => (v === '__empty' ? !val(o, f.id) : val(o, f.id) === v)
+  } : {
+    key: 'cf:' + f.id, label: f.label, options: () => [{ value: 'yes', label: 'Sì' }, { value: 'no', label: 'No' }],
+    test: (o, v) => !!val(o, f.id) === (v === 'yes')
+  })));
+}
 function buildTableSections() {
   Object.keys(TABLES).forEach((name) => {
     const cfg = TABLES[name];
@@ -7644,17 +8006,15 @@ function buildTableSections() {
     const f = ui.filters[name] = ui.filters[name] || { q: '', sort: cfg.defaultSort || { key: 'id', dir: 1 } };
     const search = h('input', { type: 'search', class: 'search', placeholder: 'Cerca in ' + cfg.title.toLowerCase() + '…', value: f.q });
     search.addEventListener('input', () => { f.q = search.value; renderTableSection(name); });
-    const filterEls = cfg.filters.map((fl) => {
-      const s = h('select', { class: 'flt', 'data-filter': fl.key, 'aria-label': fl.label });
-      s.addEventListener('change', () => { f[fl.key] = s.value; renderTableSection(name); });
-      return h('label', { class: 'inline-row' }, h('span', { class: 'flt-label' }, fl.label), s);
-    });
+    const colsBtn = h('button', { type: 'button', class: 'btn', 'data-role': 'cols', title: 'Scegli le colonne da mostrare in questa tabella' }, 'Colonne ▾');
+    colsBtn.addEventListener('click', () => toggleColumnsPopover(name, colsBtn));
     const head = h('div', { class: 'section-head' },
       h('h1', null, cfg.title), h('span', { class: 'count', 'data-role': 'count' }),
-      search, filterEls,
+      search, h('span', { class: 'flt-wrap', 'data-role': 'filters' }),
       h('span', { class: 'spacer' }),
       cfg.extraButtons ? cfg.extraButtons() : null,
-      h('button', { type: 'button', class: 'btn', title: 'Esporta le righe visibili in CSV', onclick: () => exportCsv(name) }, 'Esporta CSV'),
+      colsBtn,
+      h('button', { type: 'button', class: 'btn', title: name === 'interfaces' ? 'Esporta in CSV le interfacce visibili, con i loro cavi (una riga per cavo)' : 'Esporta in CSV le righe visibili, con le colonne mostrate', onclick: () => exportCsv(name) }, 'Esporta CSV'),
       h('button', { type: 'button', class: 'btn primary', onclick: async () => { if (await guardDirty()) cfg.onAdd(); } }, cfg.add));
     const wrap = h('div', { class: 'table-wrap', 'data-role': 'table' });
     sec.appendChild(h('div', { class: 'section-body' }, head, h('p', { class: 'section-desc' }, cfg.desc), wrap));
@@ -7665,13 +8025,30 @@ function buildTableSections() {
     });
   });
 }
+/* Menu dei filtri: ricostruito quando cambiano i campi personalizzati */
+function syncFilterControls(name, sec) {
+  const box = qs('[data-role="filters"]', sec);
+  const fls = tableFilters(name);
+  const sig = fls.map((fl) => fl.key + '=' + fl.label).join('|');
+  if (box.dataset.sig === sig) return fls;
+  box.dataset.sig = sig;
+  box.innerHTML = '';
+  const f = ui.filters[name];
+  fls.forEach((fl) => {
+    const s = h('select', { class: 'flt', 'data-filter': fl.key, 'aria-label': fl.label });
+    s.addEventListener('change', () => { f[fl.key] = s.value; renderTableSection(name); });
+    box.appendChild(h('label', { class: 'inline-row' }, h('span', { class: 'flt-label' }, fl.label), s));
+  });
+  return fls;
+}
 function visibleRows(name) {
   const cfg = TABLES[name], f = ui.filters[name];
+  const cols = tableColumns(name);
   let rows = cfg.rows().slice();
-  cfg.filters.forEach((fl) => { if (f[fl.key]) rows = rows.filter((r) => fl.test(r, f[fl.key])); });
+  tableFilters(name).forEach((fl) => { if (f[fl.key]) rows = rows.filter((r) => fl.test(r, f[fl.key])); });
   const q = str(f.q).trim().toLowerCase();
-  if (q) rows = rows.filter((r) => cfg.columns.some((c) => str(c.csv ? c.csv(r) : c.get(r)).toLowerCase().includes(q)));
-  const col = cfg.columns.find((c) => c.key === (f.sort && f.sort.key)) || cfg.columns[0];
+  if (q) rows = rows.filter((r) => cols.some((c) => str(c.csv ? c.csv(r) : c.get(r)).toLowerCase().includes(q)));
+  const col = cols.find((c) => c.key === (f.sort && f.sort.key)) || cols[0];
   const dir = f.sort ? f.sort.dir : 1;
   rows.sort((a, b) => {
     const va = col.get(a), vb = col.get(b);
@@ -7685,12 +8062,16 @@ function renderTableSection(name) {
   if (!cfg) return;
   const sec = byId('sec-' + name);
   const f = ui.filters[name];
-  cfg.filters.forEach((fl) => {
+  syncFilterControls(name, sec).forEach((fl) => {
     const s = qs('select[data-filter="' + fl.key + '"]', sec);
     if (!s) return;
     fillSelect(s, [{ value: '', label: 'Tutti' }].concat(fl.options()), f[fl.key] || '');
     if (s.value !== (f[fl.key] || '')) f[fl.key] = s.value;
   });
+  const cols = shownColumns(name);
+  const nHidden = tableColumns(name).length - cols.length;
+  const colsBtn = qs('[data-role="cols"]', sec);
+  if (colsBtn) colsBtn.textContent = 'Colonne' + (nHidden ? ' (' + nHidden + ' nascoste)' : '') + ' ▾';
   const rows = visibleRows(name);
   const total = cfg.rows().length;
   qs('[data-role="count"]', sec).textContent = rows.length === total ? String(total) : rows.length + ' di ' + total;
@@ -7711,10 +8092,10 @@ function renderTableSection(name) {
     thr.appendChild(h('th', { class: 'td-sel' }, h('span', { class: 'th-plain' }, head)));
   }
   thr.appendChild(h('th', { title: 'Anomalie' }, h('span', { class: 'th-plain' }, '')));
-  cfg.columns.forEach((c) => {
+  cols.forEach((c) => {
     const active = f.sort && f.sort.key === c.key;
-    thr.appendChild(h('th', null, h('button', {
-      type: 'button', class: 'th-btn', title: 'Ordina per ' + c.label,
+    thr.appendChild(h('th', { class: c.custom ? 'th-custom' : null }, h('button', {
+      type: 'button', class: 'th-btn', title: 'Ordina per ' + c.label + (c.custom ? ' (campo personalizzato)' : ''),
       onclick: () => { f.sort = { key: c.key, dir: active ? -f.sort.dir : 1 }; renderTableSection(name); }
     }, c.label, h('span', { class: 'sort' }, active ? (f.sort.dir > 0 ? '▲' : '▼') : '↕'))));
   });
@@ -7729,7 +8110,7 @@ function renderTableSection(name) {
       tr.appendChild(h('td', { class: 'td-sel' }, cb));
     }
     tr.appendChild(issueCell(r.uid));
-    cfg.columns.forEach((c) => {
+    cols.forEach((c) => {
       const v = c.render ? c.render(r) : c.get(r);
       tr.appendChild(h('td', { class: c.cls || null }, v === '' || v == null ? h('span', { class: 'muted' }, '—') : v));
     });
@@ -7742,14 +8123,73 @@ function renderTableSection(name) {
   wrap.scrollTop = scrollTop; wrap.scrollLeft = scrollLeft;
   if (cfg.onRender) cfg.onRender(sec, rows);
 }
+/* Scelta delle colonne visibili (salvata nelle preferenze di questo browser) */
+let colsPop = null;
+function closeColumnsPopover() { if (colsPop) { colsPop.box.remove(); colsPop = null; } }
+function toggleColumnsPopover(name, btn) {
+  if (colsPop && colsPop.name === name) { closeColumnsPopover(); return; }
+  closeColumnsPopover();
+  const box = h('div', { class: 'cols-pop', role: 'dialog', 'aria-label': 'Colonne di ' + TABLES[name].title });
+  const paint = () => {
+    box.innerHTML = '';
+    const hid = hiddenCols(name);
+    const all = tableColumns(name);
+    box.appendChild(h('div', { class: 'cols-head' }, h('b', null, 'Colonne visibili'), h('span', { class: 'muted small' }, ' · ' + (all.length - [...hid].filter((k) => all.some((c) => c.key === k && k !== 'id')).length) + ' di ' + all.length)));
+    const list = h('div', { class: 'cols-list' });
+    all.forEach((c) => {
+      const cb = h('input', { type: 'checkbox', checked: c.key === 'id' || !hid.has(c.key), disabled: c.key === 'id' });
+      cb.addEventListener('change', () => {
+        const set = hiddenCols(name);
+        if (cb.checked) set.delete(c.key); else set.add(c.key);
+        ui.cols[name] = [...set];
+        saveUi();
+        renderTableSection(name);
+        paint();
+      });
+      list.appendChild(h('label', { class: 'cols-item' + (c.custom ? ' custom' : ''), title: c.key === 'id' ? 'La colonna ID è sempre visibile' : '' }, cb, h('span', null, c.label), c.custom ? h('span', { class: 'cols-tag' }, 'personalizzato') : null));
+    });
+    box.appendChild(list);
+    box.appendChild(h('div', { class: 'cols-foot' },
+      h('button', { type: 'button', class: 'btn xs', onclick: () => { ui.cols[name] = []; saveUi(); renderTableSection(name); paint(); } }, 'Mostra tutte'),
+      h('span', { class: 'muted small' }, 'Scelta salvata in questo browser')));
+  };
+  paint();
+  document.body.appendChild(box);
+  const r = btn.getBoundingClientRect();
+  box.style.top = (r.bottom + 4) + 'px';
+  box.style.left = Math.max(8, Math.min(r.right - box.offsetWidth, window.innerWidth - box.offsetWidth - 8)) + 'px';
+  box.style.maxHeight = (window.innerHeight - r.bottom - 16) + 'px';
+  colsPop = { name, box, btn };
+}
 function exportCsv(name) {
-  const cfg = TABLES[name];
   const rows = visibleRows(name);
   const q = (v) => { const s = str(v); return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
-  const lines = [cfg.columns.map((c) => q(c.label)).join(';')];
-  rows.forEach((r) => lines.push(cfg.columns.map((c) => q(c.csv ? c.csv(r) : c.get(r))).join(';')));
-  downloadFile('IDV_' + name + '_' + stamp() + '.csv', '﻿' + lines.join('\r\n'), 'text/csv;charset=utf-8');
-  toast('Esportate ' + rows.length + ' righe in CSV', 'ok');
+  let lines;
+  if (name === 'interfaces') lines = interfacesCsvLines(rows).map((l) => l.map(q).join(';'));
+  else {
+    const cols = shownColumns(name);
+    lines = [cols.map((c) => q(c.label)).join(';')];
+    rows.forEach((r) => lines.push(cols.map((c) => q(c.csv ? c.csv(r) : c.get(r))).join(';')));
+  }
+  downloadFile('IDV_' + name + '_' + stamp() + '.csv', '\ufeff' + lines.join('\r\n'), 'text/csv;charset=utf-8');
+  toast('Esportate ' + (lines.length - 1) + ' righe in CSV', 'ok');
+}
+/* CSV delle interfacce: una riga per ogni cavo che realizza l'interfaccia (una sola riga, con i campi del cavo vuoti,
+   se non ha cavi); in fondo i campi personalizzati delle interfacce */
+const IF_CSV_HEAD = ['ID Interfaccia', 'Rev Interfaccia', 'Categoria', 'Gruppo di derivazione A', 'Componente A', 'Porta A',
+  'Gruppo di derivazione B', 'Componente B', 'Porta B', 'ID Cavo', 'Tipo Cavo', 'PN Fornitore Cavo', 'PN IDV Cavo', 'Stato', 'Sottotipo', 'Note / Descrizione dello Scambio'];
+function interfacesCsvLines(rows) {
+  const cfs = customFieldsOf('interface');
+  const grp = (compUid) => { const c = idx.comp.get(compUid); const g = c && idx.group.get(c.groupUid); return g ? g.id : ''; };
+  const out = [IF_CSV_HEAD.concat(cfs.map((f) => f.label))];
+  rows.forEach((f) => {
+    const base = [f.id, f.rev || '', f.category, grp(f.compA), compIdOf(f.compA) || '', portIdOf(f.portA) || '', grp(f.compB), compIdOf(f.compB) || '', portIdOf(f.portB) || ''];
+    const tail = [f.status, f.subtype || '', f.description || ''].concat(cfs.map((cf) => cfText(cf, f)));
+    const cbs = (idx.cablesByIface.get(f.uid) || []).slice().sort((a, b) => cmpNat(a.id, b.id));
+    if (!cbs.length) out.push(base.concat(['', '', '', ''], tail));
+    else cbs.forEach((c) => out.push(base.concat([c.id, c.type || '', c.supplierPn || '', c.partNumber || ''], tail)));
+  });
+  return out;
 }
 
 /* =====================================================================
@@ -8113,6 +8553,33 @@ function normalizeData(raw) {
   }
   // schema 4: stati e liste dei requisiti diventano elenchi del progetto (dai valori predefiniti, già impostati sopra se
   // assenti); si aggiunge la posizione delle etichette spostate a mano (out.labels, più sotto)
+  // schema 5: il tipo di cavo torna come elenco (nuovi valori predefiniti + quelli già usati dai cavi), direzioni delle
+  // porte configurabili, revisione delle interfacce, PN fornitore dei cavi, campi personalizzati
+  if (srcSchema < 5) {
+    const used = d.cables.filter(isObj).map((c) => str(c.type).trim()).filter(Boolean);
+    out.lists.cableTypes = DEFAULT_LISTS.cableTypes.slice();
+    used.forEach((t) => { if (!out.lists.cableTypes.some((x) => x.toLowerCase() === t.toLowerCase())) out.lists.cableTypes.push(t); });
+  }
+  out.customFields = [];
+  (Array.isArray(d.customFields) ? d.customFields : []).forEach((f) => {
+    if (!isObj(f) || !CF_ENTITIES[f.entity] || !CF_TYPES[f.type] || !str(f.label).trim()) { warnings.push('Campo personalizzato non valido ignorato.'); return; }
+    const id = /^cf_[a-z0-9_]+$/i.test(str(f.id)) && !out.customFields.some((x) => x.id === f.id) ? f.id : newUid('cf');
+    out.customFields.push({ id, entity: f.entity, label: str(f.label).trim().slice(0, 60), type: f.type, options: f.type === 'list' && Array.isArray(f.options) ? cleanList(f.options) : [] });
+  });
+  // valori dei campi personalizzati di un oggetto, controllati in base al tipo del campo
+  const customOf = (o, entity) => {
+    const out2 = {};
+    const src = isObj(o.custom) ? o.custom : {};
+    out.customFields.filter((f) => f.entity === entity).forEach((f) => {
+      const v = src[f.id];
+      if (v == null || v === '') return;
+      if (f.type === 'number') { if (Number.isFinite(Number(v))) out2[f.id] = Number(v); }
+      else if (f.type === 'checkbox') out2[f.id] = v === true || v === 'true' || v === 1;
+      else if (f.type === 'date') { if (/^\d{4}-\d{2}-\d{2}$/.test(str(v))) out2[f.id] = str(v); }
+      else out2[f.id] = str(v);
+    });
+    return out2;
+  };
   const ensureCategory = (name, sub) => {
     let c = out.lists.ifCategories.find((x) => x.name === name);
     if (!c) {
@@ -8126,7 +8593,7 @@ function normalizeData(raw) {
   (d.groups || []).forEach((g, i) => {
     if (!isObj(g)) { errors.push('Gruppo #' + (i + 1) + ': non è un oggetto.'); return; }
     if (!str(g.id).trim()) errors.push('Gruppo #' + (i + 1) + ': ID mancante.');
-    out.groups.push({ uid: takeUid(g.uid, 'g'), id: str(g.id).trim(), name: str(g.name), description: str(g.description), color: /^#[0-9a-f]{3,8}$/i.test(str(g.color)) ? g.color : GROUP_COLORS[i % GROUP_COLORS.length].v, owner: str(g.owner) || 'Da assegnare' });
+    out.groups.push({ uid: takeUid(g.uid, 'g'), id: str(g.id).trim(), name: str(g.name), description: str(g.description), color: /^#[0-9a-f]{3,8}$/i.test(str(g.color)) ? g.color : GROUP_COLORS[i % GROUP_COLORS.length].v, owner: str(g.owner) || 'Da assegnare', custom: customOf(g, 'group') });
   });
   const groupRef = (v) => { if (!v) return null; const g = out.groups.find((x) => x.uid === v) || out.groups.find((x) => eqId(x.id, v)); return g ? g.uid : v; };
   d.components.forEach((c, i) => {
@@ -8136,7 +8603,7 @@ function normalizeData(raw) {
     const ports = (Array.isArray(c.ports) ? c.ports : []).map((p, j) => {
       if (!isObj(p)) { errors.push('Componente ' + c.id + ', porta #' + (j + 1) + ': non è un oggetto.'); return null; }
       if (!str(p.id).trim()) errors.push('Componente ' + c.id + ', porta #' + (j + 1) + ': ID mancante.');
-      return { uid: takeUid(p.uid, 'p'), id: str(p.id).trim(), label: str(p.label), type: pick(p.type, out.lists.portTypes, 'Other'), direction: pick(p.direction, DIRECTIONS, 'Not applicable'), side: ['L', 'R'].includes(p.side) ? p.side : 'auto', notes: str(p.notes) };
+      return { uid: takeUid(p.uid, 'p'), id: str(p.id).trim(), label: str(p.label), type: pick(p.type, out.lists.portTypes, 'Other'), direction: pick(p.direction, out.lists.directions, 'Not applicable'), side: ['L', 'R'].includes(p.side) ? p.side : 'auto', notes: str(p.notes) };
     }).filter(Boolean);
     const hasPos = Number.isFinite(Number(c.x)) && Number.isFinite(Number(c.y)) && c.x !== null && c.y !== null && c.x !== '' && c.y !== '';
     if (!hasPos) warnings.push('Componente ' + (c.id || '#' + (i + 1)) + ': posizione assente, assegnata automaticamente.');
@@ -8147,7 +8614,7 @@ function normalizeData(raw) {
       domain: pick(c.domain, out.lists.domains, 'Altro'), owner: pick(c.owner, out.lists.owners, 'Da assegnare'), supplier: str(c.supplier),
       status: pick(c.status, out.lists.statuses, 'Da verificare'),
       x: hasPos ? Number(c.x) : 40 + (i % 4) * 340, y: hasPos ? Number(c.y) : 40 + Math.floor(i / 4) * 300,
-      groupUid: cg, ports,
+      groupUid: cg, ports, custom: customOf(c, 'component'),
       attachments: (Array.isArray(c.attachments) ? c.attachments : []).filter((a) => isObj(a) && str(a.fid).trim() && str(a.name).trim()).map((a) => ({
         fid: str(a.fid).trim(), name: str(a.name).trim(), type: str(a.type), size: Number(a.size) >= 0 ? Number(a.size) : 0,
         added: str(a.added) || new Date().toISOString(), by: str(a.by), note: str(a.note)
@@ -8183,7 +8650,7 @@ function normalizeData(raw) {
     }
     if (!category) category = 'Funzionale';
     ensureCategory(category, subtype);
-    out.interfaces.push({ uid: takeUid(f.uid, 'i'), id: str(f.id).trim(), name: str(f.name), compA: a.comp, portA: a.port, compB: b.comp, portB: b.port, category, subtype, protocol, description: str(f.description), owner: pick(f.owner, out.lists.owners, 'Da assegnare'), status: pick(f.status, out.lists.statuses, 'Da verificare') });
+    out.interfaces.push({ uid: takeUid(f.uid, 'i'), id: str(f.id).trim(), rev: str(f.rev).trim(), custom: customOf(f, 'interface'), name: str(f.name), compA: a.comp, portA: a.port, compB: b.comp, portB: b.port, category, subtype, protocol, description: str(f.description), owner: pick(f.owner, out.lists.owners, 'Da assegnare'), status: pick(f.status, out.lists.statuses, 'Da verificare') });
   });
   if (migratedIf) warnings.push(plural(migratedIf, 'interfaccia convertita', 'interfacce convertite') + ' dal vecchio campo “Tipo / protocollo” a categoria, sottotipo e protocollo: verificare la classificazione.');
   const ifRef = (v) => out.interfaces.find((f) => f.uid === v) || out.interfaces.find((f) => eqId(f.id, v)) || null;
@@ -8206,7 +8673,7 @@ function normalizeData(raw) {
       uid: takeUid(c.uid, 'w'), id: str(c.id).trim(), ifaceUid: f ? f.uid : str(fRaw), name: str(c.name),
       compA: a.comp, portA: a.port, compB: b.comp, portB: b.port, type: str(c.type), connA: str(c.connA), connB: str(c.connB),
       pinout, length: Number.isFinite(len) ? len : null, lengthUnit: pick(c.lengthUnit, LENGTH_UNITS, 'm'),
-      shielding: pick(c.shielding, SHIELDING, 'None'), partNumber: str(c.partNumber), notes: str(c.notes), status: pick(c.status, out.lists.statuses, 'Da verificare')
+      shielding: pick(c.shielding, SHIELDING, 'None'), partNumber: str(c.partNumber), supplierPn: str(c.supplierPn), custom: customOf(c, 'cable'), notes: str(c.notes), status: pick(c.status, out.lists.statuses, 'Da verificare')
     });
   });
   const resolveLink = (l, label) => {
@@ -8230,7 +8697,7 @@ function normalizeData(raw) {
     out.requirements.push({
       uid: takeUid(r.uid, 'r'), id: str(r.id).trim(), title: str(r.title), text: str(r.text), type: pick(r.type, out.lists.reqTypes, 'Interface'), origin: pick(r.origin, out.lists.reqOrigins, 'System derived'), shareable: !!r.shareable,
       links: raws.map((l) => resolveLink(l, label)).filter(Boolean), method: pick(r.method, out.lists.reqMethods, 'Test'),
-      owner: pick(r.owner, out.lists.owners, 'Da assegnare'), status: pick(r.status, out.lists.reqStatuses, 'Draft'), notes: str(r.notes)
+      owner: pick(r.owner, out.lists.owners, 'Da assegnare'), status: pick(r.status, out.lists.reqStatuses, 'Draft'), notes: str(r.notes), custom: customOf(r, 'requirement')
     });
   });
   const dupWarn = (arr, label) => {
@@ -8270,98 +8737,255 @@ function normalizeData(raw) {
 /* =====================================================================
    20. IMPOSTAZIONI (progetto, utente, categorie, liste di valori) E GUIDA
    ===================================================================== */
-async function openSettings() {
+/* Dove è usato ciascun elenco (testo per le Impostazioni) */
+const LIST_USE_TEXT = {
+  domains: 'Componenti → Dominio', owners: 'Gruppi, componenti, interfacce e requisiti → Owner', portTypes: 'Porte → Tipo', directions: 'Porte → Direzione',
+  statuses: 'Componenti, interfacce e cavi → Stato', cableTypes: 'Cavi → Tipo cavo', reqStatuses: 'Requisiti → Stato', reqTypes: 'Requisiti → Tipo',
+  reqOrigins: 'Requisiti → Origine', reqMethods: 'Requisiti → Metodo di verifica',
+  protocols: 'Interfacce → Protocollo / standard (suggerimenti: il campo accetta anche valori non in elenco)',
+  connectors: 'Cavi → Connettore lato A e lato B (suggerimenti: il campo accetta anche valori non in elenco)'
+};
+/* Impostazioni: Generale · Valori dei campi · Categorie di interfaccia · Campi personalizzati.
+   tab: scheda iniziale; focusKey: elenco da mostrare nei valori ('domains', 'sub:<categoria>', 'cf:<id>'). */
+async function openSettings(tab, focusKey) {
+  tab = typeof tab === 'string' ? tab : 'general';
+  const work = (arr) => arr.map((v) => ({ orig: v, value: v }));
   const nameIn = h('input', { class: 'inp', value: state.meta.name || '', maxlength: 120 });
   const progIn = h('input', { class: 'inp', value: state.meta.program || '', maxlength: 120, placeholder: 'es. Programma Y / cliente' });
   const userIn = h('input', { class: 'inp', value: prefs.user || '', maxlength: 80, placeholder: 'es. M. Rossi — System Integration' });
-  // ---- categorie di interfaccia e sottotipi ----
-  const used = new Map();
-  state.interfaces.forEach((f) => used.set(f.category, (used.get(f.category) || 0) + 1));
-  const rows = state.lists.ifCategories.map((c) => ({ orig: c.name, name: c.name, color: c.color, cables: c.cables !== false, subtypes: c.subtypes.join('\n') }));
+  // copie di lavoro: niente cambia nel progetto finché non si salva
+  const catUse = new Map();
+  state.interfaces.forEach((f) => catUse.set(f.category, (catUse.get(f.category) || 0) + 1));
+  const cats = state.lists.ifCategories.map((c) => ({ orig: c.name, name: c.name, color: c.color, cables: c.cables !== false, subs: work(c.subtypes) }));
+  const lists = {};
+  SIMPLE_LISTS.forEach((k) => { lists[k] = work(state.lists[k] || []); });
+  const cfs = (state.customFields || []).map((f) => ({ id: f.id, isNew: false, entity: f.entity, label: f.label, type: f.type, opts: work(f.options || []), deleted: false }));
+  const cfUse = (r) => { let n = 0; (state[CF_ENTITIES[r.entity]] || []).forEach((o) => { if (o.custom && o.custom[r.id] != null && o.custom[r.id] !== '') n++; }); return n; };
+  // elenco selezionato nella scheda dei valori: { kind: 'list' | 'sub' | 'cf', key | row }
+  let cur = { kind: 'list', key: SIMPLE_LISTS[0] };
+  if (focusKey && SIMPLE_LISTS.includes(focusKey)) cur = { kind: 'list', key: focusKey };
+  else if (focusKey && focusKey.indexOf('sub:') === 0) { const r = cats.find((c) => c.orig === focusKey.slice(4)); if (r) cur = { kind: 'sub', row: r }; }
+  else if (focusKey && focusKey.indexOf('cf:') === 0) { const r = cfs.find((c) => c.id === focusKey.slice(3)); if (r) cur = { kind: 'cf', row: r }; }
+
+  const panes = {}, tabBtns = {};
+  const TABS = [['general', 'Generale'], ['values', 'Valori dei campi'], ['categories', 'Categorie di interfaccia'], ['custom', 'Campi personalizzati']];
+  const showTab = (t) => {
+    tab = t;
+    TABS.forEach(([k]) => { panes[k].hidden = k !== t; tabBtns[k].classList.toggle('on', k === t); tabBtns[k].setAttribute('aria-selected', k === t ? 'true' : 'false'); });
+    if (t === 'values') paintValues();
+    if (t === 'categories') paintCats();
+    if (t === 'custom') paintCfs();
+  };
+  const tabBar = h('div', { class: 'set-tabs', role: 'tablist' }, TABS.map(([k, label]) => (tabBtns[k] = h('button', { type: 'button', class: 'set-tab', role: 'tab', 'data-tab': k, onclick: () => showTab(k) }, label))));
+
+  // ---- Generale
+  panes.general = h('div', { class: 'set-pane' },
+    h('div', { class: 'form-grid three' },
+      fld('Nome del progetto', nameIn, { required: true }),
+      fld('Programma / cliente', progIn),
+      fld('Il tuo nome (questo browser)', userIn, { hint: 'Registrato come autore delle modifiche e delle versioni' })),
+    h('p', { class: 'muted small', style: { marginTop: '14px' } }, 'Gli elenchi dei menu a tendina si gestiscono in “Valori dei campi”; categorie e sottotipi delle interfacce in “Categorie di interfaccia”; i campi aggiuntivi in “Campi personalizzati”.'));
+
+  // ---- Valori dei campi
+  const valNav = h('div', { class: 'val-nav' });
+  const valEd = h('div', { class: 'val-ed' });
+  panes.values = h('div', { class: 'set-pane val-pane' }, valNav, valEd);
+  const curItems = () => (cur.kind === 'list' ? lists[cur.key] : (cur.kind === 'sub' ? cur.row.subs : cur.row.opts));
+  const curInfo = () => {
+    if (cur.kind === 'list') return { title: LIST_LABELS[cur.key], use: LIST_USE_TEXT[cur.key], count: (v) => countListUse(cur.key, v), empty: SUGGEST_LISTS.has(cur.key) };
+    if (cur.kind === 'sub') return { title: 'Sottotipi — ' + (cur.row.name || '(nuova categoria)'), use: 'Interfacce della categoria ' + (cur.row.name || '') + ' → Sottotipo', count: (v) => (cur.row.orig ? countListUse('sub:' + cur.row.orig, v) : 0), empty: true };
+    return { title: (cur.row.label || '(campo senza nome)') + ' — campo personalizzato', use: CF_ENTITY_LABELS[cur.row.entity] + ' → ' + (cur.row.label || ''), count: (v) => (cur.row.isNew ? 0 : countListUse('cf:' + cur.row.id, v)), empty: true };
+  };
+  const navBtn = (label, sel, onclick, extra) => h('button', { type: 'button', class: 'val-nav-item' + (sel ? ' on' : ''), onclick }, h('span', null, label), extra ? h('span', { class: 'muted small' }, extra) : null);
+  function paintValues() {
+    valNav.innerHTML = '';
+    valNav.appendChild(h('div', { class: 'val-nav-head' }, 'Elenchi'));
+    SIMPLE_LISTS.forEach((k) => valNav.appendChild(navBtn(LIST_LABELS[k], cur.kind === 'list' && cur.key === k, () => { cur = { kind: 'list', key: k }; paintValues(); }, String(lists[k].length))));
+    valNav.appendChild(h('div', { class: 'val-nav-head' }, 'Sottotipi delle categorie'));
+    cats.forEach((r) => valNav.appendChild(navBtn(r.name || '(nuova categoria)', cur.kind === 'sub' && cur.row === r, () => { cur = { kind: 'sub', row: r }; paintValues(); }, String(r.subs.length))));
+    const lcf = cfs.filter((r) => !r.deleted && r.type === 'list');
+    if (lcf.length) {
+      valNav.appendChild(h('div', { class: 'val-nav-head' }, 'Campi personalizzati a elenco'));
+      lcf.forEach((r) => valNav.appendChild(navBtn((r.label || '(senza nome)') + ' · ' + CF_ENTITY_LABELS[r.entity], cur.kind === 'cf' && cur.row === r, () => { cur = { kind: 'cf', row: r }; paintValues(); }, String(r.opts.length))));
+    }
+    paintValEditor();
+  }
+  function paintValEditor(focusLast) {
+    valEd.innerHTML = '';
+    const items = curItems(), info = curInfo();
+    valEd.appendChild(h('h3', { class: 'set-title' }, info.title));
+    valEd.appendChild(h('p', { class: 'muted small', style: { margin: '0 0 8px' } }, 'Usato in: ' + info.use + '.'));
+    const tb = h('tbody');
+    items.forEach((it, i) => {
+      const inp = h('input', { class: 'inp', value: it.value, maxlength: 80, 'aria-label': 'Valore ' + (i + 1) });
+      inp.addEventListener('input', () => { it.value = inp.value; renamedNote(); });
+      const n = it.orig != null ? info.count(it.orig) : 0;
+      const renamed = () => it.orig != null && it.value.trim() !== it.orig && it.value.trim();
+      const note = h('span', { class: 'muted small' });
+      const renamedNote = () => { note.textContent = renamed() && n ? 'rinomina anche in ' + plural(n, 'oggetto', 'oggetti') : ''; };
+      renamedNote();
+      const mv = (d) => { const j = i + d; if (j < 0 || j >= items.length) return; items.splice(i, 1); items.splice(j, 0, it); paintValEditor(); };
+      tb.appendChild(h('tr', null,
+        h('td', { class: 'num muted' }, String(i + 1)),
+        h('td', null, inp, note),
+        h('td', { class: 'small nowrap' }, it.orig == null ? h('span', { class: 'chip' }, 'nuovo') : (n ? 'usato da ' + plural(n, 'oggetto', 'oggetti') : h('span', { class: 'muted' }, 'non usato'))),
+        h('td', { class: 'act nowrap' },
+          h('button', { type: 'button', class: 'btn xs ghost', title: 'Sposta su', 'aria-label': 'Sposta su', disabled: i === 0, onclick: () => mv(-1) }, '▲'),
+          h('button', { type: 'button', class: 'btn xs ghost', title: 'Sposta giù', 'aria-label': 'Sposta giù', disabled: i === items.length - 1, onclick: () => mv(1) }, '▼'),
+          h('button', {
+            type: 'button', class: 'btn xs danger', title: n ? 'Elimina dall’elenco: gli ' + plural(n, 'oggetto', 'oggetti') + ' che lo usano lo conservano (compare come “non in elenco”)' : 'Elimina dall’elenco', 'aria-label': 'Elimina ' + it.value,
+            onclick: () => { items.splice(i, 1); paintValEditor(); paintNavCounts(); }
+          }, '−'))));
+    });
+    valEd.appendChild(h('table', { class: 'mini val-table' }, tb));
+    if (!items.length) valEd.appendChild(h('p', { class: 'muted' }, 'Elenco vuoto.'));
+    valEd.appendChild(h('div', { class: 'row-actions' },
+      h('button', { type: 'button', class: 'btn sm', onclick: () => { items.push({ orig: null, value: '' }); paintValEditor(true); paintNavCounts(); } }, '+ Aggiungi voce'),
+      h('button', { type: 'button', class: 'btn sm ghost', title: 'Ordina alfabeticamente', onclick: () => { items.sort((a, b) => cmpNat(a.value, b.value)); paintValEditor(); } }, 'Ordina A→Z')));
+    valEd.appendChild(h('p', { class: 'muted small' }, 'Rinominando una voce, gli oggetti che la usano vengono aggiornati al salvataggio. Eliminando una voce usata, gli oggetti la conservano (nei menu compare come “non in elenco”). L’ordine è quello dei menu a tendina.'));
+    if (focusLast) { const ins = valEd.querySelectorAll('input.inp'); if (ins.length) ins[ins.length - 1].focus(); }
+  }
+  const paintNavCounts = () => { const on = valNav.querySelector('.val-nav-item.on .muted'); if (on) on.textContent = String(curItems().length); };
+
+  // ---- Categorie di interfaccia
   const catBody = h('tbody');
-  const paintCats = () => {
+  panes.categories = h('div', { class: 'set-pane' },
+    h('p', { class: 'muted small' }, 'Ogni interfaccia appartiene a una categoria (es. Elettrica) e, facoltativamente, a un sottotipo (es. Alimentazione). Rinominando una categoria le interfacce vengono aggiornate. Una categoria si elimina solo se nessuna interfaccia la usa.'),
+    h('table', { class: 'mini cat-table' }, h('thead', null, h('tr', null, ['Colore', 'Categoria', 'Realizzata con cavi', 'Sottotipi', 'Uso', ''].map((t) => h('th', null, t)))), catBody),
+    h('div', { class: 'row-actions' }, h('button', {
+      type: 'button', class: 'btn sm', onclick: () => {
+        cats.push({ orig: null, name: '', color: CATEGORY_COLORS[cats.length % CATEGORY_COLORS.length], cables: true, subs: [] });
+        paintCats();
+        const ins = catBody.querySelectorAll('tr:last-child input.inp');
+        if (ins.length) ins[0].focus();
+      }
+    }, '+ Aggiungi categoria')));
+  function paintCats() {
     catBody.innerHTML = '';
-    rows.forEach((r, i) => {
-      const n = r.orig ? used.get(r.orig) || 0 : 0;
-      const name = h('input', { class: 'inp', value: r.name, maxlength: 40, 'aria-label': 'Nome categoria', oninput: (e) => { r.name = e.target.value; } });
-      const color = h('input', { type: 'color', class: 'cat-color', value: r.color, title: 'Colore sul diagramma', oninput: (e) => { r.color = e.target.value; } });
-      const cables = h('input', { type: 'checkbox', checked: r.cables, onchange: (e) => { r.cables = e.target.checked; } });
-      const subs = h('textarea', { class: 'inp', rows: Math.max(3, r.subtypes.split('\n').length), spellcheck: 'false', 'aria-label': 'Sottotipi', oninput: (e) => { r.subtypes = e.target.value; } });
-      subs.value = r.subtypes;
+    cats.forEach((r, i) => {
+      const n = r.orig ? catUse.get(r.orig) || 0 : 0;
       catBody.appendChild(h('tr', null,
-        h('td', null, color), h('td', null, name),
-        h('td', null, h('label', { class: 'inline-check', title: 'Se attivo, l’interfaccia deve essere realizzata da almeno un cavo ed è disegnata nella vista cavi' }, cables, ' cavi')),
-        h('td', null, subs),
+        h('td', null, h('input', { type: 'color', class: 'cat-color', value: r.color, title: 'Colore sul diagramma', oninput: (e) => { r.color = e.target.value; } })),
+        h('td', null, h('input', { class: 'inp', value: r.name, maxlength: 40, 'aria-label': 'Nome categoria', oninput: (e) => { r.name = e.target.value; } })),
+        h('td', null, h('label', { class: 'inline-check', title: 'Se attivo, l’interfaccia deve essere realizzata da almeno un cavo ed è disegnata nella vista cavi' }, h('input', { type: 'checkbox', checked: r.cables, onchange: (e) => { r.cables = e.target.checked; } }), ' cavi')),
+        h('td', { class: 'small' }, r.subs.length ? r.subs.map((x) => x.value).filter(Boolean).join(', ') : h('span', { class: 'muted' }, 'nessuno'), ' ',
+          h('button', { type: 'button', class: 'btn xs', onclick: () => { cur = { kind: 'sub', row: r }; showTab('values'); } }, 'Modifica sottotipi')),
         h('td', { class: 'small nowrap' }, plural(n, 'interfaccia', 'interfacce')),
         h('td', { class: 'act' }, h('button', {
-          type: 'button', class: 'btn xs danger', disabled: n > 0 || rows.length < 2,
+          type: 'button', class: 'btn xs danger', disabled: n > 0 || cats.length < 2,
           title: n > 0 ? 'Categoria usata da ' + plural(n, 'interfaccia', 'interfacce') + ': riassegnale prima di eliminarla' : 'Elimina categoria',
-          onclick: () => { rows.splice(i, 1); paintCats(); }
-        }, '✕'))));
+          onclick: () => { cats.splice(i, 1); if (cur.row === r) cur = { kind: 'list', key: SIMPLE_LISTS[0] }; paintCats(); }
+        }, '−'))));
     });
-  };
-  paintCats();
-  const addCat = h('button', {
-    type: 'button', class: 'btn sm', onclick: () => {
-      rows.push({ orig: null, name: '', color: CATEGORY_COLORS[rows.length % CATEGORY_COLORS.length], cables: true, subtypes: '' });
-      paintCats();
-      const inputs = catBody.querySelectorAll('tr:last-child input.inp');
-      if (inputs.length) inputs[0].focus();
-    }
-  }, '+ Aggiungi categoria');
-  // ---- liste semplici ----
-  const areas = {};
-  const grid = h('div', { class: 'settings-grid' });
-  SETTINGS_LISTS.forEach((k) => {
-    const ta = h('textarea', { class: 'inp', spellcheck: 'false' });
-    ta.value = state.lists[k].join('\n');
-    areas[k] = ta;
-    grid.appendChild(fld(LIST_LABELS[k], ta, { hint: 'Un valore per riga' }));
-  });
-  const sec = (title, desc) => [h('h3', { class: 'set-title' }, title), desc ? h('p', { class: 'muted small' }, desc) : null];
-  const ok = await showModal({
-    title: 'Impostazioni', wide: true,
-    body: [
-      sec('Progetto e utente'),
-      h('div', { class: 'form-grid three' },
-        fld('Nome del progetto', nameIn, { required: true }),
-        fld('Programma / cliente', progIn),
-        fld('Il tuo nome (questo browser)', userIn, { hint: 'Registrato come autore delle modifiche e delle versioni' })),
-      sec('Categorie di interfaccia e sottotipi',
-        'Ogni interfaccia appartiene a una categoria (es. Elettrica) e, facoltativamente, a un sottotipo (es. Alimentazione). Puoi rinominare le categorie (le interfacce vengono aggiornate), aggiungerne di nuove e ampliare i sottotipi, uno per riga. I sottotipi già assegnati restano validi anche se rimossi dall’elenco.'),
-      h('table', { class: 'mini cat-table' },
-        h('thead', null, h('tr', null, ['Colore', 'Categoria', 'Realizzata con cavi', 'Sottotipi (uno per riga)', 'Uso', ''].map((t) => h('th', null, t)))), catBody),
-      h('div', { class: 'row-actions' }, addCat),
-      sec('Liste di valori', 'Usate nei menu a tendina e come suggerimenti. I valori già assegnati agli oggetti restano validi anche se rimossi dall’elenco.'),
-      grid],
-    buttons: [{ label: 'Annulla', value: false }, {
-      label: 'Salva impostazioni', value: true, cls: 'primary',
-      validate: () => {
-        if (!nameIn.value.trim()) { toast('Il nome del progetto è obbligatorio.', 'err'); nameIn.focus(); return false; }
-        const names = rows.map((r) => r.name.trim());
-        if (!rows.length) { toast('Serve almeno una categoria di interfaccia.', 'err'); return false; }
-        if (names.some((n) => !n)) { toast('Ogni categoria deve avere un nome.', 'err'); return false; }
-        const dup = names.find((n, i) => names.findIndex((m) => m.toLowerCase() === n.toLowerCase()) !== i);
-        if (dup) { toast('Categoria duplicata: “' + dup + '”.', 'err'); return false; }
-        for (const k of Object.keys(areas)) {
-          if (!areas[k].value.split('\n').map((x) => x.trim()).filter(Boolean).length) { toast('La lista “' + LIST_LABELS[k] + '” non può essere vuota.', 'err'); return false; }
+  }
+
+  // ---- Campi personalizzati
+  const cfBody = h('tbody');
+  const cfEntity = h('select', { class: 'inp' });
+  fillSelect(cfEntity, Object.keys(CF_ENTITIES).map((k) => ({ value: k, label: CF_ENTITY_LABELS[k] })), 'interface');
+  const cfLabel = h('input', { class: 'inp', maxlength: 60, placeholder: 'es. Livello di criticità, Data di approvazione…' });
+  const cfType = h('select', { class: 'inp' });
+  fillSelect(cfType, Object.keys(CF_TYPES).map((k) => ({ value: k, label: CF_TYPES[k] })), 'text');
+  panes.custom = h('div', { class: 'set-pane' },
+    h('p', { class: 'muted small' }, 'Campi aggiuntivi definiti per questo progetto. Compaiono nelle schede, come colonne delle tabelle (anche nascondibili), nei filtri (campi a elenco e casella), nella ricerca, nell’ordinamento e nelle esportazioni CSV. I valori si salvano nei dati del progetto.'),
+    h('table', { class: 'mini cf-table' }, h('thead', null, h('tr', null, ['Si applica a', 'Nome del campo', 'Tipo', 'Valori dell’elenco', 'Uso', ''].map((t) => h('th', null, t)))), cfBody),
+    h('div', { class: 'endpoint-box', style: { marginTop: '12px' } }, h('h4', null, 'Nuovo campo personalizzato'),
+      h('div', { class: 'form-grid three' }, fld('Si applica a', cfEntity), fld('Nome del campo', cfLabel), fld('Tipo', cfType)),
+      h('div', { class: 'row-actions' }, h('button', {
+        type: 'button', class: 'btn sm primary', onclick: () => {
+          const label = cfLabel.value.trim();
+          if (!label) { toast('Scrivi il nome del campo.', 'warn'); cfLabel.focus(); return; }
+          if (cfs.some((r) => !r.deleted && r.entity === cfEntity.value && r.label.toLowerCase() === label.toLowerCase())) { toast('Esiste già un campo “' + label + '” per ' + CF_ENTITY_LABELS[cfEntity.value].toLowerCase() + '.', 'warn'); return; }
+          const r = { id: newUid('cf'), isNew: true, entity: cfEntity.value, label, type: cfType.value, opts: [], deleted: false };
+          cfs.push(r);
+          cfLabel.value = '';
+          if (r.type === 'list') { r.opts.push({ orig: null, value: '' }); cur = { kind: 'cf', row: r }; showTab('values'); toast('Inserisci le voci dell’elenco “' + label + '”.', 'info'); return; }
+          paintCfs();
         }
-        return true;
-      }
-    }]
+      }, '+ Aggiungi campo'))));
+  function paintCfs() {
+    cfBody.innerHTML = '';
+    if (!cfs.length) cfBody.appendChild(h('tr', null, h('td', { colspan: 6, class: 'muted' }, 'Nessun campo personalizzato.')));
+    cfs.forEach((r) => {
+      const n = r.isNew ? 0 : cfUse(r);
+      cfBody.appendChild(h('tr', { class: r.deleted ? 'cf-deleted' : null },
+        h('td', { class: 'nowrap' }, CF_ENTITY_LABELS[r.entity]),
+        h('td', null, r.deleted ? h('s', null, r.label) : h('input', { class: 'inp', value: r.label, maxlength: 60, 'aria-label': 'Nome del campo', oninput: (e) => { r.label = e.target.value; } })),
+        h('td', { class: 'nowrap' }, CF_TYPES[r.type]),
+        h('td', { class: 'small' }, r.type === 'list' ? [r.opts.map((x) => x.value).filter(Boolean).join(', ') || h('span', { class: 'muted' }, 'nessuna voce'), ' ',
+          r.deleted ? null : h('button', { type: 'button', class: 'btn xs', onclick: () => { cur = { kind: 'cf', row: r }; showTab('values'); } }, 'Modifica voci')] : h('span', { class: 'muted' }, '—')),
+        h('td', { class: 'small nowrap' }, r.deleted ? h('span', { class: 'ico-err' }, n ? plural(n, 'valore verrà cancellato', 'valori verranno cancellati') : 'verrà eliminato') : (n ? plural(n, 'oggetto', 'oggetti') + ' con un valore' : h('span', { class: 'muted' }, 'nessun valore'))),
+        h('td', { class: 'act' }, r.deleted
+          ? h('button', { type: 'button', class: 'btn xs', onclick: () => { r.deleted = false; paintCfs(); } }, 'Ripristina')
+          : h('button', { type: 'button', class: 'btn xs danger', title: 'Elimina il campo' + (n ? ' e i suoi valori' : ''), onclick: () => { if (r.isNew) cfs.splice(cfs.indexOf(r), 1); else r.deleted = true; if (cur.row === r) cur = { kind: 'list', key: SIMPLE_LISTS[0] }; paintCfs(); } }, '−'))));
+    });
+  }
+
+  // ---- controlli prima del salvataggio
+  const dupOf = (arr) => arr.find((v, i) => arr.findIndex((w) => w.toLowerCase() === v.toLowerCase()) !== i);
+  const clean = (items) => items.filter((x) => x.orig != null || x.value.trim());
+  const checkList = (items, label, mayBeEmpty) => {
+    if (items.some((x) => x.orig != null && !x.value.trim())) return 'Nell’elenco “' + label + '” c’è una voce vuota: scrivi il valore o eliminala con “−”.';
+    const vals = clean(items).map((x) => x.value.trim());
+    const d = dupOf(vals);
+    if (d) return 'Valore ripetuto nell’elenco “' + label + '”: “' + d + '”.';
+    if (!vals.length && !mayBeEmpty) return 'L’elenco “' + label + '” non può essere vuoto.';
+    return null;
+  };
+  const validate = () => {
+    const fail = (t, msg, sel) => { if (sel) cur = sel; showTab(t); toast(msg, 'err', 6000); return false; };
+    if (!nameIn.value.trim()) { showTab('general'); nameIn.focus(); toast('Il nome del progetto è obbligatorio.', 'err'); return false; }
+    for (const k of SIMPLE_LISTS) { const m = checkList(lists[k], LIST_LABELS[k], SUGGEST_LISTS.has(k)); if (m) return fail('values', m, { kind: 'list', key: k }); }
+    if (!cats.length) return fail('categories', 'Serve almeno una categoria di interfaccia.');
+    if (cats.some((r) => !r.name.trim())) return fail('categories', 'Ogni categoria deve avere un nome.');
+    const dc = dupOf(cats.map((r) => r.name.trim()));
+    if (dc) return fail('categories', 'Categoria ripetuta: “' + dc + '”.');
+    for (const r of cats) { const m = checkList(r.subs, 'Sottotipi di ' + r.name, true); if (m) return fail('values', m, { kind: 'sub', row: r }); }
+    for (const r of cfs.filter((x) => !x.deleted)) {
+      if (!r.label.trim()) return fail('custom', 'Ogni campo personalizzato deve avere un nome.');
+      if (cfs.some((x) => x !== r && !x.deleted && x.entity === r.entity && x.label.trim().toLowerCase() === r.label.trim().toLowerCase())) return fail('custom', 'Campo personalizzato ripetuto: “' + r.label.trim() + '”.');
+      if (r.type === 'list') { const m = checkList(r.opts, r.label, true); if (m) return fail('values', m, { kind: 'cf', row: r }); }
+    }
+    return true;
+  };
+
+  const body = [tabBar, panes.general, panes.values, panes.categories, panes.custom];
+  const pending = showModal({
+    title: 'Impostazioni', xwide: true, body,
+    buttons: [{ label: 'Annulla', value: false }, { label: 'Salva impostazioni', value: true, cls: 'primary', validate }]
   });
+  showTab(tab);
+  const ok = await pending;
   if (!ok) return;
   if (userIn.value.trim() !== prefs.user) { prefs.user = userIn.value.trim(); saveUi(); }
-  const renames = new Map(rows.filter((r) => r.orig && r.orig !== r.name.trim()).map((r) => [r.orig, r.name.trim()]));
+  const renameMap = (items) => new Map(clean(items).filter((x) => x.orig != null && x.value.trim() !== x.orig).map((x) => [x.orig, x.value.trim()]));
   commit((st) => {
     st.meta.name = nameIn.value.trim();
     st.meta.program = progIn.value.trim();
-    st.lists.ifCategories = rows.map((r) => ({
-      name: r.name.trim(), color: /^#[0-9a-f]{6}$/i.test(r.color) ? r.color : '#5b6b7d', cables: !!r.cables,
-      subtypes: Array.from(new Set(r.subtypes.split('\n').map((x) => x.trim()).filter(Boolean)))
-    }));
-    st.interfaces.forEach((f) => { if (renames.has(f.category)) f.category = renames.get(f.category); });
-    SETTINGS_LISTS.forEach((k) => { st.lists[k] = Array.from(new Set(areas[k].value.split('\n').map((x) => x.trim()).filter(Boolean))); });
+    // elenchi semplici: rinomine applicate agli oggetti in un solo passaggio (anche gli scambi A↔B)
+    SIMPLE_LISTS.forEach((k) => {
+      const map = renameMap(lists[k]);
+      if (map.size) eachListUse(st, k, (o, f) => { if (map.has(o[f])) o[f] = map.get(o[f]); });
+      st.lists[k] = clean(lists[k]).map((x) => x.value.trim());
+    });
+    // categorie e sottotipi (i sottotipi si rinominano prima, con il nome di categoria originale)
+    cats.forEach((r) => {
+      if (!r.orig) return;
+      const map = renameMap(r.subs);
+      st.interfaces.forEach((f) => { if (f.category === r.orig && map.has(f.subtype)) f.subtype = map.get(f.subtype); });
+    });
+    const catMap = new Map(cats.filter((r) => r.orig && r.orig !== r.name.trim()).map((r) => [r.orig, r.name.trim()]));
+    st.interfaces.forEach((f) => { if (catMap.has(f.category)) f.category = catMap.get(f.category); });
+    st.lists.ifCategories = cats.map((r) => ({ name: r.name.trim(), color: /^#[0-9a-f]{6}$/i.test(r.color) ? r.color : '#5b6b7d', cables: !!r.cables, subtypes: clean(r.subs).map((x) => x.value.trim()) }));
+    // campi personalizzati: valori dei campi eliminati cancellati, voci rinominate aggiornate negli oggetti
+    st.customFields = st.customFields || [];
+    cfs.forEach((r) => {
+      if (r.isNew) return;
+      const coll = st[CF_ENTITIES[r.entity]] || [];
+      if (r.deleted) { coll.forEach((o) => { if (o.custom) delete o.custom[r.id]; }); return; }
+      if (r.type === 'list') { const map = renameMap(r.opts); if (map.size) coll.forEach((o) => { if (o.custom && map.has(o.custom[r.id])) o.custom[r.id] = map.get(o.custom[r.id]); }); }
+    });
+    st.customFields = cfs.filter((r) => !r.deleted).map((r) => ({ id: r.id, entity: r.entity, label: r.label.trim(), type: r.type, options: r.type === 'list' ? clean(r.opts).map((x) => x.value.trim()) : [] }));
   }, 'Impostazioni salvate');
 }
 /* ---------- Guida in linea ---------- */
@@ -8420,17 +9044,30 @@ function openHelp(topic) {
           ['Radio → antenna', 'RF / Coassiale', 'RF 50 Ω'], ['Rete di bordo', 'Rete/IP / Ethernet', 'Ethernet 1000BASE-T']].map((r) => h('tr', null, r.map((x) => h('td', null, x)))))),
       P(B('Funzionale o Elettrica?'), ' “Funzionale” descrive ', h('i', null, 'che cosa'), ' viene scambiato (dati, comandi, stati) indipendentemente dal mezzo; “Elettrica” descrive l’energia o il segnale elettrico in sé (alimentazione, massa, segnale analogico, RF).'),
       P('Le categorie e i sottotipi sono estendibili direttamente dalla scheda dell’interfaccia (voci ', B('＋ Nuova categoria…'), ' e ', B('＋ Nuovo sottotipo…'), ' dei menu) oppure in ', B('Impostazioni'), ', dove puoi anche cambiarne il colore e indicare se sono ', B('realizzate tramite cavi'), '. Per le categorie non cablate (di default Meccanica e Fluidica) non viene segnalata la mancanza di cavi e, nella vista cavi, l’interfaccia è disegnata tratteggiata come “non cablata”.')),
-    S('elenchi', 'Valori nuovi nei menu a tendina',
-      UL(['Ogni menu a tendina delle schede termina con la voce ', B('＋ Aggiungi…'), ': inserisci il nuovo valore e viene subito selezionato e aggiunto all’elenco del progetto (dominio, owner, tipo di porta, stato, tipo / origine / metodo di verifica dei requisiti, categoria, sottotipo).'],
-        ['Nei menu che scelgono un oggetto la voce crea l’oggetto: ', B('＋ Nuovo componente…'), ', ', B('＋ Nuova porta…'), ' (sul componente selezionato), ', B('＋ Nuovo gruppo…'), '.'],
+    S('elenchi', 'Menu a tendina: aggiungere, modificare ed eliminare i valori',
+      UL(['Aprendo un menu a tendina delle schede compare l’elenco delle voci: il simbolo ', B('−'), ' accanto a una voce la rimuove dall’elenco del progetto; ', B('＋ Aggiungi…'), ' in fondo inserisce un valore nuovo e lo seleziona; ', B('⚙ Gestisci'), ' apre la gestione completa dell’elenco.'],
+        ['Rimuovere una voce non cambia gli oggetti che la usano: la conservano e nel menu compare come “non in elenco”. Una categoria usata da interfacce non si può rimuovere.'],
+        ['Vale per tutti i campi configurabili: dominio, owner, tipo e direzione della porta, stato, tipo cavo, tipo / origine / metodo di verifica e stato dei requisiti, categoria e sottotipo delle interfacce, campi personalizzati a elenco.'],
+        ['Nei menu che scelgono un oggetto la voce in fondo lo crea: ', B('＋ Nuovo componente…'), ', ', B('＋ Nuova porta…'), ' (sul componente selezionato), ', B('＋ Nuovo gruppo…'), '. Da questi menu non si eliminano oggetti: si eliminano dalle loro schede.'],
         ['Nei campi con suggerimenti (protocollo / standard, connettori) puoi scrivere un valore nuovo: al salvataggio viene aggiunto ai suggerimenti.'],
-        ['Tutti gli elenchi si rivedono e si correggono in ', B('Impostazioni'), '. Restano fissi solo la direzione della porta (IN, OUT, I/O, n.a.) e il lato sul diagramma, perché il disegno della lavagna dipende da loro.'],
+        [B('Impostazioni → Valori dei campi'), ': per ogni elenco puoi aggiungere voci, ', B('rinominarle'), ' (gli oggetti che le usano vengono aggiornati), eliminarle e cambiarne l’ordine. Per ogni voce è indicato quanti oggetti la usano.'],
+        ['Resta fisso solo il lato della porta sul diagramma (automatico / sinistra / destra), perché guida il disegno della lavagna.'],
         ['L’etichetta della porta è facoltativa: se manca, sulla lavagna e nei menu compare solo l’ID (es. J1).'])),
-    S('requisiti', 'Requisiti ed esportazione per il fornitore',
-      UL(['Campi principali: ', B('ID'), ', ', B('Titolo'), ' (sintesi breve), ', B('Testo del requisito'), ' (forma consigliata: “The … shall …”), ', B('Metodo di verifica'), ' (Test, Inspection, Analysis, Demonstration).'],
-        [B('Condivisibile con il fornitore'), ': indica che il requisito può essere trasmesso all’esterno. Le note interne non vengono mai esportate.'],
-        ['Esportazione: nella tabella Requisiti seleziona le righe con le caselle (o filtra “Fornitore → Condivisibili”) e usa ', B('Esporta per fornitore (Excel)'), '. Il file .xlsx contiene le colonne ID, Titolo, Testo, Metodo di verifica e include solo i requisiti condivisibili.'],
-        ['Puoi creare requisiti anche dal pannello di un componente, di un’interfaccia o di un cavo: restano collegati all’oggetto.'])),
+    S('revisioni', 'Revisione delle interfacce (Rev)',
+      UL(['Ogni interfaccia ha il campo ', B('Revisione (Rev)'), ', testo libero: lettere (A, B, C…) o numeri (01, 02…), secondo la convenzione del programma. Le nuove interfacce partono da A.'],
+        ['Il pulsante ', B('↑ Nuova revisione'), ' passa alla successiva: A → B, Z → AA, 01 → 02, B3 → B4.'],
+        ['Il cambio di revisione è registrato nello storico delle modifiche (es. “rev A → B”) e la revisione compare nel titolo della scheda, nella tabella (colonna Rev), nel suggerimento sulla lavagna e nell’esportazione CSV.'],
+        ['Per conservare lo stato completo del progetto alla revisione precedente usa “Salva versione ora” (Progetti → Versioni): le versioni si possono confrontare e ripristinare.'])),
+    S('tabelle', 'Tabelle: colonne, filtri ed esportazione CSV',
+      UL([B('Colonne ▾'), ' (in alto a destra di ogni tabella): scegli quali colonne mostrare. La scelta è salvata in questo browser e vale anche nelle sessioni successive; la colonna ID resta sempre visibile.'],
+        ['Clic sull’intestazione di una colonna: ordinamento crescente / decrescente. La ricerca guarda tutte le colonne, anche quelle nascoste.'],
+        [B('Esporta CSV'), ' esporta le righe visibili (con filtri e ricerca applicati) e le colonne mostrate. Il file usa il punto e virgola come separatore e si apre direttamente in Excel.'],
+        [B('CSV delle interfacce'), ': colonne fisse ID Interfaccia, Rev Interfaccia, Categoria, Gruppo di derivazione A, Componente A, Porta A, Gruppo di derivazione B, Componente B, Porta B, ID Cavo, Tipo Cavo, PN Fornitore Cavo, PN IDV Cavo, Stato, Sottotipo, Note / Descrizione dello Scambio, seguite dai campi personalizzati delle interfacce. C’è una riga per ogni cavo che realizza l’interfaccia (una sola riga, con le colonne del cavo vuote, se non ha cavi). Il gruppo è indicato con il suo ID; lo Stato è quello dell’interfaccia.'])),
+    S('personalizzati', 'Campi personalizzati',
+      UL(['In ', B('Impostazioni → Campi personalizzati'), ' puoi aggiungere campi a gruppi, componenti, interfacce, cavi e requisiti, scegliendo il tipo: testo, numero, elenco, data o casella (sì/no).'],
+        ['I campi compaiono nella sezione “Campi personalizzati” delle schede, come colonne delle tabelle (nascondibili con Colonne ▾), nella ricerca, nell’ordinamento e nelle esportazioni CSV.'],
+        ['I campi a elenco e a casella hanno anche un filtro in cima alla tabella (con la voce “(vuoto)” per gli oggetti senza valore). Le voci degli elenchi si gestiscono come gli altri elenchi: dal menu (−, ＋) o in Valori dei campi.'],
+        ['Il nome di un campo si può cambiare in ogni momento; il tipo si sceglie alla creazione. Eliminando un campo vengono cancellati anche i suoi valori (prima del salvataggio puoi ancora ripristinarlo).'])),
     S('lavagna', 'Lavagna: comandi',
       UL(['Zoom con la rotella del mouse, il gesto del trackpad o i pulsanti − / +; trascina lo sfondo per spostare la vista; “Adatta” mostra tutto lo schema; clic sulla percentuale: zoom 100%.'],
         ['Trascina i blocchi o la fascia del titolo dei gruppi per spostarli: i blocchi si allineano a una griglia di 10; tenendo premuto ', B('Alt'), ' si spostano liberamente. I collegamenti vengono reinstradati automaticamente con linee ortogonali.'],
@@ -8598,6 +9235,8 @@ function setupGlobalHandlers() {
     openObject(el.dataset.open.slice(0, i), el.dataset.open.slice(i + 1));
   }, true);
   document.addEventListener('keydown', (e) => {
+    if (listPopoverKey(e)) return;
+    if (e.key === 'Escape' && colsPop) { closeColumnsPopover(); return; }
     if (e.key === 'Escape') {
       if (!byId('ctxMenu').hidden) { hideContextMenu(); return; }
       if (isModalOpen()) { e.preventDefault(); closeModal(null); return; }
@@ -8637,6 +9276,11 @@ function setupGlobalHandlers() {
   byId('saveState').addEventListener('click', () => { if (saveConflict) resolveSaveConflict().catch(reportError); });
   window.addEventListener('pagehide', writeEmergencyCopy);
   window.addEventListener('resize', positionPanel);
+  // elenco dei menu a tendina modificabili: si chiude cliccando fuori, scorrendo la pagina o ridimensionando la finestra
+  document.addEventListener('mousedown', (e) => { if (listPop && !listPop.box.contains(e.target) && e.target !== listPop.el) closeListPopover(); }, true);
+  document.addEventListener('mousedown', (e) => { if (colsPop && !colsPop.box.contains(e.target) && !colsPop.btn.contains(e.target)) closeColumnsPopover(); }, true);
+  document.addEventListener('scroll', (e) => { if (listPop && !listPop.box.contains(e.target)) closeListPopover(); }, true);
+  window.addEventListener('resize', closeListPopover);
 }
 
 /* =====================================================================
