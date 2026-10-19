@@ -4,20 +4,20 @@ Applicazione web in un unico file (`IDV_Interface_Manager.html`) per disegnare e
 
 Il modello ha cinque livelli: gruppi funzionali, componenti, porte, interfacce logiche e cavi fisici. Include anche requisiti, allegati, dashboard di completezza, lavagna con instradamento ortogonale e progetti multipli.
 
-Non richiede installazione né server: basta aprire il file in un browser recente (Chrome, Edge, Firefox).
+Non richiede installazione né server: basta aprire il file in un browser recente (Chrome, Edge, Firefox). Per salvare i progetti in una cartella condivisa (OneDrive, Teams/SharePoint, cartella di rete) serve Microsoft Edge o Google Chrome.
 
 ## Codice e dati sono separati
 
 | Cosa | Dove si trova | Come è versionato |
 |------|---------------|-------------------|
 | **Codice dell'applicazione** | `IDV_Interface_Manager.html` (questo repository) | Git: ogni rilascio è un commit; le versioni sono in `CHANGELOG.md` |
-| **Dati dei progetti** | Archivio del browser (IndexedDB) di ciascun computer, separato dal file HTML | Versioni interne del progetto, storico delle modifiche, esportazioni JSON, backup completi e, se collegati, repository GitHub dei progetti |
+| **Dati dei progetti** | A scelta, in **Progetti → Posizione dei progetti**: una **cartella di lavoro condivisa** (file `.idvproj` su OneDrive/Teams) oppure l'**archivio del browser** (IndexedDB) di ciascun computer. In entrambi i casi sono separati dal file HTML | Versioni del progetto, storico delle modifiche, esportazioni JSON, backup completi e, se collegati, repository GitHub dei progetti |
 
-Sostituire o aggiornare il file HTML **non tocca i dati**, purché l'applicazione venga aperta nello stesso browser e dallo stesso indirizzo (stesso percorso del file o stesso sito).
+Sostituire o aggiornare il file HTML **non tocca i dati**. Con l'archivio del browser, l'applicazione va riaperta nello stesso browser e dallo stesso indirizzo (stesso percorso del file o stesso sito).
 
 ## Versioni e migrazione dei dati
 
-- `APP.version` è la versione dell'applicazione, per esempio `3.0`.
+- `APP.version` è la versione dell'applicazione, per esempio `3.1`.
 - `APP.schema` è la versione del **formato dei dati**, per esempio `3`.
 
 Ogni progetto, versione, esportazione e backup registra il formato con cui è stato salvato.
@@ -39,13 +39,55 @@ Ogni modifica al formato dei dati deve:
 ## Procedura consigliata per aggiornare l'applicazione
 
 1. Nell'applicazione in uso, apri **Progetti → Backup completo** (oppure invia i progetti a GitHub).
-2. Sostituisci `IDV_Interface_Manager.html` con la nuova versione, nello stesso percorso o sullo stesso sito.
+2. Sostituisci `IDV_Interface_Manager.html` con la nuova versione, nello stesso percorso o sullo stesso sito (con la cartella condivisa: il file nella cartella del team).
 3. Riapri l'applicazione: i progetti vengono aggiornati automaticamente all'apertura.
 4. In caso di problemi:
    - **Progetti → Versioni**: ripristina la copia precedente alla migrazione;
    - **Ripristina backup**: ripristina l'intero archivio.
 
-Per il lavoro in team conviene pubblicare l'applicazione a un indirizzo fisso, ad esempio un sito interno o GitHub Pages di questo repository.
+Per il lavoro in team il modo più semplice è tenere il file HTML nella cartella condivisa insieme ai progetti. In alternativa si può pubblicare l'applicazione a un indirizzo fisso, ad esempio un sito interno o GitHub Pages di questo repository.
+
+## Cartella di lavoro condivisa (OneDrive / Teams)
+
+Pensata per ambienti in cui non si può installare software: i progetti sono normali file in una cartella sincronizzata, e la sincronizzazione tra computer la fa OneDrive. L'applicazione usa la File System Access API del browser (Edge o Chrome).
+
+**Preparazione, una volta per il team**
+
+1. Crea una cartella in OneDrive o nei File di un canale Teams, ad esempio `IDV Progetti`, e copiaci `IDV_Interface_Manager.html`.
+2. Ogni utente, dalla pagina web di Teams/SharePoint, usa "Aggiungi collegamento a I miei file" (o "Sincronizza"): la cartella compare in Esplora file, sotto OneDrive.
+
+**Collegamento, una volta per computer**
+
+1. Apri il file HTML dalla cartella sincronizzata con Edge o Chrome.
+2. **Progetti → Posizione dei progetti → Cambia… → Usa una cartella condivisa…** e scegli la cartella `IDV Progetti`.
+3. Se nel browser ci sono già progetti, l'applicazione propone di copiarli nella cartella.
+4. Imposta il tuo nome in **Impostazioni ⚙**: compare nello storico e negli avvisi ai colleghi.
+
+A ogni avvio il browser chiede di confermare l'accesso alla cartella ("Consenti accesso a «IDV Progetti»"); la cartella scelta viene ricordata.
+
+**Struttura su disco**
+
+```
+IDV Progetti/
+  IDV_Interface_Manager.html
+  <cartella>/<sottocartella>/<Nome progetto>/
+    progetto.idvproj             dati, storico delle modifiche e metadati (JSON)
+    allegati/<id>-<nome file>    file allegati ai componenti
+    versioni/indice.json         elenco delle versioni
+    versioni/<data>_<id>.json    una versione del progetto
+    .presenza/<dispositivo>.json chi ha il progetto aperto (aggiornato ogni 2 minuti)
+```
+
+Le cartelle e sottocartelle dei progetti sono cartelle reali. Le preferenze personali e il token GitHub restano nel browser di ciascuno.
+
+**Lavoro contemporaneo**
+
+- **Presenza.** La finestra Progetti mostra "● aperto da …". Aprendo un progetto già aperto da un collega si riceve un avviso.
+- **Aggiornamenti.** Quando un altro utente salva il progetto aperto, compare un avviso con il pulsante per ricaricarlo. Il controllo avviene ogni 15 secondi e quando si torna sulla finestra.
+- **Conflitti.** Prima di ogni salvataggio l'applicazione verifica che il file non sia cambiato. Se è cambiato, il salvataggio si ferma e si sceglie tra: aprire la versione del collega, salvare le proprie modifiche come copia separata, sovrascrivere. Nulla viene scartato in silenzio.
+- **Copie di conflitto di OneDrive** (`progetto-<NomePC>.idvproj`). Vengono segnalate nella finestra Progetti e si possono importare come progetto separato.
+
+Regola pratica: un solo utente alla volta modifica un progetto; per lavorare in parallelo conviene dividere lo schema in più progetti.
 
 ## Progetti, cartelle, backup e GitHub
 
@@ -82,6 +124,7 @@ Le verifiche automatiche, in Playwright, coprono:
 - lavagna, instradamento e punti di instradamento;
 - filtri, allegati e progetti;
 - importazione ed esportazione, backup e migrazione dei dati;
-- sincronizzazione GitHub, su un server simulato.
+- sincronizzazione GitHub, su un server simulato;
+- cartella di lavoro condivisa: due computer simulati sulla stessa cartella (presenza, aggiornamenti, conflitti, copie di conflitto di OneDrive) e cartelle reali del browser (cartella ricordata, conferma dell'accesso all'avvio).
 
-Sono state eseguite durante lo sviluppo su Chromium.
+Sono state eseguite durante lo sviluppo su Chromium. La sincronizzazione reale di OneDrive non è stata provata: per il primo utilizzo conviene un progetto di prova.

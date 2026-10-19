@@ -2,6 +2,28 @@
 
 Ogni versione dell'applicazione indica il formato dei dati (`schema`) che produce. I progetti salvati con un formato precedente vengono convertiti automaticamente all'apertura. Prima della conversione viene conservata una copia identica dei dati originali come versione del progetto.
 
+## 3.1 — formato dati 3
+
+**Cartella di lavoro condivisa (OneDrive / Teams)**
+- Nuova posizione dei progetti, in alternativa all'archivio del browser: una cartella sincronizzata (OneDrive, Teams/SharePoint, cartella di rete). Si sceglie da Progetti → Posizione dei progetti. Richiede Edge o Chrome; nessuna installazione.
+- Ogni progetto è una sottocartella con:
+  - `progetto.idvproj`;
+  - la cartella `allegati`;
+  - la cartella `versioni`.
+- Le cartelle dei progetti sono cartelle reali.
+- Copia dei progetti esistenti dal browser alla cartella.
+- La cartella scelta viene ricordata; a ogni avvio il browser chiede di confermare l'accesso.
+- Presenza: "● aperto da …" nella finestra Progetti e avviso se si apre un progetto già aperto da un collega.
+- Avviso quando un collega salva il progetto aperto, con ricarica.
+- Rilevamento dei conflitti prima di ogni salvataggio, con scelta tra:
+  - la versione del collega;
+  - una copia con le proprie modifiche;
+  - la sovrascrittura.
+- Rilevamento delle copie di conflitto create da OneDrive e importazione come progetto separato.
+- Nuova sezione della Guida sul lavoro in team con la cartella condivisa.
+
+Il formato dei dati non cambia (formato 3). I file `progetto.idvproj` usano lo stesso formato dei file di progetto esportati (`IDV-Interface-Manager-Project`).
+
 ## 3.0 — formato dati 3
 
 **Lavagna**

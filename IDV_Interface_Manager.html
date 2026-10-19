@@ -119,6 +119,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .pm-table tr.pm-current td { background: #f1f7ff; }
 .pm-table td.act { white-space: nowrap; }
 .pm-trash { margin-top: 12px; }
+.pm-loc { display: flex; align-items: center; gap: 8px; padding: 7px 10px; margin-bottom: 10px; background: #eef3fa; border: 1px solid #c9d8ee; border-radius: 6px; font-size: 12.5px; }
+.pm-busy { color: #0f6a2e; font-size: 11.5px; font-weight: 600; }
+.stg-opt { border: 1px solid var(--border); border-radius: 6px; padding: 9px 12px; margin-bottom: 8px; }
+.stg-opt.on { border-color: #8fb1e3; background: #f1f6fd; }
+.stg-list { max-height: 34vh; overflow: auto; border: 1px solid var(--border); border-radius: 4px; padding: 4px 8px; margin: 6px 0; }
+.save-state.clickable { cursor: pointer; }
 .pm-layout { display: grid; grid-template-columns: 220px 1fr; gap: 12px; align-items: start; }
 .pm-tree { border: 1px solid var(--border); border-radius: 6px; padding: 6px; background: var(--surface-2); display: flex; flex-direction: column; gap: 1px; max-height: 52vh; overflow: auto; }
 .pm-folder { display: flex; align-items: center; gap: 6px; width: 100%; text-align: left; background: none; border: 0; border-radius: 4px; padding: 5px 8px; font: inherit; font-size: 12.5px; cursor: pointer; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -812,7 +818,7 @@ const APP = {
   format: 'IDV-Interface-Manager',
   projectFormat: 'IDV-Interface-Manager-Project',
   backupFormat: 'IDV-Interface-Manager-Backup',
-  version: '3.0',          // versione dell'applicazione (codice)
+  version: '3.1',          // versione dell'applicazione (codice)
   schema: 3,               // versione del formato dei dati di progetto (vedi migrateLists / normalizeData)
   legacyModelKey: 'idv-interface-manager.model.v1',
   uiKey: 'idv-interface-manager.ui.v1',
@@ -1416,7 +1422,8 @@ let bcAsking = false, bcKeep = false;
 /* Esegue un'azione asincrona mostrando l'eventuale errore all'utente */
 const safely = (fn) => (...a) => Promise.resolve().then(() => fn(...a)).catch(reportError);
 
-const Store = (() => {
+/* Archivio locale del browser (IndexedDB, con ripiego su localStorage o memoria) */
+const LocalStore = (() => {
   let db = null, mode = 'none';
   const P = 'idv-store.';
   const mem = { projects: new Map(), versions: new Map(), meta: new Map(), files: new Map() };
@@ -1527,6 +1534,593 @@ const Store = (() => {
     setMeta: (key, value) => put('meta', { key, value })
   };
 })();
+/* Archivio attivo: quello del browser oppure la cartella di lavoro condivisa (stessa interfaccia) */
+let activeStore = LocalStore;
+const Store = new Proxy({}, { get(_, k) { const v = activeStore[k]; return typeof v === 'function' ? v.bind(activeStore) : v; } });
+
+/* ---------- Cartella di lavoro condivisa (OneDrive, Teams/SharePoint, cartella di rete) ----------
+   I progetti sono file in una cartella scelta dall'utente (API File System Access di Chrome/Edge),
+   sincronizzata dal servizio dell'azienda. Struttura:
+     <cartella di lavoro>/<cartelle e sottocartelle>/<Nome progetto>/
+        progetto.idvproj          dati, storico e metadati (JSON leggibile, riscritto ad ogni salvataggio)
+        allegati/<id>-<nome>      file allegati ai componenti
+        versioni/<data>_<id>.json versioni del progetto (+ indice.json)
+        .presenza/<id>.json       chi ha il progetto aperto (un file per finestra, aggiornato ogni 2 minuti)
+   Lo stato dell'interfaccia e le preferenze personali restano nell'archivio del browser. */
+const WD = { file: 'progetto.idvproj', att: 'allegati', ver: 'versioni', verIndex: 'indice.json', presence: '.presenza' };
+const PRESENCE_MS = 2 * 60 * 1000, PRESENCE_STALE_MS = 5 * 60 * 1000;
+/* Identificativo stabile di questo browser (per la presenza: un file per computer/profilo) */
+const DEVICE_ID = (() => {
+  try {
+    let d = localStorage.getItem('idv-interface-manager.device');
+    if (!d) { d = newUid('dev'); localStorage.setItem('idv-interface-manager.device', d); }
+    return d;
+  } catch (e) { return newUid('dev'); }
+})();
+function folderApiAvailable() { return typeof window.showDirectoryPicker === 'function'; }
+function createFolderStore(root) {
+  let index = null;                 // id progetto → { dir, parentPath, dirName }
+  let dirList = [];                 // cartelle organizzative (percorsi relativi)
+  const known = new Map();          // id → { lm, hash, conflict } ultimo contenuto letto/scritto
+  const verLoc = new Map();         // vid → { pid, file }
+  const isNotFound = (e) => e && (e.name === 'NotFoundError' || e.name === 'TypeMismatchError');
+  async function tryFile(dir, name) { try { return await dir.getFileHandle(name); } catch (e) { if (isNotFound(e)) return null; throw e; } }
+  async function tryDir(dir, name, create) { try { return await dir.getDirectoryHandle(name, create ? { create: true } : undefined); } catch (e) { if (isNotFound(e)) return null; throw e; } }
+  async function writeFile(dir, name, data) {
+    const fh = await dir.getFileHandle(name, { create: true });
+    const w = await fh.createWritable();
+    await w.write(data);
+    await w.close();
+    return fh;
+  }
+  async function dirAt(path, create) {
+    let d = root;
+    for (const part of str(path).split('/').filter(Boolean)) d = await d.getDirectoryHandle(part, create ? { create: true } : undefined);
+    return d;
+  }
+  async function uniqueName(parent, base) {
+    const b = safeFileName(base).replace(/[. ]+$/, '') || 'progetto';
+    for (let i = 1; i < 500; i++) {
+      const n = i === 1 ? b : b + ' (' + i + ')';
+      if (!(await tryDir(parent, n)) && !(await tryFile(parent, n))) return n;
+    }
+    return b + ' ' + Date.now();
+  }
+  async function copyDir(src, dest) {
+    for await (const [n, h] of src.entries()) {
+      if (h.kind === 'file') await writeFile(dest, n, await h.getFile());
+      else await copyDir(h, await dest.getDirectoryHandle(n, { create: true }));
+    }
+  }
+  async function moveDir(fromParent, name, toParent, newName) {
+    const src = await fromParent.getDirectoryHandle(name);
+    const dst = await toParent.getDirectoryHandle(newName, { create: true });
+    await copyDir(src, dst);
+    await fromParent.removeEntry(name, { recursive: true });
+    return dst;
+  }
+  function recFromText(text, parentPath, dirName, lm) {
+    const raw = JSON.parse(text);
+    const p = isPlainObj(raw.project) ? raw.project : {};
+    const data = isPlainObj(raw.data) ? raw.data : raw;
+    return {
+      id: str(p.id) || ('prj_' + textHash(parentPath + '/' + dirName)), name: str(p.name) || str(data.meta && data.meta.name) || dirName,
+      program: str(p.program), created: str(p.created) || new Date(lm).toISOString(), updated: str(p.updated) || new Date(lm).toISOString(),
+      updatedBy: str(p.updatedBy), counts: isPlainObj(p.counts) ? p.counts : safeCounts(data), deleted: p.deleted || null, folder: parentPath,
+      github: isPlainObj(p.github) ? p.github : null, log: sanitizeLog(raw.log), schema: Number(data.schema) || 1, appVersion: str(raw.appVersion),
+      json: JSON.stringify(data)
+    };
+  }
+  /* Scansione della cartella: progetti (cartelle con progetto.idvproj) e cartelle organizzative */
+  async function scan() {
+    const idx = new Map(), projects = [], folders = [];
+    async function visit(dir, path, parentPath, name, depth) {
+      const fh = depth > 0 ? await tryFile(dir, WD.file) : null;
+      if (fh) {
+        const f = await fh.getFile();
+        let rec;
+        try { rec = recFromText(await f.text(), parentPath, name, f.lastModified); } catch (e) {
+          rec = { id: 'prj_' + textHash(path), name: name + ' (file non leggibile)', program: '', created: '', updated: new Date(f.lastModified).toISOString(), updatedBy: '', counts: {}, deleted: null, folder: parentPath, broken: e.message, json: '' };
+        }
+        if (idx.has(rec.id)) rec.id = rec.id + '~' + textHash(path).slice(0, 8);   // cartella copiata a mano: stesso id
+        const extra = [];
+        let openBy = [];
+        for await (const [n, h] of dir.entries()) {
+          if (h.kind === 'file' && /\.idvproj$/i.test(n) && n !== WD.file) extra.push(n);
+          if (h.kind === 'directory' && n === WD.presence) openBy = await readPresenceDir(h);
+        }
+        rec.conflictCopies = extra;
+        rec.openBy = openBy;
+        rec.path = path;
+        idx.set(rec.id, { dir, parentPath, dirName: name });
+        projects.push(rec);
+        return;
+      }
+      if (depth > 0) folders.push(path);
+      if (depth > 8) return;
+      for await (const [n, h] of dir.entries()) {
+        if (h.kind !== 'directory' || n[0] === '.' || n[0] === '~' || n[0] === '$') continue;
+        await visit(h, path ? path + '/' + n : n, path, n, depth + 1);
+      }
+    }
+    await visit(root, '', '', root.name, 0);
+    index = idx;
+    dirList = folders;
+    return projects;
+  }
+  async function entryOf(id) {
+    if (!index || !index.has(id)) await scan();
+    return index.get(id) || null;
+  }
+  async function verDir(pid, create) { const e = await entryOf(pid); return e ? tryDir(e.dir, WD.ver, create) : null; }
+  async function attDir(pid, create) { const e = await entryOf(pid); return e ? tryDir(e.dir, WD.att, create) : null; }
+  async function readVerIndex(vd) {
+    const fh = await tryFile(vd, WD.verIndex);
+    if (!fh) return {};
+    try { const o = JSON.parse(await (await fh.getFile()).text()); return isPlainObj(o) ? o : {}; } catch (e) { return {}; }
+  }
+  async function readPresenceDir(pd) {
+    const out = [];
+    for await (const [n, h] of pd.entries()) {
+      if (h.kind !== 'file' || !/\.json$/.test(n)) continue;
+      try { const o = JSON.parse(await (await h.getFile()).text()); if (o && o.device && o.at) out.push(o); } catch (e) { /* file in scrittura */ }
+    }
+    return out.sort((a, b) => (a.at < b.at ? 1 : -1));
+  }
+  function conflictInfo(text, lm) {
+    try { const raw = JSON.parse(text); const p = raw.project || {}; return { by: str(p.updatedBy) || 'un altro utente', at: str(p.updated) || new Date(lm).toISOString(), lm }; } catch (e) { return { by: 'un altro utente', at: new Date(lm).toISOString(), lm }; }
+  }
+  const S = {
+    mode: 'folder',
+    get name() { return root.name; },
+    root,
+    async init() { await scan(); return 'folder'; },
+    async listProjects() {
+      return (await scan()).map((r) => { const o = Object.assign({}, r); if (o.json) o.hash = textHash(o.json); delete o.json; delete o.log; return o; });
+    },
+    async getProject(id) {
+      const e = await entryOf(id);
+      if (!e) return null;
+      const fh = await tryFile(e.dir, WD.file);
+      if (!fh) { index = null; return null; }
+      const f = await fh.getFile();
+      const text = await f.text();
+      const rec = recFromText(text, e.parentPath, e.dirName, f.lastModified);
+      rec.id = id;
+      const k = known.get(id);
+      if (!k || !k.conflict) known.set(id, { lm: f.lastModified, hash: textHash(text) });
+      return rec;
+    },
+    async putProject(rec, opts) {
+      opts = opts || {};
+      let e = await entryOf(rec.id);
+      const folder = normFolder(rec.folder);
+      if (e && e.parentPath !== folder) {
+        const from = await dirAt(e.parentPath, false), to = await dirAt(folder, true);
+        const nn = await uniqueName(to, e.dirName);
+        const dir = await moveDir(from, e.dirName, to, nn);
+        e = { dir, parentPath: folder, dirName: nn };
+        index.set(rec.id, e);
+      }
+      if (!e) {
+        const parent = await dirAt(folder, true);
+        const nn = await uniqueName(parent, rec.name);
+        e = { dir: await parent.getDirectoryHandle(nn, { create: true }), parentPath: folder, dirName: nn };
+        index.set(rec.id, e);
+      }
+      const k = known.get(rec.id);
+      if (k && !opts.force) {
+        if (k.conflict) { const err = new Error('progetto modificato da un altro utente'); err.conflict = k.conflict; throw err; }
+        const fh0 = await tryFile(e.dir, WD.file);
+        if (fh0) {
+          const f0 = await fh0.getFile();
+          if (f0.lastModified !== k.lm) {
+            const t0 = await f0.text();
+            if (textHash(t0) !== k.hash) {
+              k.conflict = conflictInfo(t0, f0.lastModified);
+              const err = new Error('progetto modificato da un altro utente');
+              err.conflict = k.conflict;
+              throw err;
+            }
+            k.lm = f0.lastModified;
+          }
+        }
+      }
+      let data;
+      try { data = JSON.parse(rec.json); } catch (e2) { throw new Error('dati del progetto non validi'); }
+      const content = {
+        format: APP.projectFormat, schema: Number(data.schema) || APP.schema, appVersion: APP.version,
+        project: { id: rec.id, name: rec.name, program: rec.program || '', created: rec.created, updated: rec.updated, updatedBy: rec.updatedBy || '', counts: rec.counts, deleted: rec.deleted || null, github: rec.github || null },
+        data, log: sanitizeLog(rec.log)
+      };
+      const text = JSON.stringify(content, null, 1);
+      const fh = await writeFile(e.dir, WD.file, text);
+      const f = await fh.getFile();
+      known.set(rec.id, { lm: f.lastModified, hash: textHash(text) });
+      return undefined;
+    },
+    async deleteProject(id) {
+      const e = await entryOf(id);
+      if (!e) return;
+      const parent = await dirAt(e.parentPath, false);
+      await parent.removeEntry(e.dirName, { recursive: true });
+      index.delete(id);
+      known.delete(id);
+    },
+    async listVersions(pid) {
+      const vd = await verDir(pid, false);
+      if (!vd) return [];
+      const ix = await readVerIndex(vd);
+      const out = [];
+      for await (const [n, h] of vd.entries()) {
+        if (h.kind !== 'file' || n === WD.verIndex || !/\.json$/i.test(n)) continue;
+        let m = ix[n];
+        if (!m) {
+          try { const v = JSON.parse(await (await h.getFile()).text()); m = { vid: v.vid, at: v.at, by: v.by, note: v.note, auto: v.auto, name: v.name, counts: v.counts }; } catch (e) { continue; }
+        }
+        if (!m || !m.vid) continue;
+        verLoc.set(m.vid, { pid, file: n });
+        out.push({ vid: m.vid, projectId: pid, at: m.at, by: m.by || '', note: m.note || '', auto: !!m.auto, name: m.name || '', counts: m.counts || null });
+      }
+      return out.sort((a, b) => (a.at < b.at ? 1 : -1));
+    },
+    async getVersion(vid) {
+      const loc = verLoc.get(vid);
+      if (!loc) return null;
+      const vd = await verDir(loc.pid, false);
+      const fh = vd && await tryFile(vd, loc.file);
+      if (!fh) return null;
+      const v = JSON.parse(await (await fh.getFile()).text());
+      return { vid: v.vid, projectId: loc.pid, at: v.at, by: v.by || '', note: v.note || '', auto: !!v.auto, name: v.name || '', counts: v.counts || null, json: JSON.stringify(v.data) };
+    },
+    async putVersion(v) {
+      const vd = await verDir(v.projectId, true);
+      const d = new Date(v.at), p2 = (n) => String(n).padStart(2, '0');
+      const file = d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + '-' + p2(d.getHours()) + p2(d.getMinutes()) + p2(d.getSeconds()) + '_' + v.vid + '.json';
+      const meta = { vid: v.vid, at: v.at, by: v.by || '', note: v.note || '', auto: !!v.auto, name: v.name || '', counts: v.counts || null };
+      await writeFile(vd, file, JSON.stringify(Object.assign({}, meta, { projectId: v.projectId, data: JSON.parse(v.json) })));
+      const ix = await readVerIndex(vd);
+      ix[file] = meta;
+      await writeFile(vd, WD.verIndex, JSON.stringify(ix));
+      verLoc.set(v.vid, { pid: v.projectId, file });
+    },
+    async deleteVersion(vid) {
+      const loc = verLoc.get(vid);
+      if (!loc) return;
+      const vd = await verDir(loc.pid, false);
+      if (!vd) return;
+      try { await vd.removeEntry(loc.file); } catch (e) { if (!isNotFound(e)) throw e; }
+      const ix = await readVerIndex(vd);
+      if (ix[loc.file]) { delete ix[loc.file]; await writeFile(vd, WD.verIndex, JSON.stringify(ix)); }
+      verLoc.delete(vid);
+    },
+    async putFile(rec) {
+      const ad = await attDir(rec.projectId, true);
+      if (!ad) throw new Error('cartella del progetto non trovata');
+      await writeFile(ad, rec.fid + '-' + repoFileName(rec.name), rec.blob);
+    },
+    async getFile(pid, fid) {
+      const ad = await attDir(pid, false);
+      if (!ad) return null;
+      for await (const [n, h] of ad.entries()) {
+        if (h.kind === 'file' && n.indexOf(fid + '-') === 0) {
+          const f = await h.getFile();
+          return { key: pid + '|' + fid, projectId: pid, fid, name: n.slice(fid.length + 1), type: f.type || '', size: f.size, added: '', by: '', blob: f };
+        }
+      }
+      return null;
+    },
+    async listFiles(pid) {
+      const ad = await attDir(pid, false);
+      if (!ad) return [];
+      const out = [];
+      for await (const [n, h] of ad.entries()) {
+        const m = /^(f_[^-]+)-(.*)$/.exec(n);
+        if (h.kind !== 'file' || !m) continue;
+        const f = await h.getFile();
+        out.push({ key: pid + '|' + m[1], projectId: pid, fid: m[1], name: m[2], type: f.type || '', size: f.size });
+      }
+      return out;
+    },
+    async deleteProjectFiles(pid) {
+      const e = await entryOf(pid);
+      if (e) { try { await e.dir.removeEntry(WD.att, { recursive: true }); } catch (err) { if (!isNotFound(err)) throw err; } }
+    },
+    async getMeta(key) {
+      if (key === 'folders') { await scan(); return dirList.slice(); }
+      return LocalStore.getMeta('wd.' + key);
+    },
+    async setMeta(key, value) {
+      if (key !== 'folders') return LocalStore.setMeta('wd.' + key, value);
+      const want = new Set((value || []).map(normFolder).filter(Boolean));
+      for (const p of want) await dirAt(p, true);
+      await scan();
+      // rimuove solo le cartelle organizzative non più previste e completamente vuote
+      for (const p of dirList.slice().sort((a, b) => b.length - a.length)) {
+        if (want.has(p)) continue;
+        const d = await dirAt(p, false);
+        let empty = true;
+        for await (const x of d.keys()) { empty = !x; break; }
+        if (empty) { const parts = p.split('/'), n = parts.pop(); await (await dirAt(parts.join('/'), false)).removeEntry(n); }
+      }
+      await scan();
+      return undefined;
+    },
+    /* Rinomina/sposta una cartella organizzativa con tutto il contenuto */
+    async moveFolder(from, to) {
+      const fp = from.split('/'), fn = fp.pop(), tp = to.split('/'), tn = tp.pop();
+      const fromParent = await dirAt(fp.join('/'), false), toParent = await dirAt(tp.join('/'), true);
+      await moveDir(fromParent, fn, toParent, await uniqueName(toParent, tn));
+      index = null;
+      await scan();
+    },
+    /* Il file del progetto è stato modificato da altri dopo l'ultima lettura/scrittura? */
+    async checkExternal(id) {
+      const k = known.get(id);
+      const e = await entryOf(id);
+      if (!k || k.conflict || !e) return null;
+      const fh = await tryFile(e.dir, WD.file);
+      if (!fh) return null;
+      const f = await fh.getFile();
+      if (f.lastModified === k.lm) return null;
+      const t = await f.text();
+      if (textHash(t) === k.hash) { k.lm = f.lastModified; return null; }
+      return conflictInfo(t, f.lastModified);
+    },
+    resetKnown(id) { known.delete(id); },
+    /* Presenza: un file per finestra aperta (.presenza/<id finestra>.json); i file vecchi vengono rimossi */
+    async readPresence(id) {
+      const e = await entryOf(id);
+      const pd = e && await tryDir(e.dir, WD.presence);
+      return pd ? readPresenceDir(pd) : [];
+    },
+    async writePresence(id, info) {
+      const e = await entryOf(id);
+      if (!e) return;
+      const pd = await tryDir(e.dir, WD.presence, true);
+      await writeFile(pd, info.device + '.json', JSON.stringify(info));
+      for (const o of await readPresenceDir(pd)) {
+        if (Date.now() - Date.parse(o.at) > 12 * 3600000) { try { await pd.removeEntry(o.device + '.json'); } catch (err) { /* già rimosso */ } }
+      }
+    },
+    async clearPresence(id, device) {
+      const e = await entryOf(id);
+      const pd = e && await tryDir(e.dir, WD.presence);
+      if (pd) { try { await pd.removeEntry(device + '.json'); } catch (err) { /* già rimosso */ } }
+    },
+    async readConflictCopy(id, name) {
+      const e = await entryOf(id);
+      const fh = e && await tryFile(e.dir, name);
+      return fh ? (await fh.getFile()).text() : null;
+    },
+    async removeConflictCopy(id, name) { const e = await entryOf(id); if (e) await e.dir.removeEntry(name); }
+  };
+  return S;
+}
+
+/* ---------- Scelta della posizione dei progetti ---------- */
+const STORAGE_MODE_KEY = 'storageMode', WORKDIR_KEY = 'workdir';
+async function pickWorkFolder() {
+  try { return await window.showDirectoryPicker({ id: 'idv-progetti', mode: 'readwrite' }); } catch (e) {
+    if (e && e.name === 'AbortError') return null;
+    throw e;
+  }
+}
+async function folderPermission(handle, interactive) {
+  if (!handle || typeof handle.queryPermission !== 'function') return false;
+  try {
+    if ((await handle.queryPermission({ mode: 'readwrite' })) === 'granted') return true;
+    return interactive ? (await handle.requestPermission({ mode: 'readwrite' })) === 'granted' : false;
+  } catch (e) { return false; }
+}
+async function activateFolderStore(handle) {
+  const fs = createFolderStore(handle);
+  await fs.init();
+  activeStore = fs;
+  pmFolder = '';
+}
+function activateBrowserStore() { activeStore = LocalStore; pmFolder = ''; stopFolderWatch(); }
+async function rememberWorkFolder(handle) {
+  await LocalStore.setMeta(STORAGE_MODE_KEY, 'folder');
+  try { await LocalStore.setMeta(WORKDIR_KEY, handle); } catch (e) {
+    toast('Il browser non può ricordare la cartella scelta: dovrai selezionarla di nuovo al prossimo avvio.', 'warn', 8000);
+  }
+}
+/* All'avvio: accesso alla cartella di lavoro (il browser chiede conferma a ogni sessione) */
+async function startupFolder() {
+  if ((await LocalStore.getMeta(STORAGE_MODE_KEY)) !== 'folder') return;
+  let handle = null;
+  try { handle = await LocalStore.getMeta(WORKDIR_KEY); } catch (e) { handle = null; }
+  if (await folderPermission(handle, false)) { await activateFolderStore(handle); return; }
+  const valid = handle && typeof handle.queryPermission === 'function';
+  if (!folderApiAvailable()) {
+    toast('Questo browser non può aprire la cartella di lavoro condivisa: usa Chrome o Microsoft Edge. Per ora stai usando l’archivio del browser.', 'warn', 12000);
+    return;
+  }
+  let chosen = null;
+  const v = await showModal({
+    title: 'Cartella di lavoro condivisa',
+    body: [h('p', null, valid ? 'I progetti sono nella cartella ' : 'Scegli la cartella di lavoro condivisa ', valid ? h('b', null, '«' + handle.name + '»') : '(es. OneDrive o Teams)', valid ? '. Per sicurezza il browser chiede di confermare l’accesso alla cartella all’avvio.' : ': il browser non ricorda più quella usata in precedenza.'),
+      h('p', { class: 'muted small' }, 'Se il browser lo propone, scegli “Consenti a ogni visita” per non doverlo ripetere.')],
+    buttons: [{ label: 'Usa l’archivio del browser', value: 'browser' },
+      { label: valid ? 'Scegli un’altra cartella…' : 'Scegli la cartella…', value: 'pick', cls: valid ? '' : 'primary', validate: async () => { chosen = await pickWorkFolder(); return !!chosen; } }]
+      .concat(valid ? [{ label: 'Consenti accesso a «' + handle.name + '»', value: 'grant', cls: 'primary', validate: async () => { const ok = await folderPermission(handle, true); if (!ok) toast('Accesso alla cartella non consentito.', 'warn'); return ok; } }] : [])
+  });
+  if (v === 'grant') { await activateFolderStore(handle); return; }
+  if (v === 'pick' && chosen) { await activateFolderStore(chosen); await rememberWorkFolder(chosen); return; }
+  toast('Stai usando l’archivio di questo browser. La cartella condivisa resta configurata: la riapri da Progetti → Posizione.', 'info', 8000);
+}
+/* Apre l'ultimo progetto della posizione attiva (o il più recente; se non ce ne sono ne crea uno) */
+async function openLastProjectOfStore(opts) {
+  const list = (await Store.listProjects()).filter((p) => !p.deleted && !p.broken).sort((a, b) => (a.updated < b.updated ? 1 : -1));
+  const last = await Store.getMeta('lastProject');
+  let id = list.some((p) => p.id === last) ? last : (list.length ? list[0].id : null);
+  let created = false;
+  if (!id) { id = await createProject('Nuovo progetto', '', 'empty'); created = true; }
+  project = null;
+  await openProject(id, Object.assign({ silent: true }, opts || {}));
+  return created;
+}
+/* Finestra "Dove salvare i progetti" */
+async function openStorageDialog() {
+  await flushSave();
+  const inFolder = Store.mode === 'folder';
+  const api = folderApiAvailable();
+  const localList = (await LocalStore.listProjects()).filter((p) => !p.deleted);
+  const body = [
+    h('div', { class: 'stg-opt' + (!inFolder ? ' on' : '') }, h('b', null, '💻 Archivio di questo browser'),
+      h('div', { class: 'muted small' }, 'I progetti restano solo su questo computer (' + plural(localList.length, 'progetto', 'progetti') + '). Per spostarli si usano esportazione JSON, backup o GitHub.')),
+    h('div', { class: 'stg-opt' + (inFolder ? ' on' : '') }, h('b', null, '📁 Cartella di lavoro condivisa' + (inFolder ? ': «' + Store.name + '»' : '')),
+      h('div', { class: 'muted small' }, 'Consigliato per lavorare da più computer e in team: i progetti sono file in una cartella sincronizzata (OneDrive, Teams/SharePoint, cartella di rete). Ogni computer apre la stessa cartella; il servizio di sincronizzazione dell’azienda la mantiene allineata.'),
+      api ? null : h('div', { class: 'msg-box warn', style: { marginTop: '6px', marginBottom: '0' } }, 'Questo browser non lo consente: usa Google Chrome o Microsoft Edge.')),
+    h('div', { class: 'msg-box info', style: { marginTop: '10px' } }, h('b', null, 'Cartelle di Teams: '), 'in Teams apri la scheda File del canale e scegli “Aggiungi collegamento a OneDrive” (o “Sincronizza”): la cartella compare in Esplora file sotto OneDrive dell’azienda e si può scegliere qui.')
+  ];
+  const buttons = [{ label: 'Chiudi', value: null }];
+  if (inFolder) buttons.push({ label: 'Usa l’archivio del browser', value: 'browser' }, { label: 'Cambia cartella…', value: 'pick', cls: 'primary' });
+  else if (api) buttons.push({ label: 'Usa una cartella condivisa…', value: 'pick', cls: 'primary' });
+  let chosen = null;
+  buttons.forEach((b) => { if (b.value === 'pick') b.validate = async () => { chosen = await pickWorkFolder(); return !!chosen; }; });
+  const v = await showModal({ title: 'Dove salvare i progetti', wide: true, body, buttons });
+  if (v === 'browser') {
+    await flushSave();
+    activateBrowserStore();
+    await LocalStore.setMeta(STORAGE_MODE_KEY, 'browser');
+    await openLastProjectOfStore();
+    toast('Ora stai usando l’archivio di questo browser.', 'ok');
+    openProjectManager();
+    return;
+  }
+  if (v === 'pick' && chosen) await useWorkFolder(chosen);
+}
+/* Attiva una cartella condivisa, con la possibilità di copiarvi i progetti del browser */
+async function useWorkFolder(handle) {
+  await flushSave();
+  const fs = createFolderStore(handle);
+  await fs.init();
+  const there = await fs.listProjects();
+  const ids = new Set(there.map((p) => p.id));
+  const local = (await LocalStore.listProjects()).filter((p) => !p.deleted && !ids.has(p.id)).sort((a, b) => cmpNat(a.name, b.name));
+  const checks = local.map((p) => ({ p, cb: h('input', { type: 'checkbox', checked: there.length === 0 }) }));
+  const ok = await showModal({
+    title: 'Cartella «' + handle.name + '»', wide: true,
+    body: [h('p', null, there.length ? 'La cartella contiene già ' + plural(there.length, 'progetto', 'progetti') + ': ' + there.slice(0, 8).map((p) => p.name).join(', ') + (there.length > 8 ? '…' : '') + '.' : 'La cartella non contiene ancora progetti.'),
+      local.length ? h('div', null, h('p', null, h('b', null, 'Copia nella cartella anche questi progetti del browser'), ' (con versioni, allegati e storico; restano anche nel browser come copia di sicurezza):'),
+        h('div', { class: 'stg-list' }, checks.map((c) => h('label', { class: 'fp-row' }, c.cb, h('span', null, c.p.name), h('span', { class: 'muted small' }, (c.p.folder ? '📁 ' + c.p.folder + ' · ' : '') + countsText(c.p.counts)))))) : null,
+      h('p', { class: 'muted small' }, 'Ogni progetto diventa una sottocartella con il file progetto.idvproj, gli allegati e le versioni. Le cartelle dei progetti puoi organizzarle anche da Esplora file.')],
+    buttons: [{ label: 'Annulla', value: false }, { label: 'Usa questa cartella', value: true, cls: 'primary' }]
+  });
+  if (!ok) return;
+  activeStore = fs;
+  pmFolder = '';
+  let n = 0;
+  for (const c of checks) {
+    if (!c.cb.checked) continue;
+    const payload = await buildProjectPayload(c.p.id, { attachments: true, versions: true, log: true, record: true }, LocalStore);
+    const prep = prepareImport(payload, c.p.name, true);
+    if (!prep || prep.error) { toast('“' + c.p.name + '” non copiato: ' + (prep ? prep.error : 'non valido'), 'warn', 7000); continue; }
+    await storeImportedProject(payload, prep, { newId: c.p.id, folder: c.p.folder || '', keepGithub: true }, 'archivio del browser');
+    n++;
+  }
+  await rememberWorkFolder(handle);
+  await openLastProjectOfStore();
+  toast('Cartella di lavoro attiva: «' + handle.name + '»' + (n ? ' · ' + plural(n, 'progetto copiato', 'progetti copiati') : ''), 'ok', 6000);
+  openProjectManager();
+}
+
+/* ---------- Modifiche di altri utenti, conflitti e presenza (solo cartella condivisa) ---------- */
+let watchTimer = 0, presenceTimer = 0, extAsking = false, extIgnore = 0, conflictOpen = false, saveConflict = null;
+function stopFolderWatch() { clearInterval(watchTimer); clearInterval(presenceTimer); watchTimer = 0; presenceTimer = 0; }
+function startFolderWatch() {
+  stopFolderWatch();
+  if (Store.mode !== 'folder' || !project) return;
+  watchTimer = setInterval(() => { checkExternalChange().catch(() => {}); }, 15000);
+  const tick = () => { if (project && Store.mode === 'folder') Store.writePresence(project.id, { user: prefs.user || 'utente senza nome', device: DEVICE_ID, at: new Date().toISOString() }).catch(() => {}); };
+  tick();
+  presenceTimer = setInterval(tick, PRESENCE_MS);
+}
+async function checkExternalChange() {
+  if (!project || Store.mode !== 'folder' || extAsking || conflictOpen || saveConflict || project.pending || saveTimer || isModalOpen()) return;
+  const info = await Store.checkExternal(project.id);
+  if (!info || info.lm === extIgnore) return;
+  extAsking = true;
+  const v = await showModal({
+    title: 'Progetto aggiornato da un altro utente',
+    body: [h('p', null, h('b', null, info.by), ' ha salvato «' + state.meta.name + '» alle ' + fmtDate(info.at) + ' (cartella condivisa).'),
+      h('p', { class: 'muted' }, 'Ricarica per vedere le sue modifiche. Se continui senza ricaricare, al prossimo salvataggio ti verrà chiesto come risolvere il conflitto.')],
+    buttons: [{ label: 'Più tardi', value: null }, { label: 'Ricarica il progetto', value: 'reload', cls: 'primary' }]
+  });
+  extAsking = false;
+  if (v === 'reload') { if (await guardDirty()) await openProject(project.id, { keepView: true, silent: true }); }
+  else extIgnore = info.lm;
+}
+function presenceFresh(p) { return !!p && p.device !== DEVICE_ID && !!p.at && Date.now() - Date.parse(p.at) < PRESENCE_STALE_MS; }
+/* Altre finestre (di altri utenti o computer) che hanno il progetto aperto adesso */
+function othersOpen(list) {
+  const seen = new Set();
+  return (Array.isArray(list) ? list : []).filter(presenceFresh).filter((p) => { if (seen.has(p.device)) return false; seen.add(p.device); return true; });
+}
+/* Salvataggio rifiutato perché un altro utente ha salvato nel frattempo */
+async function resolveSaveConflict() {
+  if (!saveConflict || conflictOpen || !project) return;
+  conflictOpen = true;
+  const c = saveConflict;
+  const v = await showModal({
+    title: 'Conflitto: progetto modificato da un altro utente',
+    body: [h('p', null, h('b', null, c.by), ' ha salvato «' + state.meta.name + '» alle ' + fmtDate(c.at) + ' mentre lo stavi modificando: le tue ultime modifiche non sono ancora state scritte nella cartella condivisa.'),
+      h('ul', null,
+        h('li', null, h('b', null, 'Apri la sua versione'), ': ricarica il progetto; le tue modifiche restano disponibili come versione (Progetti → Versioni).'),
+        h('li', null, h('b', null, 'Salva le mie come copia'), ': le tue modifiche diventano un progetto separato nella stessa cartella.'),
+        h('li', null, h('b', null, 'Sovrascrivi'), ': salva le tue modifiche; la sua versione viene conservata come versione.'))],
+    buttons: [{ label: 'Decidi dopo', value: null }, { label: 'Sovrascrivi', value: 'force' }, { label: 'Salva le mie come copia', value: 'copy' }, { label: 'Apri la sua versione', value: 'theirs', cls: 'primary' }]
+  });
+  conflictOpen = false;
+  if (!v) { setSaveState('conflict'); return; }
+  const mine = projectRecord(project.id, state, { folder: project.folder, github: project.github, log: project.log.slice(), created: project.created });
+  const pid = project.id;
+  if (v === 'theirs') {
+    await addVersion(mine, 'Mie modifiche non salvate (conflitto con ' + c.by + ')', false);
+    saveConflict = null; project.pending = null;
+    Store.resetKnown(pid);
+    await openProject(pid, { keepView: true, silent: true });
+    toast('Aperta la versione di ' + c.by + '. Le tue modifiche sono tra le versioni del progetto.', 'ok', 7000);
+  } else if (v === 'copy') {
+    const st = JSON.parse(mine.json);
+    st.meta.name = state.meta.name + ' (copia di ' + (prefs.user || 'utente') + ')';
+    const nid = newUid('prj');
+    const rec = projectRecord(nid, st, { folder: project.folder, created: new Date().toISOString(), log: withLog(project.log, 'Copia creata per un conflitto con ' + c.by) });
+    saveConflict = null; project.pending = null;
+    Store.resetKnown(pid);
+    await Store.putProject(rec);
+    await copyProjectFiles(pid, nid);
+    await addVersion(rec, 'Copia per conflitto con ' + c.by, false);
+    await openProject(nid, { keepView: true, silent: true });
+    toast('Le tue modifiche sono nel progetto «' + st.meta.name + '».', 'ok', 7000);
+  } else if (v === 'force') {
+    Store.resetKnown(pid);
+    const theirs = await Store.getProject(pid);
+    if (theirs) await addVersion(theirs, 'Versione di ' + c.by + ' sostituita', false);
+    await Store.putProject(mine, { force: true });
+    saveConflict = null; project.pending = null;
+    lastSavedAt = new Date();
+    setSaveState('saved');
+    toast('Modifiche salvate. La versione di ' + c.by + ' è conservata tra le versioni.', 'ok', 7000);
+  }
+}
+/* Copia in conflitto creata da OneDrive (es. progetto-PC123.idvproj): importata come progetto separato */
+async function importConflictCopy(pid, name) {
+  const text = await Store.readConflictCopy(pid, name);
+  if (!text) return;
+  let raw;
+  try { raw = JSON.parse(text); } catch (e) { toast('La copia “' + name + '” non è leggibile.', 'err'); return; }
+  const rec = await Store.getProject(pid);
+  const prep = prepareImport(raw, name);
+  if (!prep) return;
+  const id = await storeImportedProject(raw, prep, { nameSuffix: ' (copia in conflitto)', folder: rec ? rec.folder : '' }, 'copia in conflitto ' + name);
+  await Store.removeConflictCopy(pid, name);
+  await copyProjectFiles(pid, id);
+  toast('La copia in conflitto è ora il progetto «' + prep.name + ' (copia in conflitto)»: confrontala e conserva quello corretto.', 'ok', 8000);
+  openProjectManager();
+}
 
 /* Copia gli allegati di un progetto in un altro (duplicazione) */
 async function copyProjectFiles(fromId, toId) {
@@ -1562,6 +2156,7 @@ function sanitizeLog(arr) {
 const withLog = (log, action) => sanitizeLog(log).concat([logEntry(action)]).slice(-MAX_LOG);
 
 function storageLabel() {
+  if (Store.mode === 'folder') return 'cartella condivisa «' + Store.name + '»';
   return { idb: 'archivio del browser (IndexedDB)', ls: 'archivio del browser (localStorage, spazio limitato)', memory: 'memoria temporanea: i dati NON vengono conservati' }[Store.mode] || '—';
 }
 function projectCounts(st) {
@@ -1584,39 +2179,58 @@ function projectRecord(id, st, extra) {
 function setSaveState(kind) {
   const el = byId('saveState');
   if (!el) return;
-  el.classList.toggle('err', kind === 'error');
+  el.classList.toggle('err', kind === 'error' || kind === 'conflict');
   el.classList.toggle('busy', kind === 'saving');
+  el.classList.toggle('clickable', kind === 'conflict');
+  if (kind === 'conflict') {
+    el.textContent = '⚠ Conflitto: clic per risolvere';
+    el.title = 'Un altro utente ha salvato questo progetto nella cartella condivisa mentre lo modificavi.';
+    return;
+  }
   if (kind === 'saving') el.textContent = 'Salvataggio…';
   else if (kind === 'error') el.textContent = '⚠ Non salvato';
   else el.textContent = lastSavedAt ? '✓ Salvato ' + lastSavedAt.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '✓ Salvato';
   el.title = (kind === 'error' ? 'Ultimo salvataggio non riuscito: ' + (lastSaveError && lastSaveError.message ? lastSaveError.message : '') + '\n' : '') +
-    'Salvataggio automatico ad ogni modifica nell’' + storageLabel() + '.\nCopie di sicurezza: Esporta JSON, Progetti → Backup completo, oppure GitHub.';
+    'Salvataggio automatico ad ogni modifica nella posizione attiva: ' + storageLabel() + '.\nCopie di sicurezza: Esporta JSON, Progetti → Backup completo, oppure GitHub.';
 }
-/* Salvataggio automatico del progetto aperto: chiamato dopo ogni modifica */
+/* Salvataggio automatico del progetto aperto: chiamato dopo ogni modifica.
+   Nella cartella condivisa le scritture sono raggruppate (1,2 s) per non sovraccaricare la sincronizzazione. */
+let saveTimer = 0;
 function saveModel() {
   if (!project) return undefined;
-  const seq = ++saveSeq;
   if (prefs.user) state.meta.modifiedBy = prefs.user;
-  const rec = projectRecord(project.id, state, { folder: project.folder, github: project.github, log: project.log.slice(), created: project.created || state.meta.created });
-  project.pending = rec;
-  setSaveState('saving');
+  project.pending = projectRecord(project.id, state, { folder: project.folder, github: project.github, log: project.log.slice(), created: project.created || state.meta.created });
+  setSaveState(saveConflict ? 'conflict' : 'saving');
+  clearTimeout(saveTimer);
+  if (Store.mode === 'folder') { saveTimer = setTimeout(queueSave, 1200); return saveChain; }
+  return queueSave();
+}
+function queueSave() {
+  clearTimeout(saveTimer);
+  saveTimer = 0;
+  if (!project || !project.pending || saveConflict) return saveChain;
+  const rec = project.pending;
+  const seq = ++saveSeq;
   saveChain = saveChain.then(() => Store.putProject(rec)).then(() => {
     savedSeq = Math.max(savedSeq, seq);
-    if (savedSeq === saveSeq) { if (project && project.id === rec.id) project.pending = null; lastSavedAt = new Date(); lastSaveError = null; setSaveState('saved'); }
+    if (project && project.id === rec.id && project.pending === rec) project.pending = null;
+    if (savedSeq === saveSeq) { lastSavedAt = new Date(); lastSaveError = null; setSaveState('saved'); }
     if (bc) bc.postMessage({ type: 'saved', id: rec.id, tab: TAB_ID, at: rec.updated });
     return maybeAutoVersion(rec);
   }).catch((e) => {
+    if (e && e.conflict) { saveConflict = e.conflict; setSaveState('conflict'); resolveSaveConflict().catch(reportError); return; }
     lastSaveError = e;
     setSaveState('error');
     toast('Salvataggio non riuscito (' + (e && e.message ? e.message : e) + '). Esporta subito una copia in JSON.', 'err', 10000);
   });
   return saveChain;
 }
-function flushSave() { return saveChain.catch(() => {}); }
+function flushSave() { if (saveTimer) queueSave(); return saveChain.catch(() => {}); }
+const storeTag = () => (Store.mode === 'folder' ? 'folder:' + Store.name : 'browser');
 /* Alla chiusura della pagina: se un salvataggio non è ancora concluso, se ne lascia una copia di emergenza */
 function writeEmergencyCopy() {
   if (!project || !project.pending) return;
-  try { localStorage.setItem(EMERGENCY_KEY, JSON.stringify({ rec: project.pending })); } catch (e) { /* spazio esaurito */ }
+  try { localStorage.setItem(EMERGENCY_KEY, JSON.stringify({ rec: project.pending, store: storeTag() })); } catch (e) { /* spazio esaurito */ }
 }
 /* Aggiorna i metadati di un record (cartella, GitHub, registro) senza toccare i dati del progetto */
 async function updateRecord(id, fn) {
@@ -1651,9 +2265,28 @@ function showTooNew(name, schema) {
 /* Apertura di un progetto dall'archivio (con migrazione automatica del formato dei dati) */
 async function openProject(id, opts) {
   opts = opts || {};
+  if (saveConflict && project) { await resolveSaveConflict(); if (saveConflict) return false; }
   await flushSave();
   const rec = await Store.getProject(id);
   if (!rec) throw new Error('progetto non trovato nell’archivio');
+  if (Store.mode === 'folder' && (!project || project.id !== id)) {
+    const others = othersOpen(await Store.readPresence(id).catch(() => []));
+    if (others.length) {
+      const pr = others[0];
+      const who = Array.from(new Set(others.map((o) => o.user))).join(', ') + (others.some((o) => o.user === prefs.user) ? ' (forse tu da un altro computer)' : '');
+      if (opts.silent) toast('«' + rec.name + '» risulta aperto anche da ' + who + ': evitate di modificarlo contemporaneamente.', 'warn', 9000);
+      else {
+        const r = await confirmDialog({
+          title: 'Progetto già aperto da ' + who,
+          body: [h('p', null, '«' + rec.name + '» risulta aperto da ', h('b', null, who), ' (ultima attività alle ' + fmtDate(pr.at) + ').'),
+            h('p', { class: 'muted' }, 'Due persone che modificano contemporaneamente lo stesso progetto generano conflitti: concordate chi lo modifica. Puoi comunque aprirlo per consultarlo.')],
+          confirmLabel: 'Apri comunque'
+        });
+        if (!r.ok) return false;
+      }
+    }
+    if (project && project.id !== id) Store.clearPresence(project.id, DEVICE_ID).catch(() => {});
+  }
   let res;
   try { res = normalizeData(JSON.parse(rec.json)); } catch (e) { res = { errors: [e.message] }; }
   if (res.tooNew) { showTooNew(rec.name, res.tooNew); return false; }
@@ -1666,7 +2299,8 @@ async function openProject(id, opts) {
   if (!opts.keepModal) closeModal(null);
   closePanel(true);
   project = { id: rec.id, pending: null, folder: rec.folder || '', github: rec.github || null, log: sanitizeLog(rec.log), created: rec.created };
-  bcKeep = false;
+  bcKeep = false; saveConflict = null; extIgnore = 0;
+  startFolderWatch();
   state = res.data;
   state.meta.name = rec.name || state.meta.name;
   history.past.length = 0; history.future.length = 0;
@@ -1718,10 +2352,15 @@ async function recoverEmergencyCopy() {
   let em = null;
   try { em = JSON.parse(localStorage.getItem(EMERGENCY_KEY) || 'null'); } catch (e) { em = null; }
   if (!em || !em.rec || !em.rec.id) return;
+  if ((em.store || 'browser') !== storeTag()) return;   // appartiene all'altra posizione: si recupera quando sarà attiva
   const cur = await Store.getProject(em.rec.id);
   if (!cur || (cur.updated || '') < (em.rec.updated || '')) {
     await Store.putProject(em.rec);
     toast('Recuperate le ultime modifiche del progetto “' + em.rec.name + '” non ancora salvate alla chiusura.', 'warn', 8000);
+  } else if (cur.json !== em.rec.json) {
+    // nel frattempo il progetto è stato salvato da un altro utente: le modifiche rimaste diventano una versione
+    await addVersion(em.rec, 'Modifiche non salvate alla chiusura (recuperate)', false);
+    toast('Il progetto “' + em.rec.name + '” è stato aggiornato da ' + (cur.updatedBy || 'un altro utente') + ': le tue ultime modifiche non salvate sono tra le versioni del progetto.', 'warn', 10000);
   }
   localStorage.removeItem(EMERGENCY_KEY);
 }
@@ -1803,6 +2442,12 @@ async function renameFolderDialog() {
   openProjectManager();
 }
 async function moveFolderPrefix(from, to) {
+  if (Store.moveFolder) {
+    await flushSave();
+    await Store.moveFolder(from, to);
+    if (project) { const r = await Store.getProject(project.id); if (r) project.folder = r.folder; }
+    return;
+  }
   const re = (p) => (p === from ? to : (p.indexOf(from + '/') === 0 ? to + p.slice(from.length) : p));
   await setFolders((await getFolders()).map(re).concat(folderAncestors(to)));
   for (const p of await Store.listProjects()) {
@@ -1851,10 +2496,11 @@ function referencedFids(datas) {
   return s;
 }
 /* Contenuto completo di un progetto: dati, registro, versioni, allegati (in base64) */
-async function buildProjectPayload(pid, opts) {
+async function buildProjectPayload(pid, opts, store) {
+  const S = store || Store;
   opts = Object.assign({ attachments: true, versions: true, log: true }, opts || {});
   await flushSave();
-  const rec = await Store.getProject(pid);
+  const rec = await S.getProject(pid);
   if (!rec) throw new Error('progetto non trovato');
   const data = JSON.parse(rec.json);
   const out = {
@@ -1867,8 +2513,8 @@ async function buildProjectPayload(pid, opts) {
   const vdata = [];
   if (opts.versions) {
     out.versions = [];
-    for (const v of await Store.listVersions(pid)) {
-      const full = await Store.getVersion(v.vid);
+    for (const v of await S.listVersions(pid)) {
+      const full = await S.getVersion(v.vid);
       let d = null;
       try { d = full ? JSON.parse(full.json) : null; } catch (e) { d = null; }
       if (!d) continue;
@@ -1879,7 +2525,7 @@ async function buildProjectPayload(pid, opts) {
   if (opts.attachments) {
     out.attachments = {};
     for (const fid of referencedFids([data].concat(vdata))) {
-      const f = await Store.getFile(pid, fid);
+      const f = await S.getFile(pid, fid);
       if (f && f.blob) out.attachments[fid] = { name: f.name, type: f.type || '', size: f.size, added: f.added || '', by: f.by || '', data: await blobToBase64(f.blob) };
     }
   }
@@ -2206,7 +2852,7 @@ async function newProjectDialog(fromManager) {
     { key: 'program', label: 'Programma / cliente', placeholder: 'es. Programma Y' },
     { key: 'folder', label: 'Cartella', options: [{ value: '', label: '(nessuna cartella)' }].concat(paths.map((p) => ({ value: p, label: p }))), value: fromManager === true ? pmFolder : '' },
     { key: 'template', label: 'Contenuto iniziale', options: [{ value: 'empty', label: 'Progetto vuoto' }, { value: 'demo', label: 'Copia dello schema dimostrativo' }], value: 'empty' }
-  ], 'Crea e apri', 'Il progetto viene salvato automaticamente nell’archivio del browser ed è indipendente dagli altri progetti.');
+  ], 'Crea e apri', Store.mode === 'folder' ? 'Il progetto viene salvato automaticamente come sottocartella della cartella condivisa «' + Store.name + '» ed è indipendente dagli altri progetti.' : 'Il progetto viene salvato automaticamente nell’archivio del browser ed è indipendente dagli altri progetti.');
   if (!v) { if (fromManager === true) openProjectManager(); return; }
   const id = await createProject(v.name, v.program, v.template, v.folder);
   await openProject(id);
@@ -2248,15 +2894,21 @@ async function openProjectManager() {
   const rows = shown.map((p) => {
     const cur = project && p.id === project.id;
     const gs = ghStatusText(p);
+    const busy = othersOpen(p.openBy);
+    const notes = [];
+    if (busy.length) notes.push(h('div', { class: 'pm-busy', title: 'Ultima attività ' + fmtDate(busy[0].at) }, '● aperto' + (cur ? ' anche' : '') + ' da ' + Array.from(new Set(busy.map((o) => o.user))).join(', ')));
+    (p.conflictCopies || []).forEach((n) => notes.push(h('div', { class: 'pm-warn' }, '⚠ copia in conflitto creata dalla sincronizzazione: ' + n + ' ',
+      h('button', { type: 'button', class: 'btn xs', onclick: safely(() => importConflictCopy(p.id, n)) }, 'Importa come progetto separato'))));
+    if (p.broken) notes.push(h('div', { class: 'pm-warn' }, '⚠ file progetto.idvproj non leggibile (' + p.broken + ')'));
     const more = h('button', { type: 'button', class: 'btn xs', title: 'Altre azioni', 'aria-label': 'Altre azioni per ' + p.name }, '⋯');
     more.addEventListener('click', (e) => { e.stopPropagation(); rowMenu(p, more); });
     return h('tr', { class: cur ? 'pm-current' : null, 'data-pid': p.id },
       h('td', null, h('div', { class: 'pm-name' }, p.name, cur ? h('span', { class: 'pill st-approved', style: { marginLeft: '8px' } }, 'aperto') : null),
-        h('div', { class: 'muted small' }, [p.program, !pmFolder || p.folder !== pmFolder ? (p.folder ? '📁 ' + p.folder : '') : ''].filter(Boolean).join(' · '))),
+        h('div', { class: 'muted small' }, [p.program, !pmFolder || p.folder !== pmFolder ? (p.folder ? '📁 ' + p.folder : '') : ''].filter(Boolean).join(' · ')), notes),
       h('td', { class: 'small' }, countsText(p.counts)),
       h('td', { class: 'small nowrap' }, fmtDate(p.updated), p.updatedBy ? h('div', { class: 'muted' }, p.updatedBy) : null),
       h('td', { class: 'small' }, gs ? [h('div', null, gs.text), h('div', { class: gs.ok ? 'muted' : 'pm-warn' }, gs.sub)] : h('span', { class: 'muted' }, '—')),
-      h('td', { class: 'act' }, cur ? null : act('Apri', () => openProject(p.id), 'primary'), act('Versioni', () => openVersionsDialog(p.id)), more));
+      h('td', { class: 'act' }, cur || p.broken ? null : act('Apri', () => openProject(p.id), 'primary'), p.broken ? null : act('Versioni', () => openVersionsDialog(p.id)), p.broken ? null : more));
   });
   // albero delle cartelle
   const countIn = (f) => live.filter((p) => inFolder(p, f)).length;
@@ -2274,6 +2926,9 @@ async function openProjectManager() {
   const daysSince = lastBackup ? Math.floor((Date.now() - Date.parse(lastBackup)) / 86400000) : null;
   const backupWarn = live.length && (daysSince === null || daysSince > 7);
   const body = [
+    h('div', { class: 'pm-loc' },
+      h('span', null, h('span', { class: 'muted' }, 'Posizione dei progetti: '), h('b', null, Store.mode === 'folder' ? '📁 cartella condivisa «' + Store.name + '»' : '💻 archivio di questo browser')),
+      h('button', { type: 'button', class: 'btn xs', onclick: safely(openStorageDialog), title: 'Archivio del browser oppure cartella condivisa (OneDrive, Teams, rete)' }, 'Cambia…')),
     h('div', { class: 'row-actions', style: { marginTop: '0', marginBottom: '10px' } },
       h('button', { type: 'button', class: 'btn primary', onclick: safely(() => newProjectDialog(true)) }, '+ Nuovo progetto'),
       h('button', { type: 'button', class: 'btn', onclick: () => byId('fileProject').click(), title: 'Importa un progetto (.json / .idvproj) oppure un backup completo' }, 'Importa JSON…'),
@@ -2292,12 +2947,14 @@ async function openProjectManager() {
         h('td', { class: 'small' }, countsText(p.counts)),
         h('td', { class: 'act' }, act('Ripristina', () => restoreProject(p.id)), act('Elimina definitivamente', () => purgeProject(p.id), 'danger'))))))) : null,
     h('div', { class: 'msg-box ' + (Store.mode === 'memory' || backupWarn ? 'warn' : 'info'), style: { marginTop: '12px', marginBottom: '0' } },
-      h('b', null, 'Dove sono salvati i dati: '), storageLabel() + ' di questo computer, separato dal codice dell’applicazione. ',
-      ss.persisted === true ? 'Il browser lo conserva in modo persistente. ' : (ss.persisted === false ? 'Il browser potrebbe liberare spazio se il disco si riempie. ' : ''),
-      ss.usage != null ? 'Spazio usato: ' + (ss.usage / 1048576).toFixed(1).replace('.', ',') + ' MB. ' : '',
+      h('b', null, 'Dove sono salvati i dati: '),
+      Store.mode === 'folder' ? 'cartella condivisa «' + Store.name + '»: ogni progetto è una sottocartella con il file progetto.idvproj, gli allegati e le versioni; il servizio di sincronizzazione (OneDrive, Teams) la mantiene allineata fra i computer. Le preferenze personali restano in questo browser. '
+        : storageLabel() + ' di questo computer, separato dal codice dell’applicazione. ',
+      Store.mode === 'folder' ? '' : ss.persisted === true ? 'Il browser lo conserva in modo persistente. ' : (ss.persisted === false ? 'Il browser potrebbe liberare spazio se il disco si riempie. ' : ''),
+      Store.mode !== 'folder' && ss.usage != null ? 'Spazio usato: ' + (ss.usage / 1048576).toFixed(1).replace('.', ',') + ' MB. ' : '',
       h('br'), h('b', null, 'Ultimo backup completo: '), lastBackup ? fmtDate(lastBackup) + ' (' + (daysSince === 0 ? 'oggi' : plural(daysSince, 'giorno', 'giorni') + ' fa') + '). ' : 'mai. ',
       backupWarn ? 'Consigliato: esegui un backup completo o collega i progetti a GitHub. ' : '',
-      'Svuotare i dati di navigazione cancella l’archivio locale; i backup, le esportazioni JSON e GitHub no.')
+      Store.mode === 'folder' ? 'Il cestino del servizio di sincronizzazione e le versioni del progetto permettono di recuperare file eliminati o modificati per errore.' : 'Svuotare i dati di navigazione cancella l’archivio locale; i backup, le esportazioni JSON e GitHub no.')
   ];
   showModal({ title: 'Progetti', xwide: true, body, buttons: [{ label: 'Chiudi', value: null }] });
 }
@@ -2367,7 +3024,7 @@ async function purgeProject(id) {
   if (!rec) return;
   const r = await confirmDialog({
     title: 'Eliminare definitivamente “' + rec.name + '”?',
-    body: [h('p', null, 'Il progetto, tutte le sue versioni e i suoi allegati verranno cancellati dall’archivio del browser. L’operazione non è reversibile.'),
+    body: [h('p', null, Store.mode === 'folder' ? 'La sottocartella del progetto, con tutte le sue versioni e i suoi allegati, verrà cancellata dalla cartella condivisa «' + Store.name + '» per tutti gli utenti. Il cestino di OneDrive/SharePoint può conservarla per un periodo limitato.' : 'Il progetto, tutte le sue versioni e i suoi allegati verranno cancellati dall’archivio del browser. L’operazione non è reversibile.'),
       h('p', { class: 'muted' }, 'Suggerimento: se potrebbe servire in futuro, ripristinalo ed esportalo prima in JSON.')],
     confirmLabel: 'Elimina definitivamente', danger: true
   });
@@ -7486,13 +8143,27 @@ function openHelp(topic) {
         ['Sul blocco della lavagna una graffetta indica il numero di allegati; la tabella Componenti ha la colonna “Allegati”.'],
         ['Gli allegati sono conservati nell’archivio del progetto (non nel file dell’applicazione), inclusi nell’esportazione JSON, nel backup e su GitHub. Rimuovere un allegato si annulla con Ctrl+Z.'])),
     S('progetti', 'Progetti: dove sono salvati e come sono conservati',
-      P(B('Dove sono i dati. '), 'Ogni progetto è salvato automaticamente, ad ogni modifica, nell’archivio interno del browser (IndexedDB) di questo computer — indicatore “✓ Salvato” in alto. L’archivio è separato dal file dell’applicazione: aggiornare o sostituire IDV_Interface_Manager.html non tocca i progetti, purché venga aperto nello stesso browser e dallo stesso indirizzo (stesso percorso o stesso sito).'),
+      P(B('Dove sono i dati. '), 'Ogni progetto è salvato automaticamente, ad ogni modifica (indicatore “✓ Salvato” in alto), nella posizione scelta in Progetti → ', B('Posizione dei progetti'), ':'),
+      UL([B('📁 Cartella di lavoro condivisa'), ' (consigliata per il lavoro in team e su più computer): una cartella di OneDrive, di Teams/SharePoint sincronizzata o di rete. Ogni progetto è una sottocartella con il file ', B('progetto.idvproj'), ', la cartella ', B('allegati'), ' e la cartella ', B('versioni'), '. Vedi la sezione seguente.'],
+        [B('💻 Archivio di questo browser'), ' (IndexedDB): i progetti restano solo su questo computer e in questo browser; si spostano con Esporta JSON, Backup completo o GitHub. Aggiornare o sostituire IDV_Interface_Manager.html non tocca i progetti, purché venga aperto nello stesso browser e dallo stesso indirizzo (stesso percorso o stesso sito).']),
+      P('In entrambi i casi i dati sono separati dal file dell’applicazione, e valgono le stesse funzioni:'),
       UL([B('Organizzazione'), ': in Progetti puoi creare cartelle e sottocartelle (es. Programma / Veicolo), spostarvi i progetti (menu ⋯), rinominarle ed eliminarle senza perdere i progetti contenuti.'],
         [B('Versioni'), ': create alla creazione del progetto, ogni 20 minuti di lavoro, prima di importazioni, ripristini e aggiornamenti del formato dati, oppure a mano (“Salva versione ora”, ad es. una baseline). “Confronta” mostra cosa è cambiato; “Ripristina” torna a quella versione salvando prima lo stato attuale.'],
         [B('Storico delle modifiche'), ': ogni operazione è registrata con data, utente e descrizione (menu ⋯ → Storico delle modifiche), esportabile in CSV.'],
         [B('Esporta JSON / Importa JSON'), ' (in alto): file completo e autosufficiente con dati, allegati, versioni e storico. Serve per copie di sicurezza, per passare il progetto a un collega o per conservarlo in un sistema di gestione documentale.'],
         [B('Backup completo'), ' (in Progetti): un unico file con tutti i progetti, le cartelle, le versioni e gli allegati; “Ripristina backup” lo reimporta scegliendo cosa fare dei progetti già presenti. La finestra Progetti indica la data dell’ultimo backup.'],
         [B('Cestino'), ': i progetti eliminati restano recuperabili finché non vengono eliminati definitivamente.'])),
+    S('cartella', 'Lavorare in team con una cartella condivisa (OneDrive / Teams)',
+      P('Non serve installare nulla: bastano il file IDV_Interface_Manager.html e ', B('Microsoft Edge o Google Chrome'), ' (gli altri browser non possono scrivere in una cartella del computer).'),
+      UL([B('Preparazione (una volta per il team)'), ': crea in OneDrive o nei File di un canale Teams una cartella, ad es. “IDV Progetti”, e mettici anche il file IDV_Interface_Manager.html. Ognuno, dalla pagina web di Teams/SharePoint, usa “Aggiungi collegamento a I miei file” (in alcune versioni “Aggiungi collegamento a OneDrive”) oppure “Sincronizza”: la cartella compare in Esplora file del proprio computer, sotto OneDrive.'],
+        [B('Collegamento (una volta per computer)'), ': apri il file HTML con Edge o Chrome → Progetti → Posizione dei progetti → ', B('Cambia…'), ' → ', B('Usa una cartella condivisa…'), ' e scegli la cartella sincronizzata. Se nel browser ci sono già progetti, puoi copiarli nella cartella.'],
+        [B('A ogni avvio'), ' il browser chiede di confermare l’accesso alla cartella (“Consenti accesso a «…»”): è una regola di sicurezza del browser. Se compare la scelta, “Consenti a ogni visita” evita di ripeterla. Il browser ricorda la cartella scelta: non serve selezionarla di nuovo.'],
+        [B('Chi sta lavorando'), ': nella finestra Progetti accanto a un progetto compare “● aperto da …” e, aprendo un progetto già aperto da un collega, ricevi un avviso. Imposta il tuo nome in Impostazioni ⚙ perché i colleghi lo vedano, anche nello storico delle modifiche.'],
+        [B('Aggiornamenti dei colleghi'), ': quando un altro utente salva il progetto aperto, compare “Progetto aggiornato da un altro utente” con il pulsante per ricaricarlo.'],
+        [B('Conflitti'), ': se due persone modificano lo stesso progetto contemporaneamente, il salvataggio si ferma e l’indicatore in alto diventa “⚠ Conflitto”. Puoi aprire la versione del collega, salvare le tue modifiche come copia separata oppure sovrascrivere. Le modifiche non vengono mai scartate in silenzio.'],
+        ['Se OneDrive crea una copia di conflitto (es. progetto-NomePC.idvproj), la finestra Progetti la segnala e la importa come progetto separato da confrontare.'],
+        [B('Regola pratica'), ': un progetto = un responsabile delle modifiche alla volta; gli altri lo consultano. Per lavorare in parallelo conviene dividere lo schema in più progetti.'],
+        ['Le preferenze personali (nome utente, vista, zoom) restano nel browser di ciascuno; il token GitHub non viene mai scritto nella cartella condivisa.'])),
     S('github', 'GitHub: repository distinti e versionamento',
       UL(['Ogni progetto può essere collegato a un repository GitHub (anche diverso per ogni programma) dal menu ⋯ → GitHub…: proprietario, repository, ramo e cartella. Più progetti possono convivere nello stesso repository in cartelle diverse.'],
         [B('Invia (commit)'), ': salva nel repository project.json (dati e storico), gli allegati nella cartella attachments e un README di riepilogo, come un unico commit con il tuo messaggio. Se nel frattempo qualcuno ha aggiornato il progetto su GitHub ricevi un avviso prima di procedere.'],
@@ -7504,7 +8175,7 @@ function openHelp(topic) {
         [B('Formato dei dati versionato'), ': ogni progetto e ogni file esportato riportano la versione dell’applicazione (' + APP.version + ') e del formato dati (' + APP.schema + '). Aprendo un progetto creato con una versione precedente, i dati vengono convertiti automaticamente e una copia identica dell’originale viene conservata come versione.'],
         ['Un progetto salvato con una versione più recente dell’applicazione non viene aperto da una copia più vecchia (per evitare perdite di informazioni): basta aggiornare il file HTML.'],
         ['Prima di installare una nuova versione dell’applicazione è buona pratica eseguire un Backup completo (o un invio a GitHub): in caso di problemi si ripristina tutto in pochi secondi.'],
-        ['Per il lavoro in team conviene pubblicare l’applicazione in un indirizzo fisso (es. un sito interno o GitHub Pages) e condividere i progetti tramite GitHub; due persone che modificano contemporaneamente lo stesso progetto vengono avvisate al momento dell’invio.'])),
+        ['Per il lavoro in team: metti il file HTML nella cartella condivisa insieme ai progetti; per aggiornare l’applicazione basta sostituire quel file (dopo un Backup completo). Chi usa GitHub può versionare anche i singoli progetti: due persone che modificano lo stesso progetto vengono avvisate al momento dell’invio.'])),
     h('p', { class: 'muted small', style: { marginTop: '14px' } }, 'IDV Interface Manager · versione applicazione ' + APP.version + ' · formato dati ' + APP.schema + ' · archivio: ' + storageLabel())
   ];
   const toc = h('nav', { class: 'help-toc' }, secs.filter((sec) => sec.querySelector('h3')).map((sec) => h('button', {
@@ -7633,7 +8304,13 @@ function setupGlobalHandlers() {
       if (['component', 'interface', 'cable', 'group'].includes(ui.selected.kind)) { e.preventDefault(); deleteObject(ui.selected.kind, ui.selected.uid); }
     }
   });
-  window.addEventListener('beforeunload', () => { saveUi(); writeEmergencyCopy(); });
+  window.addEventListener('beforeunload', () => {
+    saveUi();
+    writeEmergencyCopy();
+    if (project && Store.mode === 'folder') Store.clearPresence(project.id, DEVICE_ID).catch(() => {});
+  });
+  window.addEventListener('focus', () => { checkExternalChange().catch(() => {}); });
+  byId('saveState').addEventListener('click', () => { if (saveConflict) resolveSaveConflict().catch(reportError); });
   window.addEventListener('pagehide', writeEmergencyCopy);
   window.addEventListener('resize', positionPanel);
 }
@@ -7650,13 +8327,14 @@ async function init() {
     buildTableSections();
     setupGlobalHandlers();
     setSaveState('saving');
-    await Store.init();
+    await LocalStore.init();
+    if (LocalStore.mode === 'idb') await startupFolder();
     await recoverEmergencyCopy();
-    const list = (await Store.listProjects()).filter((p) => !p.deleted).sort((a, b) => (a.updated < b.updated ? 1 : -1));
+    const list = (await Store.listProjects()).filter((p) => !p.deleted && !p.broken).sort((a, b) => (a.updated < b.updated ? 1 : -1));
     const last = await Store.getMeta('lastProject');
     let id = list.some((p) => p.id === last) ? last : (list.length ? list[0].id : null);
     const first = !id;
-    if (first) id = await migrateOrCreateFirstProject();
+    if (first) id = Store.mode === 'folder' ? await createProject('Nuovo progetto', '', 'empty') : await migrateOrCreateFirstProject();
     if (!hadUi || first) ui.fitted = true;
     let opened = await openProject(id, { silent: true, keepView: hadUi && !first });
     if (!opened && list.length > 1) opened = await openProject(list.find((p) => p.id !== id).id, { silent: true });
@@ -7665,6 +8343,7 @@ async function init() {
     window.__idvPaintStatus();
     if (Store.mode === 'memory') toast('Il browser non consente di salvare dati: le modifiche andranno perse alla chiusura. Usa Progetti → Salva su file.', 'err', 12000);
     else if (Store.mode === 'ls') toast('Archivio IndexedDB non disponibile: i progetti sono salvati nel localStorage (spazio limitato).', 'warn', 8000);
+    else if (first && Store.mode === 'folder') toast('La cartella condivisa non conteneva progetti: è stato creato «Nuovo progetto».', 'info', 7000);
     else if (first) toast('Benvenuto: è stato creato il progetto dimostrativo. Le modifiche vengono salvate automaticamente; da “Progetti” puoi crearne di nuovi.', 'info', 7000);
     requestPersistentStorage();
   } catch (err) {
@@ -7678,7 +8357,7 @@ window.IDV = {
   get routeStats() { return Object.assign({}, lastRouteStats); },
   get routes() { return [...lastItems.values()].map((it) => ({ key: it.key, id: it.L.obj.id, kind: it.L.kind, sA: it.sA, sB: it.sB, manual: it.manual, pts: it.pts.map((q) => [q.x, q.y]) })); },
   get history() { return { past: history.past.map((e) => e.label), future: history.future.map((e) => e.label) }; },
-  get project() { return project ? { id: project.id, name: state.meta.name, storage: Store.mode, folder: project.folder, github: project.github, log: project.log.slice(-50) } : null; },
+  get project() { return project ? { id: project.id, name: state.meta.name, storage: Store.mode, workFolder: Store.mode === 'folder' ? Store.name : null, folder: project.folder, github: project.github, log: project.log.slice(-50), pending: !!project.pending, conflict: saveConflict } : null; },
   version: APP.version, schema: APP.schema,
   flush: () => flushSave()
 };
