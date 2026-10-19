@@ -2,6 +2,43 @@
 
 Ogni versione dell'applicazione indica il formato dei dati (`schema`) che produce. I progetti salvati con un formato precedente vengono convertiti automaticamente all'apertura. Prima della conversione viene conservata una copia identica dei dati originali come versione del progetto.
 
+## 3.2 — formato dati 4
+
+**Lavagna**
+- Etichette dei collegamenti (interfacce e cavi) spostabili con il mouse. Restano agganciate alla loro linea e la seguono quando si spostano i blocchi. Clic destro → "Ripristina posizione automatica dell'etichetta".
+- Spostamento di precisione con le frecce della tastiera (Maiusc = passi da 10) per:
+  - blocchi;
+  - gruppi;
+  - etichette (con la linea selezionata);
+  - punti di instradamento (con il punto selezionato).
+
+  Pressioni consecutive sullo stesso elemento si annullano con un solo Ctrl+Z.
+- Trascinamento dei blocchi sulla griglia di 10; con Alt premuto lo spostamento è libero.
+- Un clic su un blocco apre la scheda lasciando il cursore sulla lavagna, così le frecce spostano subito il blocco.
+
+**Schede più semplici**
+- Le coordinate X/Y non compaiono più nella scheda e nella tabella dei componenti: la posizione si cambia solo sulla lavagna. Salvare una scheda non riporta più indietro un blocco spostato mentre era aperta.
+- L'etichetta della porta è facoltativa.
+- Tolti dall'interfaccia tipo di cavo, lunghezza e schermatura (scheda, tabella, etichette e controlli). I valori già inseriti restano nei dati del progetto.
+
+**Valori nuovi dai menu a tendina**
+- Ogni menu delle schede termina con "＋ Aggiungi…", che aggiunge un valore all'elenco del progetto e lo seleziona. Vale per:
+  - dominio e owner;
+  - tipo di porta;
+  - stato;
+  - tipo, origine e metodo di verifica dei requisiti;
+  - categoria e sottotipo dell'interfaccia.
+- Nei menu di oggetti la voce crea l'oggetto: "＋ Nuovo componente…", "＋ Nuova porta…", "＋ Nuovo gruppo…".
+- I valori nuovi scritti nei campi con suggerimenti (protocollo, connettori) vengono aggiunti ai suggerimenti al salvataggio.
+- Stati e liste dei requisiti sono ora elenchi modificabili in Impostazioni.
+
+**Cartella di lavoro condivisa**
+- Rinominando un progetto si rinomina anche la sua sottocartella. Gli altri computer che hanno il progetto aperto lo ritrovano nella nuova posizione.
+
+**Migrazione dal formato 3**
+- Aggiunti gli elenchi configurabili degli stati di componenti, interfacce e cavi e degli stati, tipi, origini e metodi di verifica dei requisiti, con i valori usati finora.
+- Aggiunta la posizione delle etichette spostate a mano (vuota per i progetti esistenti).
+
 ## 3.1 — formato dati 3
 
 **Cartella di lavoro condivisa (OneDrive / Teams)**

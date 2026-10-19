@@ -452,7 +452,9 @@ table.grid td.act { white-space: nowrap; text-align: right; }
 .link-g.related .link-if { stroke-width: 2.9; }
 .link-g.related .link-cbl { stroke: #0d1822; stroke-width: 1.8; }
 .link-g.dim, .lbl.dim { opacity: .18; }
-.lbl { cursor: pointer; }
+.lbl { cursor: move; }
+.lbl.manual rect { stroke-dasharray: none; }
+svg.label-move, svg.label-move * { cursor: grabbing !important; }
 .lbl rect { fill: #fff; stroke-width: .9; }
 .lbl text { font-size: 10.5px; font-weight: 600; }
 .lbl .lbl-id { font: 700 10px var(--mono); }
@@ -507,6 +509,7 @@ table.grid td.act { white-space: nowrap; text-align: right; }
 .fld-hint { font-size: 11.5px; color: var(--muted); }
 .inline-row { display: flex; gap: 6px; align-items: center; }
 .inline-row .inp { flex: 1; }
+option.opt-add { color: var(--primary); font-weight: 600; }
 .sp-section { margin-top: 20px; }
 .sp-section > h3 {
   font-size: 13px; margin: 0 0 8px; display: flex; align-items: center; gap: 8px;
@@ -770,7 +773,7 @@ table.n2 td .chip { margin: 1px; }
         <button type="button" class="btn sm" id="btnExportSvg" title="Esporta lo schema in formato SVG vettoriale, con cartiglio">Esporta SVG</button>
       </div>
       <div class="board-legend" id="boardLegend"></div>
-      <div class="board-hint" id="boardHint">Trascina i blocchi per spostarli · trascina tratti e punti (●) di una linea per modificarne il percorso · doppio clic sulla linea: nuovo punto · clic destro: opzioni · trascina da una porta a un’altra per collegare · rotella = zoom</div>
+      <div class="board-hint" id="boardHint">Trascina blocchi, gruppi ed etichette per spostarli (Alt = senza griglia) · frecce: sposta l’elemento selezionato (Maiusc = passi da 10) · trascina tratti e punti (●) di una linea per modificarne il percorso · doppio clic sulla linea: nuovo punto · clic destro: opzioni · rotella = zoom</div>
     </div>
   </section>
 
@@ -818,8 +821,8 @@ const APP = {
   format: 'IDV-Interface-Manager',
   projectFormat: 'IDV-Interface-Manager-Project',
   backupFormat: 'IDV-Interface-Manager-Backup',
-  version: '3.1',          // versione dell'applicazione (codice)
-  schema: 3,               // versione del formato dei dati di progetto (vedi migrateLists / normalizeData)
+  version: '3.2',          // versione dell'applicazione (codice)
+  schema: 4,               // versione del formato dei dati di progetto (vedi migrateLists / normalizeData)
   legacyModelKey: 'idv-interface-manager.model.v1',
   uiKey: 'idv-interface-manager.ui.v1',
   dbName: 'idv-interface-manager'
@@ -851,12 +854,23 @@ const DEFAULT_LISTS = {
     'Fissaggio a vite', 'Supporti antivibranti', 'Glicole 50% (circuito chiuso)', 'Raccordo rapido',
     'TCP/IP', 'UDP multicast', 'DDS (OMG Data Distribution Service)', 'REST / HTTP', 'MQTT', 'Fibra OM3 / LC', 'Fibra OS2 / LC'],
   cableTypes: ['Twisted pair 120 Ω', 'Shielded twisted pair (STP)', 'Drain wire / shield', 'Cat5e SF/UTP', 'Cat6A S/FTP', 'Coax RG-58', 'Coax RG-142', 'Coax LMR-400', 'Power 2 x AWG16', 'Power 2 x AWG12', 'Treccia di massa', 'Multicore schermato', 'Fibra ottica'],
-  connectors: ['D-Sub 9 (DE-9)', 'D-Sub 15 (DA-15)', 'D-Sub 25 (DB-25)', 'D-Sub 9 shell', 'MIL-DTL-38999 Series III', 'MIL-DTL-26482', 'M12 D-coded', 'M12 X-coded', 'M12 A-coded', 'RJ45', 'TNC', 'N-type', 'SMA', 'BNC', 'Terminal block', 'Ring lug']
+  connectors: ['D-Sub 9 (DE-9)', 'D-Sub 15 (DA-15)', 'D-Sub 25 (DB-25)', 'D-Sub 9 shell', 'MIL-DTL-38999 Series III', 'MIL-DTL-26482', 'M12 D-coded', 'M12 X-coded', 'M12 A-coded', 'RJ45', 'TNC', 'N-type', 'SMA', 'BNC', 'Terminal block', 'Ring lug'],
+  // configurabili dal formato dati 4 (prima erano elenchi fissi)
+  statuses: ['Da verificare', 'Proposta', 'In revisione', 'Concordata', 'Baselined', 'Verified', 'Rejected'],
+  reqStatuses: ['Draft', 'Proposed', 'In review', 'Approved', 'Rejected', 'Verified'],
+  reqTypes: ['Interface', 'Performance', 'Cable', 'Connector', 'Pinout', 'Power', 'EMC', 'Safety', 'Installation', 'Mechanical', 'Fluidic', 'Software', 'Network', 'RF', 'Verification'],
+  reqOrigins: ['Customer', 'System derived', 'Interface analysis', 'Supplier', 'Standard', 'Design decision'],
+  reqMethods: ['Test', 'Inspection', 'Analysis', 'Demonstration', 'Inspection + Test']
 };
-const SIMPLE_LISTS = ['domains', 'owners', 'portTypes', 'protocols', 'cableTypes', 'connectors'];
+/* Elenchi semplici conservati nei dati del progetto (cableTypes resta per compatibilità: il campo non è più mostrato) */
+const SIMPLE_LISTS = ['domains', 'owners', 'portTypes', 'protocols', 'cableTypes', 'connectors', 'statuses', 'reqStatuses', 'reqTypes', 'reqOrigins', 'reqMethods'];
+/* Elenchi modificabili in Impostazioni */
+const SETTINGS_LISTS = ['domains', 'owners', 'portTypes', 'statuses', 'reqStatuses', 'reqTypes', 'reqOrigins', 'reqMethods', 'protocols', 'connectors'];
 const LIST_LABELS = {
   domains: 'Domini', owners: 'Owner', portTypes: 'Tipi di porta', protocols: 'Protocolli / standard (suggerimenti)',
-  cableTypes: 'Tipi di cavo (suggerimenti)', connectors: 'Connettori (suggerimenti)'
+  cableTypes: 'Tipi di cavo (suggerimenti)', connectors: 'Connettori (suggerimenti)',
+  statuses: 'Stati di componenti, interfacce e cavi', reqStatuses: 'Stati dei requisiti', reqTypes: 'Tipi di requisito',
+  reqOrigins: 'Origini dei requisiti', reqMethods: 'Metodi di verifica'
 };
 const PORT_SIDES = [
   { value: 'auto', label: 'Automatico (lato verso il collegamento)' },
@@ -865,14 +879,9 @@ const PORT_SIDES = [
 ];
 const DIRECTIONS = ['Input', 'Output', 'Bidirectional', 'Not applicable'];
 const DIR_ABBR = { 'Input': 'IN', 'Output': 'OUT', 'Bidirectional': 'I/O', 'Not applicable': '' };
-const STATUSES = ['Da verificare', 'Proposta', 'In revisione', 'Concordata', 'Baselined', 'Verified', 'Rejected'];
 const APPROVED_STATUSES = new Set(['Concordata', 'Baselined', 'Verified']);
 const SHIELDING = ['None', 'Overall shield', 'Individual pair shield', 'Overall + individual shield', 'Coaxial shield', 'Other'];
 const LENGTH_UNITS = ['m', 'cm', 'mm', 'ft', 'in'];
-const REQ_TYPES = ['Interface', 'Performance', 'Cable', 'Connector', 'Pinout', 'Power', 'EMC', 'Safety', 'Installation', 'Mechanical', 'Fluidic', 'Software', 'Network', 'RF', 'Verification'];
-const REQ_ORIGINS = ['Customer', 'System derived', 'Interface analysis', 'Supplier', 'Standard', 'Design decision'];
-const REQ_METHODS = ['Test', 'Inspection', 'Analysis', 'Demonstration', 'Inspection + Test'];
-const REQ_STATUSES = ['Draft', 'Proposed', 'In review', 'Approved', 'Rejected', 'Verified'];
 const REQ_APPROVED = new Set(['Approved', 'Verified']);
 const GROUP_COLORS = [
   { v: '#2a78d6', n: 'Blu' }, { v: '#0f8a7e', n: 'Verde acqua' }, { v: '#6250d6', n: 'Viola' },
@@ -1168,7 +1177,8 @@ function buildDemo() {
     interfaces: [IF_CTRL, IF_GPS, IF_RAD, IF_SW, IF_PV, IF_PH, IF_PR, IF_RF, IF_MH, IF_MR, IF_GH, IF_CS, IF_CR],
     cables,
     requirements,
-    routing: { interfaces: {}, cables: {} }
+    routing: { interfaces: {}, cables: {} },
+    labels: { interfaces: {}, cables: {} }
   };
 }
 /* Progetto vuoto (nuovo programma) */
@@ -1178,7 +1188,8 @@ function buildEmpty(name, program) {
     meta: { name: name || 'Nuovo progetto', program: program || '', created: new Date().toISOString(), modified: new Date().toISOString() },
     lists: clone(DEFAULT_LISTS),
     groups: [], components: [], interfaces: [], cables: [], requirements: [],
-    routing: { interfaces: {}, cables: {} }
+    routing: { interfaces: {}, cables: {} },
+    labels: { interfaces: {}, cables: {} }
   };
 }
 
@@ -1267,10 +1278,6 @@ function pinoutSummary(c) {
     const b = [str(r.pinB).trim(), str(r.sigB).trim()].filter(Boolean).join(' ');
     return (a || '?') + ' → ' + (b || '?');
   }).join('; ');
-}
-function lengthText(c) {
-  if (c.length == null || c.length === '') return '';
-  return String(c.length).replace('.', ',') + ' ' + (c.lengthUnit || 'm');
 }
 function cableMatchesInterface(c, f) {
   if (!f) return false;
@@ -1594,6 +1601,12 @@ function createFolderStore(root) {
   }
   async function moveDir(fromParent, name, toParent, newName) {
     const src = await fromParent.getDirectoryHandle(name);
+    if (typeof src.move === 'function') {
+      // spostamento nativo: una sola rinomina, che conserva anche la cronologia dei file in OneDrive
+      try { await src.move(toParent, newName); return await toParent.getDirectoryHandle(newName); } catch (e) {
+        if (!(await tryDir(fromParent, name)) && await tryDir(toParent, newName)) return toParent.getDirectoryHandle(newName);
+      }
+    }
     const dst = await toParent.getDirectoryHandle(newName, { create: true });
     await copyDir(src, dst);
     await fromParent.removeEntry(name, { recursive: true });
@@ -1648,9 +1661,17 @@ function createFolderStore(root) {
     dirList = folders;
     return projects;
   }
+  /* Posizione del progetto; se la cartella è stata rinominata o spostata (anche da un altro computer) la cerca di nuovo */
   async function entryOf(id) {
     if (!index || !index.has(id)) await scan();
-    return index.get(id) || null;
+    let e = index.get(id) || null;
+    if (e && !(await tryFile(e.dir, WD.file))) { await scan(); e = index.get(id) || null; }
+    return e;
+  }
+  /* La cartella porta già il nome del progetto (eventualmente con il suffisso " (n)" se il nome era già usato)? */
+  function dirNameFits(dirName, name) {
+    const b = (safeFileName(name).replace(/[. ]+$/, '') || 'progetto').toLowerCase(), d = str(dirName).toLowerCase();
+    return d === b || (d.indexOf(b) === 0 && /^ \(\d+\)$/.test(d.slice(b.length)));
   }
   async function verDir(pid, create) { const e = await entryOf(pid); return e ? tryDir(e.dir, WD.ver, create) : null; }
   async function attDir(pid, create) { const e = await entryOf(pid); return e ? tryDir(e.dir, WD.att, create) : null; }
@@ -1695,13 +1716,6 @@ function createFolderStore(root) {
       opts = opts || {};
       let e = await entryOf(rec.id);
       const folder = normFolder(rec.folder);
-      if (e && e.parentPath !== folder) {
-        const from = await dirAt(e.parentPath, false), to = await dirAt(folder, true);
-        const nn = await uniqueName(to, e.dirName);
-        const dir = await moveDir(from, e.dirName, to, nn);
-        e = { dir, parentPath: folder, dirName: nn };
-        index.set(rec.id, e);
-      }
       if (!e) {
         const parent = await dirAt(folder, true);
         const nn = await uniqueName(parent, rec.name);
@@ -1725,6 +1739,14 @@ function createFolderStore(root) {
             k.lm = f0.lastModified;
           }
         }
+      }
+      // progetto spostato in un'altra cartella o rinominato: la sua cartella segue
+      if (e.parentPath !== folder || !dirNameFits(e.dirName, rec.name)) {
+        const from = await dirAt(e.parentPath, false), to = await dirAt(folder, true);
+        const nn = await uniqueName(to, rec.name);
+        const dir = await moveDir(from, e.dirName, to, nn);
+        e = { dir, parentPath: folder, dirName: nn };
+        index.set(rec.id, e);
       }
       let data;
       try { data = JSON.parse(rec.json); } catch (e2) { throw new Error('dati del progetto non validi'); }
@@ -3578,15 +3600,17 @@ let lastGeom = null;     // geometria dell'ultimo disegno
 let lastItems = new Map(); // percorsi visualizzati nell'ultimo disegno (chiave → item)
 let lastRouteStats = { crossings: 0, bends: 0, manual: 0, links: 0 };
 let lastShownComps = null;
+let lastLabelPos = new Map();   // chiave del collegamento → posizione della sua etichetta (anche per le righe dei cartellini)
 let lastLabelBoxes = []; // con il filtro "nascondi componenti non coinvolti": componenti disegnati
 let drag = null;         // operazione di trascinamento in corso
 let dragRoute = null;    // percorso in modifica manuale (anteprima durante il trascinamento)
 let renderQueued = false;
 let transientCache = { sig: null, res: null };
 let linkClickTimer = 0;   // apertura ritardata al clic su un collegamento, per riconoscere il doppio clic
+let boardOpenAt = 0;      // scheda aperta da un clic sulla lavagna: il cursore resta sulla lavagna (frecce = spostamento)
 function openLinkSoon(kind, uid) {
   clearTimeout(linkClickTimer);
-  linkClickTimer = setTimeout(() => openObject(kind, uid), 260);
+  linkClickTimer = setTimeout(() => { boardOpenAt = Date.now(); openObject(kind, uid); }, 260);
 }
 
 function compGeom(c, showPorts) {
@@ -4239,6 +4263,9 @@ function syncRoutes() {
       out[L.key] = res.rerouted.includes(L.key) ? serializeRoute(r) : stored[L.key];
     });
     state.routing[mode] = out;
+    // etichette spostate a mano: si eliminano quelle dei collegamenti che non esistono più
+    const lp = state.labels && state.labels[mode];
+    if (lp) Object.keys(lp).forEach((k) => { if (!out[k]) delete lp[k]; });
   });
   transientCache = { sig: null, res: null };
 }
@@ -4492,10 +4519,48 @@ function polyPath(pts) {
   return pts.map((p, i) => (i ? 'L' : 'M') + r1(p.x) + ',' + r1(p.y)).join(' ');
 }
 /* Etichette sui segmenti dei collegamenti, evitando etichette, blocchi e altre linee */
+/* Posizione lungo un percorso: t è la frazione della lunghezza (0 = porta A, 1 = porta B) */
+function polyLength(p) {
+  let L = 0;
+  for (let k = 0; k < p.length - 1; k++) L += Math.hypot(p[k + 1].x - p[k].x, p[k + 1].y - p[k].y);
+  return L;
+}
+function pointAtT(p, t) {
+  let rest = clamp(t, 0, 1) * polyLength(p);
+  for (let k = 0; k < p.length - 1; k++) {
+    const a = p[k], b = p[k + 1], l = Math.hypot(b.x - a.x, b.y - a.y);
+    if (rest <= l || k === p.length - 2) { const f = l ? clamp(rest / l, 0, 1) : 0; return { x: a.x + (b.x - a.x) * f, y: a.y + (b.y - a.y) * f }; }
+    rest -= l;
+  }
+  return { x: p[0].x, y: p[0].y };
+}
+function tOfPoint(p, w) {
+  const L = polyLength(p) || 1;
+  let acc = 0, best = Infinity, bt = 0.5;
+  for (let k = 0; k < p.length - 1; k++) {
+    const a = p[k], b = p[k + 1], l = Math.hypot(b.x - a.x, b.y - a.y);
+    const f = l ? clamp(((w.x - a.x) * (b.x - a.x) + (w.y - a.y) * (b.y - a.y)) / (l * l), 0, 1) : 0;
+    const dd = Math.hypot(w.x - (a.x + (b.x - a.x) * f), w.y - (a.y + (b.y - a.y) * f));
+    if (dd < best) { best = dd; bt = (acc + f * l) / L; }
+    acc += l;
+  }
+  return bt;
+}
+/* Posizione memorizzata (spostata a mano) dell'etichetta di un collegamento nella vista corrente */
+function storedLabel(key) { return (state.labels && state.labels[ui.mode] && state.labels[ui.mode][key]) || null; }
 function placeRouteLabels(labels, items, rects, quick) {
+  // etichette spostate a mano: restano dove le ha messe l'utente, agganciate a un punto del percorso
+  labels.forEach((lb) => {
+    const f = storedLabel(lb.key);
+    lb.manual = !!f;
+    if (!f) return;
+    const a = pointAtT(items[lb.li].pts, f.t);
+    lb.ax = a.x; lb.ay = a.y; lb.x = a.x + f.dx; lb.y = a.y + f.dy;
+  });
   if (quick) {
     // durante il trascinamento: posizione semplice al centro del tratto più lungo
     labels.forEach((lb) => {
+      if (lb.manual) return;
       const p = items[lb.li].pts;
       let bk = 0, bl = -1;
       for (let k = 0; k < p.length - 1; k++) { const l = Math.abs(p[k + 1].x - p[k].x) + Math.abs(p[k + 1].y - p[k].y); if (l > bl) { bl = l; bk = k; } }
@@ -4516,8 +4581,8 @@ function placeRouteLabels(labels, items, rects, quick) {
     const x0 = Math.min(s.a.x, s.b.x), x1 = Math.max(s.a.x, s.b.x), y0 = Math.min(s.a.y, s.b.y), y1 = Math.max(s.a.y, s.b.y);
     return x1 >= bx.x0 && x0 <= bx.x1 && y1 >= bx.y0 && y0 <= bx.y1;
   };
-  const placed = [];
-  const order = labels.slice().sort((a, b) => (b.st === 'selected') - (a.st === 'selected'));
+  const placed = labels.filter((lb) => lb.manual).map((lb) => ({ x0: lb.x - lb.w / 2 - 2, x1: lb.x + lb.w / 2 + 2, y0: lb.y - lb.h / 2 - 1, y1: lb.y + lb.h / 2 + 1 }));
+  const order = labels.filter((lb) => !lb.manual).sort((a, b) => (b.st === 'selected') - (a.st === 'selected'));
   const bundleOfLi = items.map((it) => it.bundle);
   const place = (lb) => {
     const p = items[lb.li].pts, n = p.length;
@@ -4653,7 +4718,7 @@ function linkTooltip(L) {
   if (L.kind === 'cable') {
     const f = idx.iface.get(L.obj.ifaceUid);
     return 'Cavo ' + L.obj.id + (L.obj.name ? ' — ' + L.obj.name : '') + '\n' + portFull(L.obj.portA) + ' ↔ ' + portFull(L.obj.portB) +
-      '\nTipo: ' + (L.obj.type || '—') + '\nConnettori: ' + (L.obj.connA || '—') + ' / ' + (L.obj.connB || '—') +
+      '\nConnettori: ' + (L.obj.connA || '—') + ' / ' + (L.obj.connB || '—') +
       '\nPinout: ' + (pinoutSummary(L.obj) || 'non definito') + '\nInterfaccia: ' + (f ? f.id : '—');
   }
   const nC = (idx.cablesByIface.get(L.obj.uid) || []).length;
@@ -4830,7 +4895,7 @@ function renderBoard() {
       '<path class="link-hit" d="' + dHit + '"/><path class="' + cls + '" d="' + d + '"/>' + segHits + '</g>';
     if (ui.showLabels) {
       const idPart = L.obj.id;
-      const rest = L.kind === 'cable' ? '  ' + (L.obj.type || 'tipo n.d.') : (L.kind === 'ghost' && !L.noCable ? '  nessun cavo' : '  ' + ifTypeText(L.obj));
+      const rest = L.kind === 'cable' ? (L.obj.name ? '  ' + L.obj.name : '') : (L.kind === 'ghost' && !L.noCable ? '  nessun cavo' : '  ' + ifTypeText(L.obj));
       const restFit = fitText(rest, F.label, 190);
       labels.push({
         li, idPart, rest: restFit, w: textW(idPart, F.lblId) + textW(restFit, F.label) + 12, h: 16,
@@ -4878,13 +4943,19 @@ function renderBoard() {
   // --- etichette
   placeRouteLabels(labels, items, rects, !!drag && drag.moved);
   lastLabelBoxes = labels.map((lb) => ({ x0: lb.x - lb.w / 2, y0: lb.y - lb.h / 2, x1: lb.x + lb.w / 2, y1: lb.y + lb.h / 2 }));
+  lastLabelPos = new Map();
+  labels.forEach((lb) => {
+    const pos = { lkey: lb.key, x: lb.x, y: lb.y, manual: lb.manual };
+    lastLabelPos.set(lb.key, pos);
+    if (lb.rows) lb.rows.forEach((r) => lastLabelPos.set(r.key, pos));
+  });
   let lbs = '';
   labels.forEach((lb) => {
     const moved = Math.hypot(lb.x - lb.ax, lb.y - lb.ay) > 2;
     const x0 = lb.x - lb.w / 2, y0 = lb.y - lb.h / 2;
     const leader = moved ? '<line class="lbl-leader" x1="' + r1(lb.ax) + '" y1="' + r1(lb.ay) + '" x2="' + r1(lb.x) + '" y2="' + r1(lb.y) + '"/>' : '';
     if (lb.rows) {
-      lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + '">' + leader +
+      lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + (lb.manual ? ' manual' : '') + '" data-lkey="' + esc(lb.key) + '">' + leader +
         '<rect x="' + r1(x0) + '" y="' + r1(y0) + '" width="' + r1(lb.w) + '" height="' + lb.h + '" rx="2"/>';
       lb.rows.forEach((rw, i) => {
         const ty = y0 + 13.5 + i * 15;
@@ -4896,7 +4967,7 @@ function renderBoard() {
       lbs += '</g>';
       return;
     }
-    lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + '"' + (lb.color ? ' style="--lc:' + esc(lb.color) + '"' : '') + ' data-link="' + lb.kind + '" data-uid="' + esc(lb.uid) + '" data-key="' + esc(lb.key) + '">' + leader +
+    lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + (lb.manual ? ' manual' : '') + '"' + (lb.color ? ' style="--lc:' + esc(lb.color) + '"' : '') + ' data-link="' + lb.kind + '" data-uid="' + esc(lb.uid) + '" data-key="' + esc(lb.key) + '" data-lkey="' + esc(lb.key) + '">' + leader +
       '<rect x="' + r1(x0) + '" y="' + r1(y0) + '" width="' + r1(lb.w) + '" height="' + lb.h + '" rx="2"/>' +
       '<text x="' + r1(x0 + 6) + '" y="' + r1(lb.y + 3.8) + '"><tspan class="lbl-id">' + esc(lb.idPart) + '</tspan><tspan class="lbl-rest">' + esc(lb.rest) + '</tspan></text></g>';
   });
@@ -5383,7 +5454,11 @@ function onBoardPointerDown(e) {
   const link = t.closest('[data-link]') || hnd;
   const comp = t.closest('[data-comp]');
   const grp = t.closest('[data-group]');
-  drag = { sx: e.clientX, sy: e.clientY, moved: false };
+  const lblEl = t.closest('[data-lkey]');
+  // un clic sulla lavagna toglie il cursore dai campi del pannello: le frecce spostano l'elemento selezionato
+  const ae = document.activeElement;
+  if (ae && ae !== document.body && byId('sidePanel').contains(ae)) ae.blur();
+  drag = { sx: e.clientX, sy: e.clientY, moved: false, alt: e.altKey };
   if (wp && hnd) {
     const it = lastItems.get(hnd.dataset.key);
     if (!it) { drag = null; return; }
@@ -5395,6 +5470,11 @@ function onBoardPointerDown(e) {
   } else if (pin) {
     const a = anchorPoint(lastGeom, pin.dataset.pin, pin.dataset.side);
     Object.assign(drag, { type: 'connect', port: pin.dataset.pin, side: pin.dataset.side, from: a });
+  } else if (lblEl && !seg) {
+    const pos = lastLabelPos.get(lblEl.dataset.lkey), it = lastItems.get(lblEl.dataset.lkey);
+    if (!pos || !it) { drag = null; return; }
+    const row = t.closest('[data-link]');
+    Object.assign(drag, { type: 'label', lkey: lblEl.dataset.lkey, el: lblEl, ox: pos.x, oy: pos.y, kind: row ? row.dataset.link : linkKindAttr(it), uid: row ? row.dataset.uid : it.L.obj.uid });
   } else if (seg && link) {
     const it = lastItems.get(link.dataset.key);
     if (!it) { drag = null; return; }
@@ -5454,6 +5534,92 @@ function storeManualRoute(mode, key, it, pts, snap, label) {
   afterChange();
 }
 function linkKindAttr(it) { return it.L.kind === 'ghost' ? 'interface' : it.L.kind; }
+/* Etichette spostate a mano: posizione come punto del percorso (t) + scostamento, così seguono la linea */
+function labelPosFor(it, x, y) {
+  const t = Math.round(tOfPoint(it.pts, { x, y }) * 10000) / 10000;
+  const a = pointAtT(it.pts, t);
+  return { t, dx: Math.round((x - a.x) * 10) / 10, dy: Math.round((y - a.y) * 10) / 10 };
+}
+function setLabelPos(st, mode, lkey, pos) {
+  st.labels = st.labels || { interfaces: {}, cables: {} };
+  st.labels[mode] = st.labels[mode] || {};
+  if (pos) st.labels[mode][lkey] = pos; else delete st.labels[mode][lkey];
+}
+function storeLabelPos(lkey, it, pos) {
+  const mode = ui.mode;
+  commit((st) => setLabelPos(st, mode, lkey, pos), null, 'Spostamento etichetta ' + it.L.obj.id);
+}
+function resetLabelPos(lkey) {
+  const it = lastItems.get(lkey), mode = ui.mode;
+  commit((st) => setLabelPos(st, mode, lkey, null), null, 'Etichetta ' + (it ? it.L.obj.id : '') + ': posizione automatica');
+}
+/* ---------- Spostamento con le frecce della tastiera (Maiusc = passi da 10) ----------
+   Pressioni consecutive sullo stesso elemento formano una sola voce dello storico (un solo Annulla). */
+let nudgeSeq = null;
+function nudgeCommit(sig, label, mutate) {
+  const last = history.past[history.past.length - 1];
+  const merge = nudgeSeq && nudgeSeq.sig === sig && last && last === nudgeSeq.entry && Date.now() - nudgeSeq.at < 2000;
+  if (!merge) pushHistory(snapshot(), label);
+  mutate(state);
+  state.meta.modified = new Date().toISOString();
+  nudgeSeq = { sig, at: Date.now(), entry: history.past[history.past.length - 1] };
+  afterChange();
+}
+function nudgeSelection(dx, dy) {
+  const sel = ui.selected;
+  if (!sel) return false;
+  if (sel.kind === 'component') {
+    const c = idx.comp.get(sel.uid);
+    if (!c) return false;
+    nudgeCommit('c:' + c.uid, 'Spostamento ' + c.id, (st) => {
+      const x = st.components.find((o) => o.uid === c.uid);
+      if (x) { x.x = (Number(x.x) || 0) + dx; x.y = (Number(x.y) || 0) + dy; }
+    });
+    return true;
+  }
+  if (sel.kind === 'group') {
+    const g = idx.group.get(sel.uid), members = new Set((idx.compsByGroup.get(sel.uid) || []).map((c) => c.uid));
+    if (!g || !members.size) return false;
+    nudgeCommit('g:' + g.uid, 'Spostamento gruppo ' + g.id, (st) => st.components.forEach((x) => {
+      if (members.has(x.uid)) { x.x = (Number(x.x) || 0) + dx; x.y = (Number(x.y) || 0) + dy; }
+    }));
+    return true;
+  }
+  if (sel.kind === 'interface' || sel.kind === 'cable') return ui.activeWp ? nudgeWaypoint(dx, dy) : nudgeLabel(dx, dy);
+  return false;
+}
+function nudgeLabel(dx, dy) {
+  const it = selectedLinkItems()[0];
+  if (!it) return false;
+  const pos = lastLabelPos.get(it.key);
+  if (!pos) { toast('Per spostare l’etichetta attiva la visualizzazione delle etichette (pulsante “Etichette”).', 'info'); return true; }
+  const lit = lastItems.get(pos.lkey) || it;
+  const f = storedLabel(pos.lkey), mode = ui.mode;
+  const val = f ? { t: f.t, dx: Math.round((f.dx + dx) * 10) / 10, dy: Math.round((f.dy + dy) * 10) / 10 } : labelPosFor(lit, pos.x + dx, pos.y + dy);
+  nudgeCommit('l:' + mode + ':' + pos.lkey, 'Spostamento etichetta ' + lit.L.obj.id, (st) => setLabelPos(st, mode, pos.lkey, val));
+  return true;
+}
+function nudgeWaypoint(dx, dy) {
+  const aw = ui.activeWp, it = lastItems.get(aw.key);
+  if (!it || aw.k < 1 || aw.k > it.pts.length - 2) return false;
+  const nx = it.pts[aw.k].x + dx, ny = it.pts[aw.k].y + dy;
+  const pts = dedupePts(routeMoveWaypoint(it.pts, it.sA, it.sB, aw.k, nx, ny));
+  const rects = linkRects(lastGeom);
+  if (!manualOk(pts, it.sA, it.sB, manualOk(it.pts, it.sA, it.sB, rects) ? rects : [])) {
+    toast('Il punto non può andare oltre: la linea attraverserebbe un blocco.', 'warn', 2500);
+    return true;
+  }
+  let best = aw.k, bd = Infinity;
+  pts.forEach((q, i) => { if (i > 0 && i < pts.length - 1) { const dd = Math.hypot(q.x - nx, q.y - ny); if (dd < bd) { bd = dd; best = i; } } });
+  ui.activeWp = { key: aw.key, k: best };
+  const route = serializeRoute({ sA: it.sA, sB: it.sB, pts, manual: true }), mode = ui.mode;
+  nudgeCommit('w:' + mode + ':' + aw.key, 'Spostamento punto di instradamento (' + it.L.obj.id + ')', (st) => {
+    st.routing = st.routing || { interfaces: {}, cables: {} };
+    st.routing[mode] = st.routing[mode] || {};
+    st.routing[mode][aw.key] = route;
+  });
+  return true;
+}
 function selectLinkItem(it) {
   ui.selected = { kind: linkKindAttr(it), uid: it.L.obj.uid };
 }
@@ -5550,11 +5716,11 @@ function showContextMenu(cx, cy, items) {
 function hideContextMenu() { const m = byId('ctxMenu'); if (m && !m.hidden) m.hidden = true; }
 function onBoardContextMenu(e) {
   const wp = e.target.closest('[data-wp]'), hnd = e.target.closest('.hnd');
-  const lk = hnd || e.target.closest('.link-g');
+  const lk = hnd || e.target.closest('.link-g') || e.target.closest('[data-lkey]');
   if (!lk) return;
   e.preventDefault();
   clearTimeout(linkClickTimer);
-  const it = lastItems.get(lk.dataset.key);
+  const it = lastItems.get(lk.dataset.key || lk.dataset.lkey);
   if (!it) return;
   const w = clientToWorld(e.clientX, e.clientY);
   if (!(ui.selected && ui.selected.uid === it.L.obj.uid)) { selectLinkItem(it); renderBoard(); }
@@ -5563,6 +5729,8 @@ function onBoardContextMenu(e) {
   if (wp && hnd) items.push({ label: 'Elimina punto di instradamento', fn: () => removeWaypointAt(it.key, Number(wp.dataset.wp)) });
   else items.push({ label: 'Aggiungi punto di instradamento qui', fn: () => addWaypointAt(it.key, w), disabled: !ui.showPorts });
   items.push({ label: 'Ripristina percorso automatico', fn: () => resetRoute(it.key), disabled: !it.manual });
+  const lpos = lastLabelPos.get(it.key);
+  if (lpos) items.push({ label: 'Ripristina posizione automatica dell’etichetta', fn: () => resetLabelPos(lpos.lkey), disabled: !storedLabel(lpos.lkey) });
   items.push({ sep: true });
   items.push({ label: 'Apri ' + kindIt + ' ' + it.L.obj.id + '…', fn: () => openObject(linkKindAttr(it), it.L.obj.uid) });
   showContextMenu(e.clientX, e.clientY, items);
@@ -5577,14 +5745,20 @@ function onBoardPointerMove(e) {
     B.svg.classList.add('panning');
     applyView();
   } else if (drag.type === 'comp') {
+    // griglia di 10: tenendo premuto Alt il blocco si sposta liberamente
+    const sn = e.altKey ? Math.round : snapV;
     const c = idx.comp.get(drag.uid);
     if (!c) return;
-    c.x = snapV(drag.ox + dx / ui.zoom);
-    c.y = snapV(drag.oy + dy / ui.zoom);
+    c.x = sn(drag.ox + dx / ui.zoom);
+    c.y = sn(drag.oy + dy / ui.zoom);
     scheduleBoardRender();
   } else if (drag.type === 'group') {
-    drag.members.forEach((m) => { m.c.x = snapV(m.ox + dx / ui.zoom); m.c.y = snapV(m.oy + dy / ui.zoom); });
+    const sn = e.altKey ? Math.round : snapV;
+    drag.members.forEach((m) => { m.c.x = sn(m.ox + dx / ui.zoom); m.c.y = sn(m.oy + dy / ui.zoom); });
     scheduleBoardRender();
+  } else if (drag.type === 'label') {
+    B.svg.classList.add('label-move');
+    drag.el.setAttribute('transform', 'translate(' + r1(dx / ui.zoom) + ',' + r1(dy / ui.zoom) + ')');
   } else if (drag.type === 'seg') {
     B.svg.classList.add(drag.o === 'v' ? 'seg-v' : 'seg-h');
     dragSegment(dx, dy);
@@ -5610,7 +5784,7 @@ function onBoardPointerUp(e) {
   if (!drag) return;
   const d = drag;
   drag = null;
-  B.svg.classList.remove('panning', 'connecting', 'seg-v', 'seg-h', 'wp-move');
+  B.svg.classList.remove('panning', 'connecting', 'seg-v', 'seg-h', 'wp-move', 'label-move');
   if (d.type === 'pan') {
     if (!d.moved) { if (ui.selected) { ui.selected = null; renderBoard(); } }
     else saveUi();
@@ -5632,8 +5806,10 @@ function onBoardPointerUp(e) {
         if (over.size) toast('Attenzione: il blocco si sovrappone a ' + [...over].join(', ') + '. I collegamenti verso le porte coperte non possono essere instradati in modo pulito.', 'warn', 6000);
       } else renderBoard();
     } else if (d.type === 'comp') {
+      boardOpenAt = Date.now();
       openObject('component', d.uid);
     } else {
+      boardOpenAt = Date.now();
       openObject('group', d.uid);
     }
   } else if (d.type === 'seg') {
@@ -5653,6 +5829,12 @@ function onBoardPointerUp(e) {
     if (!d.cur) { renderBoard(); return; }
     ui.activeWp = null;
     storeManualRoute(d.mode, d.key, d.it, d.cur, d.snap, 'Spostamento punto di instradamento (' + d.it.L.obj.id + ')');
+  } else if (d.type === 'label') {
+    if (!d.moved) { openLinkSoon(d.kind, d.uid); return; }
+    const it = lastItems.get(d.lkey);
+    ui.selected = { kind: d.kind, uid: d.uid };
+    if (!it) { renderBoard(); return; }
+    storeLabelPos(d.lkey, it, labelPosFor(it, d.ox + (e.clientX - d.sx) / ui.zoom, d.oy + (e.clientY - d.sy) / ui.zoom));
   } else if (d.type === 'link') {
     if (!d.moved) openLinkSoon(d.kind, d.uid);
   } else if (d.type === 'connect') {
@@ -5882,7 +6064,7 @@ function openPanel(cfg) {
   if (!cfg.isNew) ui.selected = { kind: cfg.kind, uid: cfg.uid };
   renderSection(ui.section);
   const first = body.querySelector('input:not([type=checkbox]):not([type=search]),select,textarea');
-  if (first) setTimeout(() => first.focus(), 0);
+  if (first && Date.now() - boardOpenAt > 500) setTimeout(() => first.focus(), 0);
 }
 function closePanel(force) {
   if (!panelCtx && !force) return;
@@ -6031,13 +6213,134 @@ function fillSelect(el, options, value) {
   });
   const v = value == null ? '' : String(value);
   if (v !== '' && !Array.from(el.options).some((o) => o.value === v)) add(el, { value: v, label: v + ' (non in elenco)' });
+  if (el._add) appendAddOption(el);
   el.value = v;
 }
-function selectFor(draft, key, options, attrs, onChange) {
+/* add (facoltativo): { label, onAdd } aggiunge in fondo l'opzione "＋ label" (vedi makeAddable) */
+function selectFor(draft, key, options, attrs, onChange, add) {
   const el = h('select', Object.assign({ class: 'inp' }, attrs || {}));
+  if (add) makeAddable(el, add.label, add.onAdd);
   fillSelect(el, options, draft[key]);
   el.addEventListener('change', () => { draft[key] = el.value; if (onChange) onChange(el.value); formChanged(); });
   return el;
+}
+/* ---------- Opzione "＋ Aggiungi…" nei menu a tendina ----------
+   Scegliendola si inserisce un nuovo valore nell'elenco (o si crea un nuovo oggetto), che viene subito selezionato.
+   Va attivata prima degli altri gestori "change" della select: l'opzione stessa non arriva mai al modulo. */
+const ADD_OPT = '\u2063add';
+function appendAddOption(el) {
+  const o = document.createElement('option');
+  o.value = ADD_OPT;
+  o.textContent = '＋ ' + el._add.label;
+  o.className = 'opt-add';
+  el.appendChild(o);
+}
+function makeAddable(el, label, onAdd) {
+  el._add = { label };
+  if (el.options.length) appendAddOption(el);
+  let prev = el.value;
+  el.addEventListener('focus', () => { prev = el.value; });
+  el.addEventListener('change', (e) => {
+    if (el.value !== ADD_OPT) { prev = el.value; return; }
+    e.stopImmediatePropagation();
+    el.value = prev;
+    Promise.resolve(onAdd()).then((r) => {
+      if (r == null || r === '') return;
+      const val = typeof r === 'object' ? r.value : r;
+      if (!Array.from(el.options).some((o) => o.value === val)) {
+        const o = document.createElement('option');
+        o.value = val;
+        o.textContent = (typeof r === 'object' && r.label) || val;
+        el.insertBefore(o, el.querySelector('option.opt-add'));
+      }
+      el.value = val;
+      prev = val;
+      el.dispatchEvent(new Event('change'));
+    }).catch(reportError);
+  });
+  return el;
+}
+/* Nuovo valore in un elenco del progetto (gli stessi elenchi si modificano in Impostazioni) */
+function addList(listKey, label) {
+  return {
+    label: label || 'Aggiungi…',
+    onAdd: async () => {
+      const v = await promptDialog('Nuovo valore — ' + LIST_LABELS[listKey], [{ key: 'value', label: 'Valore', required: true, max: 80 }], 'Aggiungi',
+        'Il valore viene aggiunto all’elenco del progetto e sarà disponibile anche per gli altri oggetti (l’elenco si modifica in Impostazioni).');
+      if (!v || !v.value) return null;
+      const ex = state.lists[listKey].find((x) => x.toLowerCase() === v.value.toLowerCase());
+      if (ex) return ex;
+      commit((st) => { st.lists[listKey].push(v.value); }, 'Aggiunto “' + v.value + '” all’elenco ' + LIST_LABELS[listKey]);
+      return v.value;
+    }
+  };
+}
+/* Valori nuovi scritti nei campi con suggerimenti (protocollo, connettori): entrano nell'elenco dei suggerimenti */
+function rememberSuggestion(st, listKey, value) {
+  const v = str(value).trim();
+  if (v && !st.lists[listKey].some((x) => x.toLowerCase() === v.toLowerCase())) st.lists[listKey].push(v);
+}
+/* Nuovi oggetti creati direttamente dai menu a tendina */
+async function quickCreateGroup() {
+  const v = await promptDialog('Nuovo gruppo funzionale', [
+    { key: 'id', label: 'ID', required: true, max: 40, value: nextId('GF-', state.groups.map((g) => g.id), 2) },
+    { key: 'name', label: 'Nome', required: true }
+  ], 'Crea gruppo');
+  if (!v) return null;
+  if (state.groups.some((g) => eqId(g.id, v.id))) { toast('L’ID “' + v.id + '” è già usato da un altro gruppo.', 'err'); return null; }
+  const g = { uid: newUid('g'), id: v.id, name: v.name, description: '', color: GROUP_COLORS[state.groups.length % GROUP_COLORS.length].v, owner: 'Da assegnare' };
+  commit((st) => { st.groups.push(g); }, 'Gruppo ' + g.id + ' creato');
+  return { value: g.uid, label: g.id + ' — ' + g.name };
+}
+async function quickCreateComponent() {
+  const v = await promptDialog('Nuovo componente', [
+    { key: 'id', label: 'ID', required: true, max: 40, value: nextId('CMP-', state.components.map((c) => c.id), 2) },
+    { key: 'name', label: 'Nome', required: true }
+  ], 'Crea componente', 'Il componente viene aggiunto alla lavagna; dati e porte si completano poi dalla sua scheda.');
+  if (!v) return null;
+  if (state.components.some((c) => eqId(c.id, v.id))) { toast('L’ID “' + v.id + '” è già usato da un altro componente.', 'err'); return null; }
+  const p = nextFreePosition();
+  const c = { uid: newUid('c'), id: v.id, name: v.name, description: '', domain: 'Altro', owner: 'Da assegnare', supplier: '', status: 'Proposta', x: p.x, y: p.y, groupUid: null, ports: [], attachments: [] };
+  commit((st) => { st.components.push(c); }, 'Componente ' + c.id + ' creato');
+  return { value: c.uid, label: c.id + ' — ' + c.name };
+}
+async function quickCreateCategory() {
+  const v = await promptDialog('Nuova categoria di interfaccia', [
+    { key: 'name', label: 'Nome della categoria', required: true, max: 40, placeholder: 'es. Ottica, Pneumatica, Termica…' },
+    { key: 'cables', label: 'Si realizza con cavi?', options: [{ value: '1', label: 'Sì (controlli di cablaggio e vista cavi)' }, { value: '0', label: 'No (es. meccanica, software)' }], value: '1' }
+  ], 'Aggiungi categoria', 'Colore e sottotipi si possono cambiare in Impostazioni.');
+  if (!v) return null;
+  const ex = state.lists.ifCategories.find((c) => c.name.toLowerCase() === v.name.toLowerCase());
+  if (ex) return ex.name;
+  commit((st) => {
+    st.lists.ifCategories.push({ name: v.name, color: CATEGORY_COLORS[st.lists.ifCategories.length % CATEGORY_COLORS.length], cables: v.cables === '1', subtypes: [] });
+  }, 'Categoria “' + v.name + '” aggiunta');
+  return v.name;
+}
+async function quickCreateSubtype(catName) {
+  const cat = state.lists.ifCategories.find((c) => c.name === catName);
+  if (!cat) { toast('Seleziona prima la categoria.', 'warn'); return null; }
+  const v = await promptDialog('Nuovo sottotipo di “' + cat.name + '”', [{ key: 'name', label: 'Sottotipo', required: true, max: 60 }], 'Aggiungi sottotipo');
+  if (!v) return null;
+  const ex = cat.subtypes.find((x) => x.toLowerCase() === v.name.toLowerCase());
+  if (ex) return ex;
+  commit((st) => { const c = st.lists.ifCategories.find((x) => x.name === catName); if (c) c.subtypes.push(v.name); }, 'Sottotipo “' + v.name + '” aggiunto alla categoria ' + cat.name);
+  return v.name;
+}
+async function quickCreatePort(compUid) {
+  const c = idx.comp.get(compUid);
+  if (!c) { toast('Seleziona prima il componente.', 'warn'); return null; }
+  const v = await promptDialog('Nuova porta di ' + c.id, [
+    { key: 'id', label: 'ID porta', required: true, max: 20, value: nextId('J', c.ports.map((p) => p.id), 1) },
+    { key: 'label', label: 'Etichetta (facoltativa)', placeholder: 'es. RS-422 CONTROL' },
+    { key: 'type', label: 'Tipo', options: state.lists.portTypes, value: state.lists.portTypes[0] || 'Other' },
+    { key: 'direction', label: 'Direzione', options: DIRECTIONS, value: 'Bidirectional' }
+  ], 'Crea porta');
+  if (!v) return null;
+  if (c.ports.some((p) => eqId(p.id, v.id))) { toast('Il componente ' + c.id + ' ha già una porta “' + v.id + '”.', 'err'); return null; }
+  const port = { uid: newUid('p'), id: v.id, label: v.label, type: v.type, direction: v.direction, side: 'auto', notes: '' };
+  commit((st) => { const cc = st.components.find((x) => x.uid === compUid); if (cc) cc.ports.push(port); }, 'Porta ' + c.id + ':' + port.id + ' creata');
+  return { value: port.uid, label: port.id + (port.label ? ' — ' + port.label : '') + ' (' + port.type + ')' };
 }
 let datalistSeq = 0;
 function datalistInput(draft, key, list, attrs) {
@@ -6056,7 +6359,7 @@ function portOptions(compUid, excludeIfUid) {
   if (!c) return opts;
   c.ports.forEach((p) => {
     const used = (idx.ifacesByPort.get(p.uid) || []).filter((f) => f.uid !== excludeIfUid).map((f) => f.id);
-    opts.push({ value: p.uid, label: p.id + ' — ' + p.label + ' (' + (p.type || '—') + ')' + (used.length ? ' · usata da ' + used.join(', ') : '') });
+    opts.push({ value: p.uid, label: p.id + (p.label ? ' — ' + p.label : '') + ' (' + (p.type || '—') + ')' + (used.length ? ' · usata da ' + used.join(', ') : '') });
   });
   return opts;
 }
@@ -6156,7 +6459,7 @@ function openComponentPanel(uid, preset, focusPortUid) {
   const draft = isNew ? {
     uid: newUid('c'), id: nextId('CMP-', state.components.map((c) => c.id), 2), name: '', description: '',
     domain: 'Altro', owner: 'Da assegnare', supplier: '', status: 'Proposta',
-    x: preset && Number.isFinite(preset.x) ? preset.x : 100, y: preset && Number.isFinite(preset.y) ? preset.y : 100,
+    x: preset && Number.isFinite(preset.x) ? preset.x : nextFreePosition().x, y: preset && Number.isFinite(preset.y) ? preset.y : nextFreePosition().y,
     groupUid: (preset && preset.groupUid) || null, ports: [], attachments: []
   } : clone(src);
   if (!Array.isArray(draft.attachments)) draft.attachments = [];
@@ -6178,14 +6481,11 @@ function openComponentPanel(uid, preset, focusPortUid) {
         fld('ID', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id', hint: 'Identificativo univoco, es. VCU' }),
         fld('Nome', inputFor(d, 'name'), { required: true, field: 'name' }),
         fld('Descrizione', textareaFor(d, 'description', { rows: 2 }), { wide: true }),
-        fld(helpLabel('Dominio', 'dominio'), selectFor(d, 'domain', state.lists.domains), { field: 'domain' }),
-        fld(helpLabel('Owner', 'owner'), selectFor(d, 'owner', ownerOptions()), { field: 'owner' }),
+        fld(helpLabel('Dominio', 'dominio'), selectFor(d, 'domain', state.lists.domains, null, null, addList('domains')), { field: 'domain' }),
+        fld(helpLabel('Owner', 'owner'), selectFor(d, 'owner', ownerOptions(), null, null, addList('owners')), { field: 'owner' }),
         fld('Fornitore', inputFor(d, 'supplier')),
-        fld('Stato', selectFor(d, 'status', STATUSES)),
-        fld('Gruppo funzionale', selectFor(d, 'groupUid', groupOpts, null, (v) => { d.groupUid = v || null; }), { field: 'groupUid' }),
-        h('div', { class: 'form-grid', style: { gap: '10px' } },
-          fld('Posizione X', inputFor(d, 'x', { type: 'number', step: 10 }), { field: 'pos' }),
-          fld('Posizione Y', inputFor(d, 'y', { type: 'number', step: 10 }), { field: 'pos' }))
+        fld('Stato', selectFor(d, 'status', state.lists.statuses, null, null, addList('statuses'))),
+        fld('Gruppo funzionale', selectFor(d, 'groupUid', groupOpts, null, (v) => { d.groupUid = v || null; }, { label: 'Nuovo gruppo…', onAdd: quickCreateGroup }), { field: 'groupUid' })
       );
       const portsBox = h('div');
       portsEd = portsEditor(d, portsBox, originalPorts, focusPortUid);
@@ -6205,7 +6505,6 @@ function openComponentPanel(uid, preset, focusPortUid) {
       const E = [], W = [];
       checkUniqueId(state.components, d, 'del componente', E);
       if (!str(d.name).trim()) E.push({ f: 'name', m: 'Il nome del componente è obbligatorio.' });
-      if (!Number.isFinite(Number(d.x)) || !Number.isFinite(Number(d.y)) || d.x === null || d.y === null) E.push({ f: 'pos', m: 'Le posizioni X e Y devono essere numeri.' });
       if (d.groupUid && !idx.group.has(d.groupUid)) E.push({ f: 'groupUid', m: 'Il gruppo funzionale selezionato non esiste.' });
       const seen = new Set();
       d.ports.forEach((p) => {
@@ -6227,7 +6526,9 @@ function openComponentPanel(uid, preset, focusPortUid) {
       const clean = stripDraft(d);
       clean.id = str(clean.id).trim();
       clean.name = str(clean.name).trim();
-      clean.x = Number(clean.x); clean.y = Number(clean.y);
+      // la posizione si cambia solo sulla lavagna: vale quella attuale (il blocco può essere stato spostato a pannello aperto)
+      const cur = idx.comp.get(clean.uid);
+      clean.x = cur ? Number(cur.x) || 0 : Number(clean.x) || 0; clean.y = cur ? Number(cur.y) || 0 : Number(clean.y) || 0;
       clean.groupUid = clean.groupUid || null;
       clean.ports.forEach((p) => { p.id = str(p.id).trim(); });
       return commit((st) => {
@@ -6504,7 +6805,6 @@ function portsEditor(draft, box, originalPorts, focusPortUid) {
     dd.id = str(dd.id).trim();
     if (!dd.id) return 'L’ID porta è obbligatorio.';
     if (draft.ports.some((p) => p.uid !== editing.uid && eqId(p.id, dd.id))) return 'Esiste già una porta con ID “' + dd.id + '” in questo componente.';
-    if (!str(dd.label).trim()) return 'L’etichetta della porta è obbligatoria.';
     return null;
   }
   function confirmEdit() {
@@ -6549,7 +6849,7 @@ function portsEditor(draft, box, originalPorts, focusPortUid) {
     const bind = (key, el) => { el.addEventListener('input', () => { dd[key] = el.value; }); el.addEventListener('change', () => { dd[key] = el.value; }); return el; };
     const idIn = bind('id', h('input', { class: 'inp', value: dd.id, maxlength: 20 }));
     const lbIn = bind('label', h('input', { class: 'inp', value: dd.label, placeholder: 'es. RS-422 CONTROL' }));
-    const tySel = h('select', { class: 'inp' }); fillSelect(tySel, state.lists.portTypes, dd.type); bind('type', tySel);
+    const tySel = makeAddable(h('select', { class: 'inp' }), 'Aggiungi…', addList('portTypes').onAdd); fillSelect(tySel, state.lists.portTypes, dd.type); bind('type', tySel);
     const drSel = h('select', { class: 'inp' }); fillSelect(drSel, DIRECTIONS, dd.direction); bind('direction', drSel);
     const sdSel = h('select', { class: 'inp' }); fillSelect(sdSel, PORT_SIDES, dd.side || 'auto'); bind('side', sdSel);
     const ntIn = bind('notes', h('input', { class: 'inp', value: dd.notes || '', placeholder: 'Note (facoltative)' }));
@@ -6559,7 +6859,7 @@ function portsEditor(draft, box, originalPorts, focusPortUid) {
     }));
     return h('tr', { class: 'port-edit' }, h('td', { colspan: 6 },
       h('div', { class: 'port-edit-grid' },
-        fld('ID porta', idIn, { required: true }), fld('Etichetta', lbIn, { required: true }),
+        fld('ID porta', idIn, { required: true }), fld('Etichetta', lbIn, { hint: 'Facoltativa' }),
         fld(helpLabel('Tipo', 'porta'), tySel), fld('Direzione', drSel),
         fld(helpLabel('Lato sul diagramma', 'lati'), sdSel, { wide: true, hint: 'Solo grafico: il connettore è uno. “Automatico” fa uscire le linee dal lato rivolto verso l’altro blocco; un lato fisso serve per convenzioni di disegno (es. alimentazioni a sinistra).' }),
         fld('Note', ntIn, { wide: true })),
@@ -6630,16 +6930,16 @@ function openInterfacePanel(uid, preset) {
     draft,
     onChange: (d) => { byId('spTitle').textContent = (d.id || '?') + ' — ' + (d.name || ''); },
     build: (d) => {
-      const pASel = selectFor(d, 'portA', portOptions(d.compA, d.uid), null);
-      const pBSel = selectFor(d, 'portB', portOptions(d.compB, d.uid), null);
+      const pASel = selectFor(d, 'portA', portOptions(d.compA, d.uid), null, null, { label: 'Nuova porta…', onAdd: () => quickCreatePort(d.compA) });
+      const pBSel = selectFor(d, 'portB', portOptions(d.compB, d.uid), null, null, { label: 'Nuova porta…', onAdd: () => quickCreatePort(d.compB) });
       const cASel = selectFor(d, 'compA', compOptions(), null, () => {
         if (!(idx.comp.get(d.compA) || { ports: [] }).ports.some((p) => p.uid === d.portA)) d.portA = '';
         fillSelect(pASel, portOptions(d.compA, d.uid), d.portA);
-      });
+      }, { label: 'Nuovo componente…', onAdd: async () => { const r = await quickCreateComponent(); if (r) fillSelect(cBSel, compOptions(), d.compB); return r; } });
       const cBSel = selectFor(d, 'compB', compOptions(), null, () => {
         if (!(idx.comp.get(d.compB) || { ports: [] }).ports.some((p) => p.uid === d.portB)) d.portB = '';
         fillSelect(pBSel, portOptions(d.compB, d.uid), d.portB);
-      });
+      }, { label: 'Nuovo componente…', onAdd: async () => { const r = await quickCreateComponent(); if (r) fillSelect(cASel, compOptions(), d.compA); return r; } });
       const swap = h('button', {
         type: 'button', class: 'btn sm', title: 'Scambia lato A e lato B', onclick: () => {
           [d.compA, d.compB] = [d.compB, d.compA];
@@ -6653,7 +6953,7 @@ function openInterfacePanel(uid, preset) {
         const l = subtypesOf(d.category);
         return [{ value: '', label: '— nessun sottotipo —' }].concat(l, d.subtype && !l.includes(d.subtype) ? [{ value: d.subtype, label: d.subtype + ' (non più in elenco)' }] : []);
       };
-      const subSel = selectFor(d, 'subtype', subOpts());
+      const subSel = selectFor(d, 'subtype', subOpts(), null, null, { label: 'Nuovo sottotipo…', onAdd: () => quickCreateSubtype(d.category) });
       const catHint = h('span');
       const paintCatHint = () => {
         catHint.innerHTML = '';
@@ -6665,14 +6965,14 @@ function openInterfacePanel(uid, preset) {
         if (!subtypesOf(d.category).includes(d.subtype)) d.subtype = subtypesOf(d.category)[0] || '';
         fillSelect(subSel, subOpts(), d.subtype);
         paintCatHint();
-      });
+      }, { label: 'Nuova categoria…', onAdd: quickCreateCategory });
       const kids = [
         h('div', { class: 'form-grid' },
           fld('ID', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id', hint: 'Univoco; se cambia, cavi e requisiti restano collegati' }),
           fld('Nome', inputFor(d, 'name', { placeholder: 'es. VCU to Display control interface' }), { required: true, field: 'name' }),
           fld(helpLabel('Categoria', 'categoria'), catSel, { required: true, field: 'category', hint: catHint }),
-          fld('Sottotipo', subSel, { field: 'subtype', hint: 'I sottotipi di ogni categoria si configurano in Impostazioni' }),
-          fld('Protocollo / standard', datalistInput(d, 'protocol', state.lists.protocols, { placeholder: 'es. RS-422, 28 VDC (MIL-STD-1275), Fissaggio a vite…' }), { wide: true, field: 'protocol', hint: 'Specifica tecnica che regola l’interfaccia: protocollo, livello di tensione, norma, tipo di fissaggio o di fluido' })),
+          fld('Sottotipo', subSel, { field: 'subtype', hint: 'Categorie e sottotipi si gestiscono anche in Impostazioni' }),
+          fld('Protocollo / standard', datalistInput(d, 'protocol', state.lists.protocols, { placeholder: 'es. RS-422, 28 VDC (MIL-STD-1275), Fissaggio a vite…' }), { wide: true, field: 'protocol', hint: 'Scegli un suggerimento o scrivi un valore nuovo: al salvataggio viene aggiunto ai suggerimenti' })),
         h('div', { class: 'form-grid', style: { marginTop: '12px' } },
           h('div', { class: 'endpoint-box' }, h('h4', null, 'Lato A'),
             fld('Componente A', cASel, { required: true, field: 'compA' }), h('div', { style: { height: '8px' } }),
@@ -6683,8 +6983,8 @@ function openInterfacePanel(uid, preset) {
         h('div', { class: 'row-actions' }, swap, h('span', { class: 'muted small' }, 'Il menu delle porte mostra solo le porte del componente selezionato.')),
         h('div', { class: 'form-grid', style: { marginTop: '12px' } },
           fld('Descrizione dello scambio', textareaFor(d, 'description', { rows: 3, placeholder: 'Dati, segnali o energia scambiati, frequenza, formati…' }), { wide: true }),
-          fld('Owner', selectFor(d, 'owner', ownerOptions())),
-          fld('Stato', selectFor(d, 'status', STATUSES)))
+          fld('Owner', selectFor(d, 'owner', ownerOptions(), null, null, addList('owners'))),
+          fld('Stato', selectFor(d, 'status', state.lists.statuses, null, null, addList('statuses'))))
       ];
       if (!isNew && !categoryNeedsCables(d.category) && !(idx.cablesByIface.get(uid) || []).length) {
         kids.push(h('div', { class: 'sp-section' }, h('h3', null, 'Realizzazione fisica'),
@@ -6694,7 +6994,7 @@ function openInterfacePanel(uid, preset) {
         kids.push(h('div', { class: 'sp-section' },
           h('h3', null, 'Cavi che realizzano l’interfaccia', h('span', { class: 'count' }, '(' + cbs.length + ')'), h('span', { class: 'spacer' }),
             h('button', { type: 'button', class: 'btn sm', onclick: async () => { if (await guardDirty()) openCablePanel(null, { ifaceUid: uid }); } }, '+ Cavo per questa interfaccia')),
-          cbs.length ? h('div', { class: 'rel-list' }, cbs.map((c) => relItem('cable', c.uid, c.id, (c.name || '') + ' · ' + (c.type || '—') + ' · ' + (pinoutSummary(c) || 'pinout non definito'))))
+          cbs.length ? h('div', { class: 'rel-list' }, cbs.map((c) => relItem('cable', c.uid, c.id, (c.name ? c.name + ' · ' : '') + (pinoutSummary(c) || 'pinout non definito'))))
             : h('div', { class: 'msg-box info' }, 'Nessun cavo associato: l’interfaccia non è ancora realizzata fisicamente.')));
       }
       if (!isNew) kids.push(routeInfoBox('interfaces', uid));
@@ -6711,6 +7011,7 @@ function openInterfacePanel(uid, preset) {
         const i = st.interfaces.findIndex((f) => f.uid === clean.uid);
         if (i >= 0) st.interfaces[i] = clean; else st.interfaces.push(clean);
         applyReqLinks(st, 'interface', clean.uid, d._reqs, d._newReqs);
+        rememberSuggestion(st, 'protocols', clean.protocol);
       }, isNew ? 'Interfaccia ' + clean.id + ' creata' : 'Interfaccia ' + clean.id + ' aggiornata');
     }
   });
@@ -6776,16 +7077,16 @@ function openCablePanel(uid, preset) {
     build: (d) => {
       const ifOpts = [{ value: '', label: '— seleziona interfaccia —' }].concat(state.interfaces.slice().sort((a, b) => cmpNat(a.id, b.id))
         .map((f) => ({ value: f.uid, label: f.id + ' — ' + f.name + ' (' + (portFull(f.portA) || '?') + ' ↔ ' + (portFull(f.portB) || '?') + ')' })));
-      const pASel = selectFor(d, 'portA', portOptions(d.compA));
-      const pBSel = selectFor(d, 'portB', portOptions(d.compB));
+      const pASel = selectFor(d, 'portA', portOptions(d.compA), null, null, { label: 'Nuova porta…', onAdd: () => quickCreatePort(d.compA) });
+      const pBSel = selectFor(d, 'portB', portOptions(d.compB), null, null, { label: 'Nuova porta…', onAdd: () => quickCreatePort(d.compB) });
       const cASel = selectFor(d, 'compA', compOptions(), null, () => {
         if (!(idx.comp.get(d.compA) || { ports: [] }).ports.some((p) => p.uid === d.portA)) d.portA = '';
         fillSelect(pASel, portOptions(d.compA), d.portA);
-      });
+      }, { label: 'Nuovo componente…', onAdd: async () => { const r = await quickCreateComponent(); if (r) fillSelect(cBSel, compOptions(), d.compB); return r; } });
       const cBSel = selectFor(d, 'compB', compOptions(), null, () => {
         if (!(idx.comp.get(d.compB) || { ports: [] }).ports.some((p) => p.uid === d.portB)) d.portB = '';
         fillSelect(pBSel, portOptions(d.compB), d.portB);
-      });
+      }, { label: 'Nuovo componente…', onAdd: async () => { const r = await quickCreateComponent(); if (r) fillSelect(cASel, compOptions(), d.compA); return r; } });
       const idInput = inputFor(d, 'id', { maxlength: 40 });
       const syncFromIface = () => {
         const f = idx.iface.get(d.ifaceUid);
@@ -6799,11 +7100,10 @@ function openCablePanel(uid, preset) {
         if (isNew && d.id === autoId) { d.id = suggestCableId(idx.iface.get(d.ifaceUid)); idInput.value = d.id; }
         formChanged();
       });
-      const lenRow = h('div', { class: 'inline-row' }, inputFor(d, 'length', { type: 'number', min: 0, step: 0.1 }), selectFor(d, 'lengthUnit', LENGTH_UNITS, { style: { maxWidth: '80px' } }));
       const kids = [
         h('div', { class: 'form-grid' },
           fld('ID cavo', idInput, { required: true, field: 'id' }),
-          fld('Stato', selectFor(d, 'status', STATUSES), { hint: 'Concordata / Baselined / Verified richiedono pinout e connettori' }),
+          fld('Stato', selectFor(d, 'status', state.lists.statuses, null, null, addList('statuses')), { hint: 'Concordata / Baselined / Verified richiedono pinout e connettori' }),
           fld('Interfaccia logica associata', ifSel, { required: true, wide: true, field: 'ifaceUid', hint: 'Selezionando l’interfaccia, componenti e porte vengono compilati automaticamente (modificabili).' }),
           fld('Funzione / descrizione', inputFor(d, 'name', { placeholder: 'es. RS-422 transmit pair' }), { wide: true })),
         h('div', { class: 'form-grid', style: { marginTop: '12px' } },
@@ -6815,12 +7115,10 @@ function openCablePanel(uid, preset) {
             fld('Componente B', cBSel, { required: true, field: 'compB' }), h('div', { style: { height: '8px' } }),
             fld('Porta B', pBSel, { required: true, field: 'portB' }), h('div', { style: { height: '8px' } }),
             fld('Connettore lato B', datalistInput(d, 'connB', state.lists.connectors, { placeholder: 'es. D-Sub 9 (DE-9)' }), { field: 'connB' }))),
+        h('div', { class: 'fld-hint', style: { marginTop: '6px' } }, 'Connettori: scegli un suggerimento o scrivi un valore nuovo; al salvataggio viene aggiunto ai suggerimenti.'),
         h('div', { class: 'row-actions' }, h('button', { type: 'button', class: 'btn sm', onclick: () => { syncFromIface(); formChanged(); } }, '↺ Allinea estremi all’interfaccia')),
         h('div', { class: 'form-grid', style: { marginTop: '12px' } },
-          fld('Tipo di cavo', datalistInput(d, 'type', state.lists.cableTypes, { placeholder: 'es. Twisted pair 120 Ω' })),
-          fld('Schermatura', selectFor(d, 'shielding', SHIELDING)),
-          fld('Lunghezza', lenRow, { field: 'length' }),
-          fld('Specifica / part number', inputFor(d, 'partNumber')),
+          fld('Specifica / part number', inputFor(d, 'partNumber'), { wide: true }),
           fld('Note', textareaFor(d, 'notes', { rows: 2 }), { wide: true })),
         h('div', { class: 'sp-section', 'data-field': 'pinout' }, h('h3', null, 'Pinout', h('span', { class: 'spacer' }), h('span', { class: 'muted small', style: { fontWeight: '400' } }, 'Pin e segnale lato A → pin e segnale lato B')), pinoutEditor(d))
       ];
@@ -6839,6 +7137,8 @@ function openCablePanel(uid, preset) {
         const i = st.cables.findIndex((c) => c.uid === clean.uid);
         if (i >= 0) st.cables[i] = clean; else st.cables.push(clean);
         applyReqLinks(st, 'cable', clean.uid, d._reqs, d._newReqs);
+        rememberSuggestion(st, 'connectors', clean.connA);
+        rememberSuggestion(st, 'connectors', clean.connB);
       }, isNew ? 'Cavo ' + clean.id + ' creato' : 'Cavo ' + clean.id + ' aggiornato');
     }
   });
@@ -6862,14 +7162,12 @@ function validateCable(d) {
   if (cA && !cA.ports.some((p) => p.uid === d.portA)) E.push({ f: 'portA', m: d.portA ? 'La porta A non appartiene al componente A.' : 'Seleziona la porta A.' });
   if (cB && !cB.ports.some((p) => p.uid === d.portB)) E.push({ f: 'portB', m: d.portB ? 'La porta B non appartiene al componente B.' : 'Seleziona la porta B.' });
   if (d.portA && d.portA === d.portB) E.push({ f: 'portB', m: 'Porta A e porta B coincidono.' });
-  if (d.length != null && d.length !== '' && (!Number.isFinite(Number(d.length)) || Number(d.length) < 0)) E.push({ f: 'length', m: 'La lunghezza deve essere un numero positivo.' });
   const approved = APPROVED_STATUSES.has(d.status);
   const hasPin = pinoutRows(d).length > 0;
   if (!hasPin) (approved ? E : W).push({ f: 'pinout', m: approved ? 'Un cavo in stato ' + d.status + ' deve avere un pinout non vuoto.' : 'Pinout non ancora definito.' });
   if (!str(d.connA).trim()) (approved ? E : W).push({ f: 'connA', m: approved ? 'Un cavo in stato ' + d.status + ' deve avere il connettore lato A.' : 'Connettore lato A non definito.' });
   if (!str(d.connB).trim()) (approved ? E : W).push({ f: 'connB', m: approved ? 'Un cavo in stato ' + d.status + ' deve avere il connettore lato B.' : 'Connettore lato B non definito.' });
   if (f && d.portA && d.portB && !cableMatchesInterface(d, f)) W.push({ m: 'Gli estremi del cavo sono diversi da quelli dell’interfaccia ' + f.id + ' (' + portFull(f.portA) + ' ↔ ' + portFull(f.portB) + ').' });
-  if (!str(d.type).trim()) W.push({ m: 'Tipo di cavo non indicato.' });
   return { errors: E, warnings: W };
 }
 function pinoutEditor(d) {
@@ -6973,13 +7271,13 @@ function openRequirementPanel(uid, preset) {
       return [
         h('div', { class: 'form-grid' },
           fld('ID requisito', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id' }),
-          fld('Stato', selectFor(d, 'status', REQ_STATUSES)),
+          fld('Stato', selectFor(d, 'status', state.lists.reqStatuses, null, null, addList('reqStatuses'))),
           fld('Titolo', inputFor(d, 'title', { maxlength: 160, placeholder: 'Sintesi breve, es. Latenza degli aggiornamenti di controllo' }), { required: true, wide: true, field: 'title' }),
           fld('Testo del requisito', textareaFor(d, 'text', { rows: 4, placeholder: 'The … shall …' }), { required: true, wide: true, field: 'text' }),
-          fld('Tipo', selectFor(d, 'type', REQ_TYPES)),
-          fld('Origine', selectFor(d, 'origin', REQ_ORIGINS)),
-          fld('Metodo di verifica', selectFor(d, 'method', REQ_METHODS)),
-          fld('Owner', selectFor(d, 'owner', ownerOptions())),
+          fld('Tipo', selectFor(d, 'type', state.lists.reqTypes, null, null, addList('reqTypes'))),
+          fld('Origine', selectFor(d, 'origin', state.lists.reqOrigins, null, null, addList('reqOrigins'))),
+          fld('Metodo di verifica', selectFor(d, 'method', state.lists.reqMethods, null, null, addList('reqMethods'))),
+          fld('Owner', selectFor(d, 'owner', ownerOptions(), null, null, addList('owners'))),
           h('div', { class: 'fld wide' }, checkboxFor(d, 'shareable', 'Condivisibile con il fornitore',
             'Se attivo, il requisito può essere incluso nell’esportazione Excel per il fornitore (colonne ID, Titolo, Testo, Metodo di verifica).')),
           fld('Note / razionale (interne)', textareaFor(d, 'notes', { rows: 2 }), { wide: true, hint: 'Le note non vengono mai esportate verso il fornitore.' })),
@@ -7069,8 +7367,8 @@ function openGroupPanel(uid, preset) {
       const nc = { id: nextId('CMP-', allIds(), 2), name: '', domain: state.lists.domains.includes('Altro') ? 'Altro' : state.lists.domains[0], owner: d.owner || 'Da assegnare', ports: '' };
       const ncId = h('input', { class: 'inp', value: nc.id, maxlength: 40 });
       const ncName = h('input', { class: 'inp', placeholder: 'es. Mission Computer' });
-      const ncDom = h('select', { class: 'inp' }); fillSelect(ncDom, state.lists.domains, nc.domain);
-      const ncOwn = h('select', { class: 'inp' }); fillSelect(ncOwn, ownerOptions(), nc.owner);
+      const ncDom = makeAddable(h('select', { class: 'inp' }), 'Aggiungi…', addList('domains').onAdd); fillSelect(ncDom, state.lists.domains, nc.domain);
+      const ncOwn = makeAddable(h('select', { class: 'inp' }), 'Aggiungi…', addList('owners').onAdd); fillSelect(ncOwn, ownerOptions(), nc.owner);
       const ncPorts = h('input', { class: 'inp', placeholder: 'es. J1 28 VDC POWER; J2 ETHERNET DATA' });
       const ncErr = h('div', { class: 'msg-box err', style: { display: 'none', margin: '6px 0 0' } });
       const addBtn = h('button', {
@@ -7100,7 +7398,7 @@ function openGroupPanel(uid, preset) {
         h('div', { class: 'form-grid' },
           fld('ID', ncId, { required: true }), fld('Nome', ncName, { required: true }),
           fld('Dominio', ncDom), fld('Owner', ncOwn),
-          fld('Porte iniziali (facoltative)', ncPorts, { wide: true, hint: 'Una porta per voce, separate da “;”: ID seguito dall’etichetta. Tipo e direzione si completano poi nel componente.' })),
+          fld('Porte iniziali (facoltative)', ncPorts, { wide: true, hint: 'Una porta per voce, separate da “;”: ID seguito dall’etichetta (facoltativa). Tipo e direzione si completano poi nel componente.' })),
         ncErr,
         h('div', { class: 'row-actions' }, addBtn, h('span', { class: 'muted small' }, 'Il componente viene creato e posizionato nella cornice del gruppo quando salvi il gruppo.')));
       return [
@@ -7108,7 +7406,7 @@ function openGroupPanel(uid, preset) {
           fld('ID', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id' }),
           fld('Nome', inputFor(d, 'name'), { required: true, field: 'name' }),
           fld('Descrizione', textareaFor(d, 'description', { rows: 2 }), { wide: true }),
-          fld('Owner', selectFor(d, 'owner', ownerOptions())),
+          fld('Owner', selectFor(d, 'owner', ownerOptions(), null, null, addList('owners'))),
           fld('Colore sulla lavagna', colors)),
         h('div', { class: 'sp-section' }, h('h3', null, 'Componenti del gruppo', countEl), list, quick,
           h('div', { class: 'fld-hint', style: { marginTop: '6px' } }, 'Ogni componente appartiene al massimo a un gruppo. Sulla lavagna la cornice del gruppo racchiude i suoi componenti; trascinane l’intestazione per spostarli insieme.'))
@@ -7233,8 +7531,6 @@ const TABLES = {
       { key: 'owner', label: 'Owner', cls: 'nowrap', get: (c) => c.owner },
       { key: 'supplier', label: 'Fornitore', cls: 'nowrap', get: (c) => c.supplier },
       { key: 'status', label: 'Stato', get: (c) => c.status, render: (c) => pill(c.status) },
-      { key: 'x', label: 'X', cls: 'num', get: (c) => Number(c.x) || 0 },
-      { key: 'y', label: 'Y', cls: 'num', get: (c) => Number(c.y) || 0 },
       { key: 'np', label: 'N. porte', cls: 'num', get: (c) => c.ports.length },
       { key: 'ports', label: 'Porte', get: (c) => c.ports.map((p) => p.id + ' ' + p.label).join('; '), render: (c) => c.ports.length ? c.ports.map((p) => h('span', { class: 'chip port link', 'data-open': 'port:' + p.uid, title: p.type + ' · ' + p.direction }, h('b', null, p.id), ' ', p.label)) : h('span', { class: 'muted' }, 'nessuna') },
       { key: 'nif', label: 'Interfacce', cls: 'num', get: (c) => (idx.ifacesByComp.get(c.uid) || []).length },
@@ -7249,7 +7545,7 @@ const TABLES = {
       { key: 'category', label: 'Categoria', options: () => state.lists.ifCategories.map((c) => c.name), test: (f, v) => f.category === v },
       { key: 'domains', label: 'Domini', options: () => [{ value: 'cross', label: 'Interdominio' }, { value: 'same', label: 'Stesso dominio' }], test: (f, v) => isCrossDomain(f) === (v === 'cross') },
       { key: 'owner', label: 'Owner', options: () => state.lists.owners, test: (f, v) => f.owner === v },
-      { key: 'status', label: 'Stato', options: () => STATUSES, test: (f, v) => f.status === v }
+      { key: 'status', label: 'Stato', options: () => state.lists.statuses, test: (f, v) => f.status === v }
     ],
     columns: [
       { key: 'id', label: 'ID', cls: 'id', get: (f) => f.id },
@@ -7274,7 +7570,7 @@ const TABLES = {
     rows: () => state.cables,
     filters: [
       { key: 'iface', label: 'Interfaccia', options: () => state.interfaces.slice().sort((a, b) => cmpNat(a.id, b.id)).map((f) => ({ value: f.uid, label: f.id })), test: (c, v) => c.ifaceUid === v },
-      { key: 'status', label: 'Stato', options: () => STATUSES, test: (c, v) => c.status === v }
+      { key: 'status', label: 'Stato', options: () => state.lists.statuses, test: (c, v) => c.status === v }
     ],
     defaultSort: { key: 'iface', dir: 1 },
     columns: [
@@ -7285,12 +7581,9 @@ const TABLES = {
       { key: 'portA', label: 'Porta A', get: (c) => portIdOf(c.portA) || '', render: (c) => portCell(c.compA, c.portA) },
       { key: 'compB', label: 'Comp. B', get: (c) => compIdOf(c.compB) || '', render: (c) => compCell(c.compB) },
       { key: 'portB', label: 'Porta B', get: (c) => portIdOf(c.portB) || '', render: (c) => portCell(c.compB, c.portB) },
-      { key: 'type', label: 'Tipo di cavo', cls: 'nowrap', get: (c) => c.type },
       { key: 'connA', label: 'Connettore A', cls: 'nowrap', get: (c) => c.connA, render: (c) => c.connA || h('span', { class: 'ico-warn', title: 'Connettore lato A mancante' }, '?') },
       { key: 'connB', label: 'Connettore B', cls: 'nowrap', get: (c) => c.connB, render: (c) => c.connB || h('span', { class: 'ico-warn', title: 'Connettore lato B mancante' }, '?') },
       { key: 'pinout', label: 'Pinout', cls: 'mid', get: (c) => pinoutSummary(c), render: (c) => pinoutSummary(c) ? h('span', { class: 'mono small' }, pinoutSummary(c)) : h('span', { class: 'muted' }, 'non definito') },
-      { key: 'length', label: 'Lunghezza', cls: 'num', get: (c) => (c.length == null ? -1 : Number(c.length)), csv: (c) => lengthText(c), render: (c) => lengthText(c) || h('span', { class: 'muted' }, '—') },
-      { key: 'shielding', label: 'Schermatura', cls: 'nowrap', get: (c) => c.shielding },
       { key: 'pn', label: 'Specifica / P/N', cls: 'nowrap', get: (c) => c.partNumber },
       { key: 'reqs', label: 'Requisiti', get: (c) => reqIds(c.uid), render: (c) => reqChips(c.uid) },
       { key: 'status', label: 'Stato', get: (c) => c.status, render: (c) => pill(c.status) }
@@ -7309,8 +7602,8 @@ const TABLES = {
     },
     filters: [
       { key: 'share', label: 'Fornitore', options: () => [{ value: 'yes', label: 'Condivisibili' }, { value: 'no', label: 'Non condivisibili' }], test: (r, v) => (v === 'yes' ? !!r.shareable : !r.shareable) },
-      { key: 'type', label: 'Tipo', options: () => REQ_TYPES, test: (r, v) => r.type === v },
-      { key: 'status', label: 'Stato', options: () => REQ_STATUSES, test: (r, v) => r.status === v },
+      { key: 'type', label: 'Tipo', options: () => state.lists.reqTypes, test: (r, v) => r.type === v },
+      { key: 'status', label: 'Stato', options: () => state.lists.reqStatuses, test: (r, v) => r.status === v },
       { key: 'kind', label: 'Collegato a', options: () => [{ value: 'interface', label: 'Interfacce' }, { value: 'cable', label: 'Cavi' }, { value: 'component', label: 'Componenti' }, { value: 'port', label: 'Porte' }, { value: '__none', label: '(nessun oggetto)' }], test: (r, v) => (v === '__none' ? !(r.links || []).length : (r.links || []).some((l) => l.kind === v)) }
     ],
     columns: [
@@ -7717,7 +8010,8 @@ function renderDashboard() {
       meter('Cavi con entrambi i connettori', cabWithConn, state.cables.length),
       meter('Requisiti approvati o verificati', reqApproved, state.requirements.length),
       meter('Porte utilizzate', nPorts - unusedPorts, nPorts))));
-  const statusCard = (title, list, statuses) => {
+  const statusCard = (title, list, conf) => {
+    const statuses = Array.from(new Set(conf.concat(list.map((o) => o.status).filter(Boolean))));
     const max = Math.max(1, ...statuses.map((s) => list.filter((o) => o.status === s).length));
     return h('div', { class: 'card' }, h('div', { class: 'card-head' }, title, h('span', { class: 'muted small', style: { fontWeight: '400' } }, list.length + ' totali')),
       h('div', { class: 'card-body status-bars' }, statuses.map((s) => {
@@ -7725,9 +8019,9 @@ function renderDashboard() {
         return h('div', { class: 'sb-row', title: s + ': ' + n }, h('span', null, pill(s)), h('div', { class: 'sb-bar' }, h('span', { style: { width: (n / max * 100) + '%' } })), h('span', { class: 'sb-n' }, String(n)));
       })));
   };
-  right.appendChild(statusCard('Stato delle interfacce', state.interfaces, STATUSES));
-  right.appendChild(statusCard('Stato dei cavi', state.cables, STATUSES));
-  right.appendChild(statusCard('Stato dei requisiti', state.requirements, REQ_STATUSES));
+  right.appendChild(statusCard('Stato delle interfacce', state.interfaces, state.lists.statuses));
+  right.appendChild(statusCard('Stato dei cavi', state.cables, state.lists.statuses));
+  right.appendChild(statusCard('Stato dei requisiti', state.requirements, state.lists.reqStatuses));
   root.appendChild(h('div', { class: 'dash-grid' }, left, right));
   root.scrollTop = scroll;
 }
@@ -7817,6 +8111,8 @@ function normalizeData(raw) {
     });
     out.lists.protocols = cleanList(out.lists.protocols.concat(DEFAULT_LISTS.protocols));
   }
+  // schema 4: stati e liste dei requisiti diventano elenchi del progetto (dai valori predefiniti, già impostati sopra se
+  // assenti); si aggiunge la posizione delle etichette spostate a mano (out.labels, più sotto)
   const ensureCategory = (name, sub) => {
     let c = out.lists.ifCategories.find((x) => x.name === name);
     if (!c) {
@@ -7849,7 +8145,7 @@ function normalizeData(raw) {
     out.components.push({
       uid: takeUid(c.uid, 'c'), id: str(c.id).trim(), name: str(c.name), description: str(c.description),
       domain: pick(c.domain, out.lists.domains, 'Altro'), owner: pick(c.owner, out.lists.owners, 'Da assegnare'), supplier: str(c.supplier),
-      status: pick(c.status, STATUSES, 'Da verificare'),
+      status: pick(c.status, out.lists.statuses, 'Da verificare'),
       x: hasPos ? Number(c.x) : 40 + (i % 4) * 340, y: hasPos ? Number(c.y) : 40 + Math.floor(i / 4) * 300,
       groupUid: cg, ports,
       attachments: (Array.isArray(c.attachments) ? c.attachments : []).filter((a) => isObj(a) && str(a.fid).trim() && str(a.name).trim()).map((a) => ({
@@ -7887,7 +8183,7 @@ function normalizeData(raw) {
     }
     if (!category) category = 'Funzionale';
     ensureCategory(category, subtype);
-    out.interfaces.push({ uid: takeUid(f.uid, 'i'), id: str(f.id).trim(), name: str(f.name), compA: a.comp, portA: a.port, compB: b.comp, portB: b.port, category, subtype, protocol, description: str(f.description), owner: pick(f.owner, out.lists.owners, 'Da assegnare'), status: pick(f.status, STATUSES, 'Da verificare') });
+    out.interfaces.push({ uid: takeUid(f.uid, 'i'), id: str(f.id).trim(), name: str(f.name), compA: a.comp, portA: a.port, compB: b.comp, portB: b.port, category, subtype, protocol, description: str(f.description), owner: pick(f.owner, out.lists.owners, 'Da assegnare'), status: pick(f.status, out.lists.statuses, 'Da verificare') });
   });
   if (migratedIf) warnings.push(plural(migratedIf, 'interfaccia convertita', 'interfacce convertite') + ' dal vecchio campo “Tipo / protocollo” a categoria, sottotipo e protocollo: verificare la classificazione.');
   const ifRef = (v) => out.interfaces.find((f) => f.uid === v) || out.interfaces.find((f) => eqId(f.id, v)) || null;
@@ -7910,7 +8206,7 @@ function normalizeData(raw) {
       uid: takeUid(c.uid, 'w'), id: str(c.id).trim(), ifaceUid: f ? f.uid : str(fRaw), name: str(c.name),
       compA: a.comp, portA: a.port, compB: b.comp, portB: b.port, type: str(c.type), connA: str(c.connA), connB: str(c.connB),
       pinout, length: Number.isFinite(len) ? len : null, lengthUnit: pick(c.lengthUnit, LENGTH_UNITS, 'm'),
-      shielding: pick(c.shielding, SHIELDING, 'None'), partNumber: str(c.partNumber), notes: str(c.notes), status: pick(c.status, STATUSES, 'Da verificare')
+      shielding: pick(c.shielding, SHIELDING, 'None'), partNumber: str(c.partNumber), notes: str(c.notes), status: pick(c.status, out.lists.statuses, 'Da verificare')
     });
   });
   const resolveLink = (l, label) => {
@@ -7932,9 +8228,9 @@ function normalizeData(raw) {
     const label = 'Requisito ' + (r.id || '#' + (i + 1));
     const raws = Array.isArray(r.links) ? r.links : (r.link ? [r.link] : []);
     out.requirements.push({
-      uid: takeUid(r.uid, 'r'), id: str(r.id).trim(), title: str(r.title), text: str(r.text), type: pick(r.type, REQ_TYPES, 'Interface'), origin: pick(r.origin, REQ_ORIGINS, 'System derived'), shareable: !!r.shareable,
-      links: raws.map((l) => resolveLink(l, label)).filter(Boolean), method: pick(r.method, REQ_METHODS, 'Test'),
-      owner: pick(r.owner, out.lists.owners, 'Da assegnare'), status: pick(r.status, REQ_STATUSES, 'Draft'), notes: str(r.notes)
+      uid: takeUid(r.uid, 'r'), id: str(r.id).trim(), title: str(r.title), text: str(r.text), type: pick(r.type, out.lists.reqTypes, 'Interface'), origin: pick(r.origin, out.lists.reqOrigins, 'System derived'), shareable: !!r.shareable,
+      links: raws.map((l) => resolveLink(l, label)).filter(Boolean), method: pick(r.method, out.lists.reqMethods, 'Test'),
+      owner: pick(r.owner, out.lists.owners, 'Da assegnare'), status: pick(r.status, out.lists.reqStatuses, 'Draft'), notes: str(r.notes)
     });
   });
   const dupWarn = (arr, label) => {
@@ -7956,6 +8252,18 @@ function normalizeData(raw) {
     });
   } else if (d.routing != null) badRoutes++;
   if (badRoutes) warnings.push(plural(badRoutes, 'percorso grafico non valido', 'percorsi grafici non validi') + ' ignorati: verranno ricalcolati automaticamente.');
+  // etichette dei collegamenti spostate a mano (formato 4): punto lungo il percorso (t, da 0 a 1) e scostamento
+  out.labels = { interfaces: {}, cables: {} };
+  if (isObj(d.labels)) {
+    ['interfaces', 'cables'].forEach((m) => {
+      if (!isObj(d.labels[m])) return;
+      const keys = new Set(m === 'interfaces' ? out.interfaces.map((f) => f.uid) : out.cables.map((c) => c.uid).concat(out.interfaces.map((f) => 'g:' + f.uid)));
+      Object.keys(d.labels[m]).forEach((k) => {
+        const v = d.labels[m][k];
+        if (keys.has(k) && isObj(v) && [v.t, v.dx, v.dy].every((n) => n !== null && n !== '' && Number.isFinite(Number(n)))) out.labels[m][k] = { t: clamp(Number(v.t), 0, 1), dx: Number(v.dx), dy: Number(v.dy) };
+      });
+    });
+  }
   if (srcSchema > APP.schema) warnings.push('I dati provengono da una versione più recente dell’applicazione (formato ' + srcSchema + '; questa versione gestisce il formato ' + APP.schema + ').');
   return { errors, warnings, data: out, srcSchema, migratedFrom: srcSchema < APP.schema ? srcSchema : null, tooNew: srcSchema > APP.schema ? srcSchema : null };
 }
@@ -8004,7 +8312,7 @@ async function openSettings() {
   // ---- liste semplici ----
   const areas = {};
   const grid = h('div', { class: 'settings-grid' });
-  SIMPLE_LISTS.forEach((k) => {
+  SETTINGS_LISTS.forEach((k) => {
     const ta = h('textarea', { class: 'inp', spellcheck: 'false' });
     ta.value = state.lists[k].join('\n');
     areas[k] = ta;
@@ -8053,7 +8361,7 @@ async function openSettings() {
       subtypes: Array.from(new Set(r.subtypes.split('\n').map((x) => x.trim()).filter(Boolean)))
     }));
     st.interfaces.forEach((f) => { if (renames.has(f.category)) f.category = renames.get(f.category); });
-    SIMPLE_LISTS.forEach((k) => { st.lists[k] = Array.from(new Set(areas[k].value.split('\n').map((x) => x.trim()).filter(Boolean))); });
+    SETTINGS_LISTS.forEach((k) => { st.lists[k] = Array.from(new Set(areas[k].value.split('\n').map((x) => x.trim()).filter(Boolean))); });
   }, 'Impostazioni salvate');
 }
 /* ---------- Guida in linea ---------- */
@@ -8111,7 +8419,13 @@ function openHelp(topic) {
           ['Servizi VCU → applicazione display', 'Software / Servizi / API', 'DDS (OMG Data Distribution Service)'],
           ['Radio → antenna', 'RF / Coassiale', 'RF 50 Ω'], ['Rete di bordo', 'Rete/IP / Ethernet', 'Ethernet 1000BASE-T']].map((r) => h('tr', null, r.map((x) => h('td', null, x)))))),
       P(B('Funzionale o Elettrica?'), ' “Funzionale” descrive ', h('i', null, 'che cosa'), ' viene scambiato (dati, comandi, stati) indipendentemente dal mezzo; “Elettrica” descrive l’energia o il segnale elettrico in sé (alimentazione, massa, segnale analogico, RF).'),
-      P('Le categorie e i sottotipi sono estendibili in ', B('Impostazioni'), ': puoi aggiungere sottotipi, nuove categorie, cambiarne il colore e indicare se sono ', B('realizzate tramite cavi'), '. Per le categorie non cablate (di default Meccanica e Fluidica) non viene segnalata la mancanza di cavi e, nella vista cavi, l’interfaccia è disegnata tratteggiata come “non cablata”.')),
+      P('Le categorie e i sottotipi sono estendibili direttamente dalla scheda dell’interfaccia (voci ', B('＋ Nuova categoria…'), ' e ', B('＋ Nuovo sottotipo…'), ' dei menu) oppure in ', B('Impostazioni'), ', dove puoi anche cambiarne il colore e indicare se sono ', B('realizzate tramite cavi'), '. Per le categorie non cablate (di default Meccanica e Fluidica) non viene segnalata la mancanza di cavi e, nella vista cavi, l’interfaccia è disegnata tratteggiata come “non cablata”.')),
+    S('elenchi', 'Valori nuovi nei menu a tendina',
+      UL(['Ogni menu a tendina delle schede termina con la voce ', B('＋ Aggiungi…'), ': inserisci il nuovo valore e viene subito selezionato e aggiunto all’elenco del progetto (dominio, owner, tipo di porta, stato, tipo / origine / metodo di verifica dei requisiti, categoria, sottotipo).'],
+        ['Nei menu che scelgono un oggetto la voce crea l’oggetto: ', B('＋ Nuovo componente…'), ', ', B('＋ Nuova porta…'), ' (sul componente selezionato), ', B('＋ Nuovo gruppo…'), '.'],
+        ['Nei campi con suggerimenti (protocollo / standard, connettori) puoi scrivere un valore nuovo: al salvataggio viene aggiunto ai suggerimenti.'],
+        ['Tutti gli elenchi si rivedono e si correggono in ', B('Impostazioni'), '. Restano fissi solo la direzione della porta (IN, OUT, I/O, n.a.) e il lato sul diagramma, perché il disegno della lavagna dipende da loro.'],
+        ['L’etichetta della porta è facoltativa: se manca, sulla lavagna e nei menu compare solo l’ID (es. J1).'])),
     S('requisiti', 'Requisiti ed esportazione per il fornitore',
       UL(['Campi principali: ', B('ID'), ', ', B('Titolo'), ' (sintesi breve), ', B('Testo del requisito'), ' (forma consigliata: “The … shall …”), ', B('Metodo di verifica'), ' (Test, Inspection, Analysis, Demonstration).'],
         [B('Condivisibile con il fornitore'), ': indica che il requisito può essere trasmesso all’esterno. Le note interne non vengono mai esportate.'],
@@ -8119,10 +8433,13 @@ function openHelp(topic) {
         ['Puoi creare requisiti anche dal pannello di un componente, di un’interfaccia o di un cavo: restano collegati all’oggetto.'])),
     S('lavagna', 'Lavagna: comandi',
       UL(['Zoom con la rotella del mouse, il gesto del trackpad o i pulsanti − / +; trascina lo sfondo per spostare la vista; “Adatta” mostra tutto lo schema; clic sulla percentuale: zoom 100%.'],
-        ['Trascina i blocchi o le cornici dei gruppi per spostarli; i collegamenti vengono reinstradati automaticamente con linee ortogonali.'],
+        ['Trascina i blocchi o la fascia del titolo dei gruppi per spostarli: i blocchi si allineano a una griglia di 10; tenendo premuto ', B('Alt'), ' si spostano liberamente. I collegamenti vengono reinstradati automaticamente con linee ortogonali.'],
+        [B('Spostamento di precisione con la tastiera'), ': seleziona un elemento con un clic e usa le ', B('frecce'), ' (1 unità per pressione, ', B('Maiusc + freccia'), ' 10 unità). Funziona per blocchi, gruppi, etichette dei collegamenti (con la linea selezionata) e punti di instradamento (con il punto selezionato). Pressioni consecutive sullo stesso elemento si annullano con un solo Ctrl+Z.'],
+        [B('Etichette dei collegamenti'), ' (interfacce e cavi): trascinale dove sono più leggibili. Restano agganciate alla loro linea: se sposti i blocchi seguono il collegamento, con una linea tratteggiata di richiamo. Clic destro sull’etichetta → “Ripristina posizione automatica dell’etichetta”.'],
         ['Trascina da una porta a un’altra per creare un’interfaccia (vista interfacce) o un cavo (vista cavi).'],
         [B('Auto-Rerouting'), ' ricalcola i percorsi della vista corrente minimizzando incroci e piegature; se ci sono percorsi modificati a mano puoi scegliere di mantenerli.'],
-        ['Annulla / Ripeti: Ctrl+Z / Ctrl+Y (anche per ogni modifica ai percorsi). Canc elimina l’oggetto selezionato.'])),
+        ['Annulla / Ripeti: Ctrl+Z / Ctrl+Y (anche per ogni modifica ai percorsi). Canc elimina l’oggetto selezionato.'],
+        ['La posizione dei blocchi si cambia solo sulla lavagna: le schede dei componenti non mostrano le coordinate.'])),
     S('percorsi', 'Percorsi manuali e punti di instradamento',
       P('L’instradamento automatico resta sempre disponibile, ma puoi intervenire a mano su qualunque collegamento (interfaccia o cavo):'),
       UL(['Fai clic sulla linea per selezionarla: compaiono i ', B('punti di instradamento'), ' (●, gli angoli del percorso) e le maniglie dei tratti (▬).'],
@@ -8162,6 +8479,7 @@ function openHelp(topic) {
         [B('Aggiornamenti dei colleghi'), ': quando un altro utente salva il progetto aperto, compare “Progetto aggiornato da un altro utente” con il pulsante per ricaricarlo.'],
         [B('Conflitti'), ': se due persone modificano lo stesso progetto contemporaneamente, il salvataggio si ferma e l’indicatore in alto diventa “⚠ Conflitto”. Puoi aprire la versione del collega, salvare le tue modifiche come copia separata oppure sovrascrivere. Le modifiche non vengono mai scartate in silenzio.'],
         ['Se OneDrive crea una copia di conflitto (es. progetto-NomePC.idvproj), la finestra Progetti la segnala e la importa come progetto separato da confrontare.'],
+        [B('Nomi delle cartelle'), ': ogni progetto è una sottocartella con il suo nome. Se rinomini il progetto (Progetti → ⋯ → Rinomina, oppure Impostazioni) anche la sottocartella prende il nuovo nome; i caratteri non ammessi nei nomi dei file (\\ / : * ? " < > |) vengono sostituiti da spazi. Con molti allegati la rinomina può richiedere qualche secondo.'],
         [B('Regola pratica'), ': un progetto = un responsabile delle modifiche alla volta; gli altri lo consultano. Per lavorare in parallelo conviene dividere lo schema in più progetti.'],
         ['Le preferenze personali (nome utente, vista, zoom) restano nel browser di ciascuno; il token GitHub non viene mai scritto nella cartella condivisa.'])),
     S('github', 'GitHub: repository distinti e versionamento',
@@ -8297,6 +8615,12 @@ function setupGlobalHandlers() {
       if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); redo(); return; }
     }
     if (mod && e.key.toLowerCase() === 's' && panelCtx) { e.preventDefault(); panelSave(); return; }
+    if (e.key.indexOf('Arrow') === 0 && !mod && !e.altKey && !isTyping(e) && ui.section === 'board' && ui.selected) {
+      const step = e.shiftKey ? 10 : 1;
+      const dx = e.key === 'ArrowLeft' ? -step : (e.key === 'ArrowRight' ? step : 0), dy = e.key === 'ArrowUp' ? -step : (e.key === 'ArrowDown' ? step : 0);
+      if ((dx || dy) && nudgeSelection(dx, dy)) e.preventDefault();
+      return;
+    }
     if ((e.key === 'Delete' || e.key === 'Backspace') && !isTyping(e) && ui.section === 'board' && ui.activeWp) {
       e.preventDefault(); removeWaypointAt(ui.activeWp.key, ui.activeWp.k); return;
     }
@@ -8356,6 +8680,7 @@ window.IDV = {
   get state() { return state; }, get issues() { return issues; }, ui,
   get routeStats() { return Object.assign({}, lastRouteStats); },
   get routes() { return [...lastItems.values()].map((it) => ({ key: it.key, id: it.L.obj.id, kind: it.L.kind, sA: it.sA, sB: it.sB, manual: it.manual, pts: it.pts.map((q) => [q.x, q.y]) })); },
+  get labels() { return [...lastLabelPos.entries()].map(([key, p]) => ({ key, lkey: p.lkey, x: p.x, y: p.y, manual: !!p.manual })); },
   get history() { return { past: history.past.map((e) => e.label), future: history.future.map((e) => e.label) }; },
   get project() { return project ? { id: project.id, name: state.meta.name, storage: Store.mode, workFolder: Store.mode === 'folder' ? Store.name : null, folder: project.folder, github: project.github, log: project.log.slice(-50), pending: !!project.pending, conflict: saveConflict } : null; },
   version: APP.version, schema: APP.schema,

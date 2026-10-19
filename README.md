@@ -17,8 +17,8 @@ Sostituire o aggiornare il file HTML **non tocca i dati**. Con l'archivio del br
 
 ## Versioni e migrazione dei dati
 
-- `APP.version` è la versione dell'applicazione, per esempio `3.1`.
-- `APP.schema` è la versione del **formato dei dati**, per esempio `3`.
+- `APP.version` è la versione dell'applicazione, per esempio `3.2`.
+- `APP.schema` è la versione del **formato dei dati**, per esempio `4`.
 
 Ogni progetto, versione, esportazione e backup registra il formato con cui è stato salvato.
 
@@ -78,7 +78,7 @@ IDV Progetti/
     .presenza/<dispositivo>.json chi ha il progetto aperto (aggiornato ogni 2 minuti)
 ```
 
-Le cartelle e sottocartelle dei progetti sono cartelle reali. Le preferenze personali e il token GitHub restano nel browser di ciascuno.
+Le cartelle e sottocartelle dei progetti sono cartelle reali. Rinominando un progetto si rinomina anche la sua sottocartella. Le preferenze personali e il token GitHub restano nel browser di ciascuno.
 
 **Lavoro contemporaneo**
 
@@ -121,10 +121,11 @@ Regola pratica: un solo utente alla volta modifica un progetto; per lavorare in 
 
 Le verifiche automatiche, in Playwright, coprono:
 
-- lavagna, instradamento e punti di instradamento;
+- lavagna, instradamento e punti di instradamento, spostamento con mouse e frecce di blocchi, gruppi ed etichette;
+- schede e menu a tendina con "＋ Aggiungi…";
 - filtri, allegati e progetti;
 - importazione ed esportazione, backup e migrazione dei dati;
 - sincronizzazione GitHub, su un server simulato;
-- cartella di lavoro condivisa: due computer simulati sulla stessa cartella (presenza, aggiornamenti, conflitti, copie di conflitto di OneDrive) e cartelle reali del browser (cartella ricordata, conferma dell'accesso all'avvio).
+- cartella di lavoro condivisa: due computer simulati sulla stessa cartella (presenza, aggiornamenti, conflitti, copie di conflitto di OneDrive, rinomina dei progetti) e cartelle reali del browser (cartella ricordata, conferma dell'accesso all'avvio).
 
 Sono state eseguite durante lo sviluppo su Chromium. La sincronizzazione reale di OneDrive non è stata provata: per il primo utilizzo conviene un progetto di prova.
