@@ -1,6 +1,69 @@
 # Registro delle versioni
 
-Ogni versione dell'applicazione indica il formato dei dati (`schema`) che produce. I progetti salvati con un formato precedente vengono convertiti automaticamente all'apertura. Prima della conversione viene conservata una copia identica dei dati originali come versione del progetto.
+Ogni rilascio dell'applicazione indica il formato dei dati (`schema`) che produce. I progetti salvati con un formato precedente vengono convertiti automaticamente all'apertura. Prima della conversione viene conservata una copia identica dei dati originali come versione del progetto.
+
+**Numerazione dei rilasci: "Rev X.YY".** Da Rev 1.00 la numerazione riparte:
+- rilascio **Major** (es. 1.15 → 2.00): cambiamenti sostanziali, come un nuovo formato dei dati;
+- rilascio **Minor** (es. 1.15 → 1.16): correzioni e miglioramenti.
+
+Ogni rilascio ha in Git il tag `rev-X.YY`. I rilasci precedenti (da 1.0 a 3.3) sono elencati più sotto con la loro numerazione originale.
+
+## Rev 1.00 — formato dati 6
+
+**Connettori**
+- Nuovo livello del modello: il connettore fisico è il contenitore delle porte funzionali (Componente └ Connettore ├ Porta 1 … Porta N). Esempi: "J1 – MIL-DTL-38999" con le porte A, B, C, D; "MISC – 20ZD-35SN" con le porte RS232, GPIO e PPS.
+- Ogni connettore ha ID, **Tipo connettore** (testo libero) e **pinout**: pin, segnale e porta a cui appartiene. Il pinout appartiene solo al connettore lato componente.
+- L'ID della porta è univoco nel suo connettore (J1.A e J2.A possono coesistere). Riferimento completo: COMPONENTE:CONNETTORE.PORTA (es. VCU:J2.CTRL); una porta senza connettore resta COMPONENTE:PORTA.
+- Porte senza connettore ammesse (servizi software, punti di fissaggio, raccordi).
+
+**Scheda del componente**
+- Nuovi campi **PN fornitore** e **PN IDV**.
+- Sezione "Connettori e porte": un riquadro per connettore (ID, tipo, porte, pinout) e uno per le porte senza connettore.
+- Le porte si trascinano da un riquadro all'altro; "+ Connettore" e "+ Porta" in ogni riquadro; l'ordine (▲▼) definisce la posizione sulla lavagna.
+- **Trasforma in connettore**: la porta J1 diventa il connettore J1 con dentro una porta che prende l'ID dall'etichetta; i pin che i cavi avevano su quella porta entrano nel pinout del connettore e i cavi passano al connettore.
+- Controlli: ID dei connettori obbligatori e univoci, ID delle porte univoci nel connettore, pin ripetuti.
+- Eliminando un connettore le porte restano (senza connettore); i cavi che vi arrivavano restano senza connettore del componente.
+- Rimosso "Sposta in…".
+
+**Cavi**
+- Campi del cavo: ID, stato, interfacce logiche associate (**una o più**), tipo cavo, PN fornitore, PN IDV, estremi, requisiti, note.
+- Ogni **estremo** (A, B, C…) indica il componente, il connettore del componente e il connettore del cavo su quel lato (ID e tipo, testo libero).
+- **Cavi ramificati** (bifidi, trifidi…): "+ Estremo" aggiunge un ramo.
+- "↺ Allinea estremi alle interfacce" ricava gli estremi dai connettori delle porte delle interfacce scelte.
+- Rimossi dal cavo: funzione / descrizione e pinout (il pinout è del connettore del componente).
+- Tabella Cavi: interfacce, componente, connettore del componente e connettore del cavo per gli estremi A e B, altri estremi, PN.
+- Le interfacce restano punto–punto: un bus si modella come più interfacce sullo stesso cavo. Il CSV delle interfacce ha una riga per ogni cavo, anche quando un cavo porta più interfacce.
+
+**Creazione dei cavi**
+- Nella vista cavi si trascina da un connettore a un altro. La finestra "Nuovo cavo" propone le interfacce fra quei connettori e offre:
+  - **Associa il cavo a un'interfaccia esistente** (anche più di una);
+  - **Crea nuova interfaccia**, che apre la scheda dell'interfaccia con le porte dei due connettori.
+- Nella scheda dell'interfaccia: "Associa a un cavo esistente…" accanto a "+ Cavo per questa interfaccia".
+- ID proposto per il cavo: IF-CTRL-01 → CBL-CTRL-01 (o il primo numero libero).
+
+**Lavagna**
+- I blocchi mostrano i connettori come righe di intestazione (▣ ID, tipo, numero di pin) seguite dalle loro porte.
+- Vista interfacce: linee da porta a porta. Vista cavi: linee da connettore a connettore, maniglie di collegamento sui connettori.
+- I cavi ramificati sono disegnati a Y: un ramo dal punto di diramazione (●) a ogni estremo. Il punto si trascina con il mouse, si sposta con le frecce quando è selezionato e torna in posizione automatica dal menu del clic destro.
+- La legenda (in basso a sinistra) e la descrizione dei comandi (in basso a destra) si riducono a un pulsante; la scelta resta memorizzata. Corretto il clic sulle categorie della legenda, che non aveva effetto.
+- Menu delle porte raggruppati per connettore.
+
+**Dashboard**
+- Nuovi controlli: "Connettori collegati senza pinout", "Pin ripetuti nei connettori", "Interfacce non raggiunte dal loro cavo".
+- Copertura: "Cavi con tutti i connettori indicati" e "Connettori cablati con pinout".
+
+**Altro**
+- La finestra che all'avvio chiede di consentire l'accesso alla cartella condivisa è più compatta: le scelte sono una sotto l'altra, dentro il riquadro.
+- Il numero di rilascio ("Rev 1.00") compare nell'intestazione, nelle Impostazioni e nella Guida.
+- Guida: nuove sezioni "Connettori, porte e pinout" e "Cavi: estremi, interfacce e cavi ramificati"; numerazione dei rilasci.
+
+**Migrazione dal formato 5**
+- Le porte esistenti restano senza connettore: si organizzano trascinandole nei connettori o con "Trasforma in connettore".
+- Ogni cavo diventa un cavo a due estremi:
+  - interfaccia → interfacce associate (una);
+  - componente e porta A/B → estremi A/B, sulla porta (o sul suo connettore, se ne ha uno);
+  - connettori A/B (testo) → tipo del connettore lato cavo.
+- I pin del pinout dei cavi vengono conservati sulle porte del componente e diventano il pinout del connettore quando la porta entra in un connettore. Funzione / descrizione dei cavi resta nella copia del progetto salvata prima della migrazione.
 
 ## 3.3 — formato dati 5
 

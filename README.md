@@ -2,7 +2,7 @@
 
 Applicazione web in un unico file (`IDV_Interface_Manager.html`) per disegnare e gestire architetture di sistema, interfacce, interconnessioni e requisiti.
 
-Il modello ha cinque livelli: gruppi funzionali, componenti, porte, interfacce logiche e cavi fisici. Include anche requisiti, allegati, campi personalizzati, dashboard di completezza, lavagna con instradamento ortogonale e progetti multipli.
+Il modello ha sei livelli: gruppi funzionali, componenti, connettori, porte, interfacce logiche e cavi fisici (anche ramificati, connettore → connettore). Include anche requisiti, allegati, campi personalizzati, dashboard di completezza, lavagna con instradamento ortogonale e progetti multipli.
 
 Non richiede installazione né server: basta aprire il file in un browser recente (Chrome, Edge, Firefox). Per salvare i progetti in una cartella condivisa (OneDrive, Teams/SharePoint, cartella di rete) serve Microsoft Edge o Google Chrome.
 
@@ -10,15 +10,19 @@ Non richiede installazione né server: basta aprire il file in un browser recent
 
 | Cosa | Dove si trova | Come è versionato |
 |------|---------------|-------------------|
-| **Codice dell'applicazione** | `IDV_Interface_Manager.html` (questo repository) | Git: ogni rilascio è un commit; le versioni sono in `CHANGELOG.md` |
+| **Codice dell'applicazione** | `IDV_Interface_Manager.html` (questo repository) | Git: ogni rilascio è un commit con il tag `rev-X.YY`; le versioni sono in `CHANGELOG.md` |
 | **Dati dei progetti** | A scelta, in **Progetti → Posizione dei progetti**: una **cartella di lavoro condivisa** (file `.idvproj` su OneDrive/Teams) oppure l'**archivio del browser** (IndexedDB) di ciascun computer. In entrambi i casi sono separati dal file HTML | Versioni del progetto, storico delle modifiche, esportazioni JSON, backup completi e, se collegati, repository GitHub dei progetti |
 
 Sostituire o aggiornare il file HTML **non tocca i dati**. Con l'archivio del browser, l'applicazione va riaperta nello stesso browser e dallo stesso indirizzo (stesso percorso del file o stesso sito).
 
 ## Versioni e migrazione dei dati
 
-- `APP.version` è la versione dell'applicazione, per esempio `3.3`.
-- `APP.schema` è la versione del **formato dei dati**, per esempio `5`.
+- `APP.version` è il rilascio dell'applicazione, "Rev X.YY", per esempio `1.00`:
+  - **Major** (1.15 → 2.00) per cambiamenti sostanziali, come un nuovo formato dei dati;
+  - **Minor** (1.15 → 1.16) per correzioni e miglioramenti.
+
+  La numerazione è ripartita da Rev 1.00 dopo il rilascio 3.3.
+- `APP.schema` è la versione del **formato dei dati**, per esempio `6`.
 
 Ogni progetto, versione, esportazione e backup registra il formato con cui è stato salvato.
 
@@ -122,10 +126,11 @@ Regola pratica: un solo utente alla volta modifica un progetto; per lavorare in 
 Le verifiche automatiche, in Playwright, coprono:
 
 - lavagna, instradamento e punti di instradamento, spostamento con mouse e frecce di blocchi, gruppi ed etichette;
+- connettori (riquadri nella scheda del componente, trascinamento delle porte, pinout, "Trasforma in connettore"), cavi da connettore a connettore con più interfacce, cavi ramificati e punto di diramazione, finestra "Nuovo cavo";
 - schede e menu a tendina modificabili ("−" per rimuovere una voce, "＋ Aggiungi…"), gestione dei valori in Impostazioni con rinomina propagata agli oggetti;
 - colonne visibili per tabella, campi personalizzati (colonne, filtri, ricerca, ordinamento, CSV), revisione delle interfacce ed esportazione CSV delle interfacce;
 - filtri, allegati e progetti;
-- importazione ed esportazione, backup e migrazione dei dati;
+- importazione ed esportazione, backup e migrazione dei dati (compresi i cavi del formato 5 con il loro pinout);
 - sincronizzazione GitHub, su un server simulato;
 - cartella di lavoro condivisa: due computer simulati sulla stessa cartella (presenza, aggiornamenti, conflitti, copie di conflitto di OneDrive, rinomina dei progetti) e cartelle reali del browser (cartella ricordata, conferma dell'accesso all'avvio).
 
