@@ -8,6 +8,67 @@ Ogni rilascio dell'applicazione indica il formato dei dati (`schema`) che produc
 
 Ogni rilascio ha in Git il tag `rev-X.YY`. I rilasci precedenti (da 1.0 a 3.3) sono elencati più sotto con la loro numerazione originale.
 
+## Rev 2.00 — formato dati 7
+
+**Interfacce**
+- Rimossi dalla scheda dell'interfaccia: Nome, Protocollo / standard, Porta A, Porta B e "Scambia A/B". Un'interfaccia collega direttamente il componente A e il componente B.
+- **Lato A e lato B seguono sempre l'ordine alfabetico** degli ID dei componenti (es. GPS è il lato A e VCU il lato B), anche quando un componente viene rinominato.
+- "Categoria" e "Sottotipo" diventano **Interfaccia Livello 1** e **Interfaccia Livello 2**. Valori iniziali:
+  - Meccanica: Statica, Dinamica;
+  - Fluidica: Aria, Acqua, Olio, Gas combustibile, Combustibile;
+  - Segnale: Dati analogici, Dati discreti, Comunicazioni, Sincronizzazione, Service;
+  - Elettrica di potenza: Power.
+- **ID automatico** nella forma `L1.L2:A.B`, composto dalle sigle dei livelli e dagli ID dei componenti A e B, per esempio `SEG.COM:GPS.VCU`. Se due interfacce hanno gli stessi livelli e gli stessi componenti, la seconda riceve il suffisso `-2`, la terza `-3` e così via.
+  - L'ID non si modifica a mano. Si aggiorna da solo quando cambiano i livelli, le loro sigle o gli ID dei componenti, e resta stabile negli altri casi.
+  - Le sigle iniziali sono MEC (STA, DIN), FLU (ARIA, H2O, OLIO, GAS, COMB), SEG (ANA, DIS, COM, SYNC, SRV) e PWR (PWR). Si cambiano in **Impostazioni → Livelli di interfaccia** e, per un nuovo valore, nella finestra che lo crea dal menu.
+  - Le sigle non possono contenere spazi, "." o ":". Gli ID dei componenti non possono contenere "." o ":".
+- Il riquadro "Percorso sulla lavagna" è stato tolto dalle schede di interfacce e cavi; il suo contenuto è nella Guida ("Percorso sulla lavagna: automatico o manuale").
+
+**Cavi**
+- **ID automatico progressivo** W-001, W-002…, assegnato al salvataggio. I numeri dei cavi eliminati non vengono riusati.
+- "Tipo cavo" diventa **Funzione cavo**, con i valori Ethernet, Seriale, CAN, USB, RF, Alimentazione: lo stesso elenco della funzione dei connettori, modificabile da **Impostazioni → Valori dei campi → Funzioni**.
+- Su ogni estremo il connettore del cavo ha un solo campo, **Tipo connettore cavo**; l'ID del connettore lato cavo è stato rimosso.
+- Dal menu del connettore di un estremo si può creare un nuovo connettore del componente ("Nuovo connettore…").
+
+**Componenti e connettori**
+- Rimossi dal componente: Dominio e Owner. L'Owner resta su gruppi, interfacce e requisiti.
+- Le **porte non esistono più**: ogni componente ha soltanto i suoi **connettori**, in una tabella con ID, **Funzione**, **Tipologia**, **Direzione** e **Pinout** (pin e segnale). L'ordine (▲▼) è quello dei connettori sulla lavagna.
+- Le immagini allegate mostrano subito una **miniatura**; un clic la ingrandisce. Gli altri file mantengono il pulsante "Anteprima".
+- Nella finestra del gruppo funzionale i nuovi componenti si creano con i loro connettori iniziali (ID e tipologia).
+- I requisiti si collegano a interfacce, cavi, componenti e connettori.
+
+**Lavagna**
+- Vista interfacce: i collegamenti vanno **da componente a componente**. Si crea un'interfaccia trascinando dalla maniglia sul lato di un blocco fino a un altro blocco.
+- Vista cavi: si trascina da un connettore a un altro, oppure sulla sua riga nel blocco. La finestra "Nuovo cavo" propone la funzione comune ai due connettori.
+- Durante il trascinamento di un collegamento, avvicinandosi al bordo **la lavagna scorre da sola**: non serve più ridurre lo zoom per raggiungere un blocco lontano.
+- Le etichette mostrano **solo l'ID**, sia delle interfacce sia dei cavi.
+- Nei blocchi le righe dei connettori riportano ID, tipologia, funzione e direzione. L'intestazione non mostra più dominio e owner.
+- Il pulsante "Porte" della barra diventa "Connettori".
+
+**Tabelle, CSV e Dashboard**
+- Tabella Interfacce: Livello 1, Livello 2, Comp. A e Comp. B; filtro per Livello 1. Tabella Cavi: Funzione cavo (anche come filtro) e Tipo connettore cavo A/B. Tabella Componenti: numero ed elenco dei connettori.
+- CSV delle interfacce: le colonne sono ID Interfaccia, Rev Interfaccia, Interfaccia Livello 1, Gruppo di derivazione A, Componente A, Connettore A, Gruppo di derivazione B, Componente B, Connettore B, ID Cavo, Funzione Cavo, PN Fornitore Cavo, PN IDV Cavo, Stato, Interfaccia Livello 2, Note / Descrizione dello Scambio. I connettori sono quelli degli estremi del cavo.
+- Dashboard: nuovi controlli "Interfacce con livelli non previsti", "Funzioni non previste" e "Componenti senza connettori"; i controlli delle porte sono sostituiti da quelli dei connettori.
+
+**Migrazione dal formato 6 (e precedenti)**
+- Le porte confluiscono nei connettori:
+  - la funzione del connettore viene dal tipo delle sue porte (Power/Ground → Alimentazione, Serial → Seriale, Ethernet, RF, Optical → Ethernet);
+  - la direzione è quella comune alle porte, Bidirectional se sono diverse;
+  - con più porte nello stesso connettore, il nome della porta viene aggiunto al segnale nel pinout.
+- Porte senza connettore:
+  - le porte elettriche e di dati diventano connettori, con i pin che avevano;
+  - le porte meccaniche, fluidiche e software sono eliminate, mentre le interfacce restano fra i componenti.
+- Cavi, interfacce e requisiti che puntavano a una porta passano al connettore che l'ha assorbita, oppure al componente.
+- Nome e protocollo delle interfacce sono conservati nella descrizione ("Nome — descrizione", "Protocollo / standard: …").
+- Gli ID diventano automatici:
+  - interfacce `L1.L2:A.B`;
+  - cavi W-001, W-002… nell'ordine dei loro ID precedenti.
+- I vecchi livelli e i vecchi tipi di cavo che non corrispondono ai nuovi elenchi restano invariati finché l'utente non sceglie i valori da assegnare:
+  - all'apertura del progetto convertito compare la finestra **"Assegna i nuovi livelli e le funzioni"**, con proposte precompilate (es. Elettrica / Alimentazione → Elettrica di potenza / Power; Twisted Pair → Seriale);
+  - con "Decidi dopo" la Dashboard continua a segnalarli e la finestra si riapre dalla Dashboard o da Impostazioni → Livelli di interfaccia;
+  - l'assegnazione aggiorna gli ID e si annulla con un solo passo.
+- Dominio e owner dei componenti e l'ID del connettore lato cavo non sono più usati; restano nella copia del progetto salvata prima della migrazione.
+
 ## Rev 1.00 — formato dati 6
 
 **Connettori**

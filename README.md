@@ -2,7 +2,7 @@
 
 Applicazione web in un unico file (`IDV_Interface_Manager.html`) per disegnare e gestire architetture di sistema, interfacce, interconnessioni e requisiti.
 
-Il modello ha sei livelli: gruppi funzionali, componenti, connettori, porte, interfacce logiche e cavi fisici (anche ramificati, connettore → connettore). Include anche requisiti, allegati, campi personalizzati, dashboard di completezza, lavagna con instradamento ortogonale e progetti multipli.
+Il modello ha cinque livelli: gruppi funzionali, componenti, connettori (funzione, tipologia, direzione e pinout), interfacce logiche fra due componenti (Interfaccia Livello 1 e Livello 2, ID automatico `L1.L2:A.B`) e cavi fisici (ID automatico W-001…, anche ramificati, connettore → connettore). Include anche requisiti, allegati, campi personalizzati, dashboard di completezza, lavagna con instradamento ortogonale e progetti multipli.
 
 Non richiede installazione né server: basta aprire il file in un browser recente (Chrome, Edge, Firefox). Per salvare i progetti in una cartella condivisa (OneDrive, Teams/SharePoint, cartella di rete) serve Microsoft Edge o Google Chrome.
 
@@ -17,12 +17,12 @@ Sostituire o aggiornare il file HTML **non tocca i dati**. Con l'archivio del br
 
 ## Versioni e migrazione dei dati
 
-- `APP.version` è il rilascio dell'applicazione, "Rev X.YY", per esempio `1.00`:
+- `APP.version` è il rilascio dell'applicazione, "Rev X.YY", per esempio `2.00`:
   - **Major** (1.15 → 2.00) per cambiamenti sostanziali, come un nuovo formato dei dati;
   - **Minor** (1.15 → 1.16) per correzioni e miglioramenti.
 
   La numerazione è ripartita da Rev 1.00 dopo il rilascio 3.3.
-- `APP.schema` è la versione del **formato dei dati**, per esempio `6`.
+- `APP.schema` è la versione del **formato dei dati**, per esempio `7`.
 
 Ogni progetto, versione, esportazione e backup registra il formato con cui è stato salvato.
 
@@ -30,7 +30,8 @@ Ogni progetto, versione, esportazione e backup registra il formato con cui è st
 
 1. conserva una copia identica dei dati originali come versione del progetto ("Copia automatica prima dell'aggiornamento del formato dati");
 2. converte i dati al formato corrente (`normalizeData`);
-3. registra l'operazione nello storico delle modifiche.
+3. registra l'operazione nello storico delle modifiche;
+4. dal formato 7: se il progetto usa livelli di interfaccia o funzioni che non corrispondono ai nuovi elenchi, chiede quali valori assegnare (finestra "Assegna i nuovi livelli e le funzioni").
 
 **Progetto in un formato più recente.** Una copia più vecchia dell'applicazione **non apre** il progetto, per non perdere informazioni: bisogna aggiornare il file HTML.
 
@@ -126,11 +127,13 @@ Regola pratica: un solo utente alla volta modifica un progetto; per lavorare in 
 Le verifiche automatiche, in Playwright, coprono:
 
 - lavagna, instradamento e punti di instradamento, spostamento con mouse e frecce di blocchi, gruppi ed etichette;
-- connettori (riquadri nella scheda del componente, trascinamento delle porte, pinout, "Trasforma in connettore"), cavi da connettore a connettore con più interfacce, cavi ramificati e punto di diramazione, finestra "Nuovo cavo";
+- ID automatici di interfacce (`L1.L2:A.B`, lati in ordine alfabetico, suffissi -2…) e cavi (W-001…, numeri mai riusati), sigle dei livelli modificabili;
+- connettori (tabella nella scheda del componente, funzione, tipologia, direzione, pinout), cavi da connettore a connettore con più interfacce, cavi ramificati e punto di diramazione, finestra "Nuovo cavo";
+- collegamenti trascinati sulla lavagna da componente a componente e da connettore a connettore, con scorrimento automatico vicino ai bordi; miniature degli allegati;
 - schede e menu a tendina modificabili ("−" per rimuovere una voce, "＋ Aggiungi…"), gestione dei valori in Impostazioni con rinomina propagata agli oggetti;
 - colonne visibili per tabella, campi personalizzati (colonne, filtri, ricerca, ordinamento, CSV), revisione delle interfacce ed esportazione CSV delle interfacce;
 - filtri, allegati e progetti;
-- importazione ed esportazione, backup e migrazione dei dati (compresi i cavi del formato 5 con il loro pinout);
+- importazione ed esportazione, backup e migrazione dei dati (dal formato 6: porte nei connettori e finestra di assegnazione dei nuovi livelli e funzioni; cavi del formato 5 con il loro pinout);
 - sincronizzazione GitHub, su un server simulato;
 - cartella di lavoro condivisa: due computer simulati sulla stessa cartella (presenza, aggiornamenti, conflitti, copie di conflitto di OneDrive, rinomina dei progetti) e cartelle reali del browser (cartella ricordata, conferma dell'accesso all'avvio).
 
