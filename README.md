@@ -2,7 +2,7 @@
 
 Applicazione web in un unico file (`IDV_Interface_Manager.html`) per disegnare e gestire architetture di sistema, interfacce, interconnessioni e requisiti.
 
-Il modello ha cinque livelli: gruppi funzionali, componenti, connettori (funzione, tipologia, direzione e pinout), interfacce logiche fra due componenti (Interfaccia Livello 1 e Livello 2, ID automatico `L1.L2:A.B`) e cavi fisici (ID automatico W-001…, anche ramificati, connettore → connettore). Include anche requisiti, allegati, campi personalizzati, dashboard di completezza, lavagna con instradamento ortogonale e progetti multipli.
+Il modello ha cinque livelli: gruppi funzionali, componenti, connettori (etichetta, tipologia, direzione e pinout, condiviso con il connettore del cavo), interfacce logiche fra due componenti (Interfaccia Livello 1 e Livello 2, ID automatico `L1.L2:A.B`) e cavi fisici (ID automatico W-001…, anche ramificati, connettore → connettore). Include anche requisiti, allegati, campi personalizzati, tabelle con colonne configurabili (anche prese da altre viste), dashboard di completezza, lavagna con instradamento ortogonale, esportazione PDF / SVG su foglio A4–A0 con cartiglio e progetti multipli.
 
 Non richiede installazione né server: basta aprire il file in un browser recente (Chrome, Edge, Firefox). Per salvare i progetti in una cartella condivisa (OneDrive, Teams/SharePoint, cartella di rete) serve Microsoft Edge o Google Chrome.
 
@@ -17,12 +17,12 @@ Sostituire o aggiornare il file HTML **non tocca i dati**. Con l'archivio del br
 
 ## Versioni e migrazione dei dati
 
-- `APP.version` è il rilascio dell'applicazione, "Rev X.YY", per esempio `2.00`:
+- `APP.version` è il rilascio dell'applicazione, "Rev X.YY", per esempio `3.00`:
   - **Major** (1.15 → 2.00) per cambiamenti sostanziali, come un nuovo formato dei dati;
   - **Minor** (1.15 → 1.16) per correzioni e miglioramenti.
 
   La numerazione è ripartita da Rev 1.00 dopo il rilascio 3.3.
-- `APP.schema` è la versione del **formato dei dati**, per esempio `7`.
+- `APP.schema` è la versione del **formato dei dati**, per esempio `8`.
 
 Ogni progetto, versione, esportazione e backup registra il formato con cui è stato salvato.
 
@@ -128,12 +128,16 @@ Le verifiche automatiche, in Playwright, coprono:
 
 - lavagna, instradamento e punti di instradamento, spostamento con mouse e frecce di blocchi, gruppi ed etichette;
 - ID automatici di interfacce (`L1.L2:A.B`, lati in ordine alfabetico, suffissi -2…) e cavi (W-001…, numeri mai riusati), sigle dei livelli modificabili;
-- connettori (tabella nella scheda del componente, funzione, tipologia, direzione, pinout), cavi da connettore a connettore con più interfacce, cavi ramificati e punto di diramazione, finestra "Nuovo cavo";
+- connettori (tabella nella scheda del componente con etichetta, tipologia, direzione, pinout e riordino a trascinamento; pinout condiviso con l'estremo del cavo), cavi da connettore a connettore con più interfacce, cavi ramificati e punto di diramazione, finestra "Nuovo cavo";
+- gruppi funzionali (componente compilato aggiunto anche premendo "Salva", copia di componenti di altri gruppi);
+- colonne delle tabelle spostate trascinando le intestazioni, colonne prese da altre viste (es. tipologia del connettore A di un cavo) ed esportazione CSV;
+- esportazione PDF vettoriale e SVG su foglio A4–A0 con cartiglio modificabile e bordo con i riferimenti di zona (il PDF è verificato anche con poppler);
+- immagini dei componenti nei blocchi, tipologia dei connettori fuori dai blocchi e PN dei cavi sulla lavagna, spostamento dei rami delle interfacce lungo il lato del blocco;
 - collegamenti trascinati sulla lavagna da componente a componente e da connettore a connettore, con scorrimento automatico vicino ai bordi; miniature degli allegati;
 - schede e menu a tendina modificabili ("−" per rimuovere una voce, "＋ Aggiungi…"), gestione dei valori in Impostazioni con rinomina propagata agli oggetti;
 - colonne visibili per tabella, campi personalizzati (colonne, filtri, ricerca, ordinamento, CSV), revisione delle interfacce ed esportazione CSV delle interfacce;
 - filtri, allegati e progetti;
-- importazione ed esportazione, backup e migrazione dei dati (dal formato 6: porte nei connettori e finestra di assegnazione dei nuovi livelli e funzioni; cavi del formato 5 con il loro pinout);
+- importazione ed esportazione, backup e migrazione dei dati (dal formato 7: funzione dei connettori → etichetta, sigla ELP; dal formato 6: porte nei connettori e finestra di assegnazione dei nuovi livelli e funzioni; cavi del formato 5 con il loro pinout);
 - sincronizzazione GitHub, su un server simulato;
 - cartella di lavoro condivisa: due computer simulati sulla stessa cartella (presenza, aggiornamenti, conflitti, copie di conflitto di OneDrive, rinomina dei progetti) e cartelle reali del browser (cartella ricordata, conferma dell'accesso all'avvio).
 

@@ -372,6 +372,9 @@ table.grid td.act { white-space: nowrap; text-align: right; }
 .port-id { font-weight: 700; font-family: var(--mono); font-size: 10.5px; }
 .port-type { font: 600 9px var(--mono); fill: #6d7887; letter-spacing: .02em; }
 .port-none { font-size: 11px; fill: #8a94a2; font-style: italic; }
+.comp-img-bg { fill: #f4f6f8; stroke: #dfe4ea; stroke-width: .8; }
+.ctype-ext { font: 600 9.5px var(--mono); fill: #3d4a5a; paint-order: stroke; stroke: #fff; stroke-width: 3px; stroke-linejoin: round; }
+.lbl .lbl-pn { font: 500 9.5px var(--font); fill: #44505e; }
 .conn-row { fill: transparent; }
 .conn-row.alt { fill: #f6f8fa; }
 .comp.target .comp-outline { stroke: var(--accent); stroke-width: 2.6; }
@@ -420,6 +423,7 @@ table.grid td.act { white-space: nowrap; text-align: right; }
 #btnFilter.on { background: #e6effb; border-color: #8fb1e3; color: #0f3f86; font-weight: 700; max-width: 190px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .filter-pop { position: absolute; top: calc(100% + 4px); left: 0; z-index: 40; width: 330px; max-height: 70vh; overflow: auto; background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 10px 28px rgba(0,0,0,.18); padding: 8px 10px; font-size: 12.5px; }
 .fp-head { display: flex; align-items: center; gap: 4px; margin-bottom: 6px; }
+.fp-sec { margin: 10px 0 4px; padding-top: 8px; border-top: 1px solid var(--border); }
 .fp-cat { border-top: 1px solid #edf0f3; padding: 3px 0; }
 .fp-row { display: flex; align-items: center; gap: 6px; padding: 2px 0; }
 .fp-main { display: flex; align-items: center; gap: 6px; flex: 1; cursor: pointer; }
@@ -444,6 +448,16 @@ table.grid td.act { white-space: nowrap; text-align: right; }
 .conn-table .c-dir { width: 120px; }
 .conn-table .inp { height: 28px; }
 .conn-table tr.focus td { background: #fff3df; }
+.conn-table .c-grip { width: 26px; padding-left: 0; padding-right: 0; }
+.end-pins { margin-top: 8px; }
+.checklist .ck-group { padding: 6px 8px 2px; font: 600 11px var(--font); color: var(--muted); text-transform: uppercase; letter-spacing: .03em; }
+.ck-id-in { width: 110px; height: 24px; padding: 2px 6px; font-size: 12px; }
+.end-pins .conn-pins { margin-top: 6px; padding: 4px 0 0; border-top: 0; }
+.drag-grip { cursor: grab; padding: 2px 5px; font-size: 13px; line-height: 1; color: var(--muted); }
+.drag-grip:active { cursor: grabbing; }
+.conn-table tr.dragging td { opacity: .45; }
+tr.drop-before > td { box-shadow: inset 0 2px 0 var(--primary); }
+tr.drop-after > td { box-shadow: inset 0 -2px 0 var(--primary); }
 .att-row { display: flex; align-items: center; gap: 6px; padding: 5px 6px; border: 1px solid #e3e8ee; border-radius: 5px; background: #fff; }
 .att-main { flex: 1; min-width: 0; }
 .att-name { background: none; border: 0; padding: 0; font: inherit; font-weight: 600; color: var(--text); cursor: pointer; text-align: left; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
@@ -541,7 +555,18 @@ svg.label-move, svg.label-move * { cursor: grabbing !important; }
 .inline-row .inp { flex: 1; }
 option.opt-add { color: var(--primary); font-weight: 600; }
 .flt-wrap { display: contents; }
-.cols-pop { position: fixed; z-index: 160; width: 280px; overflow: auto; background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 10px 28px rgba(0,0,0,.2); padding: 8px 10px; font-size: 13px; }
+.th-linked .th-btn { color: #2f5f8f; }
+th.col-dragging { opacity: .45; }
+th.drop-left { box-shadow: inset 3px 0 0 var(--primary); }
+th.drop-right { box-shadow: inset -3px 0 0 var(--primary); }
+body.col-drag, body.col-drag * { cursor: grabbing !important; user-select: none; }
+.col-ghost { position: fixed; z-index: 400; pointer-events: none; padding: 4px 9px; background: #fff; border: 1px solid var(--primary); border-radius: 4px; box-shadow: 0 6px 16px rgba(0,0,0,.18); font: 600 12px var(--font); color: var(--text); }
+.cols-add { display: grid; gap: 5px; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.cols-fld { display: grid; grid-template-columns: 96px 1fr; align-items: center; gap: 6px; font-size: 12px; }
+.cols-fld .inp { height: 26px; font-size: 12px; }
+.cols-add .btn { justify-self: start; }
+.cols-item.linked .btn { margin-left: auto; }
+.cols-pop { position: fixed; z-index: 160; width: 330px; overflow: auto; background: #fff; border: 1px solid var(--border-strong); border-radius: 6px; box-shadow: 0 10px 28px rgba(0,0,0,.2); padding: 8px 10px; font-size: 13px; }
 .cols-head { padding: 2px 0 6px; border-bottom: 1px solid var(--border); margin-bottom: 4px; }
 .cols-item { display: flex; align-items: center; gap: 8px; padding: 3px 2px; cursor: pointer; }
 .cols-item input:disabled + span { color: var(--muted); }
@@ -815,7 +840,7 @@ table.n2 td .chip { margin: 1px; }
       <button type="button" class="btn icon" id="btnZoomIn" title="Aumenta lo zoom (anche con la rotella o il trackpad)" aria-label="Aumenta lo zoom">+</button>
       <span class="tb-sep"></span>
       <div class="filter-wrap">
-        <button type="button" class="btn" id="btnFilter" aria-haspopup="true" aria-expanded="false" title="Mostra solo alcune categorie o sottotipi di interfaccia (anche nell’esportazione SVG)">Filtro ▾</button>
+        <button type="button" class="btn" id="btnFilter" aria-haspopup="true" aria-expanded="false" title="Mostra solo alcuni Livelli 1 / Livelli 2 di interfaccia (anche nell’esportazione PDF / SVG); opzioni della vista cavi: tipologia dei connettori e PN dei cavi">Filtro ▾</button>
         <div class="filter-pop" id="filterPop" hidden></div>
       </div>
       <span class="tb-sep"></span>
@@ -853,7 +878,7 @@ table.n2 td .chip { margin: 1px; }
         <button type="button" class="btn sm" id="btnBoardUndo">↶ Annulla</button>
         <button type="button" class="btn sm" id="btnBoardRedo">↷ Ripeti</button>
         <span class="tb-sep"></span>
-        <button type="button" class="btn sm" id="btnExportSvg" title="Esporta lo schema in formato SVG vettoriale, con cartiglio">Esporta SVG</button>
+        <button type="button" class="btn sm" id="btnExportSvg" title="Esporta lo schema in PDF o SVG vettoriale, su foglio A4–A0 con cartiglio e bordo con i riferimenti">Esporta PDF / SVG</button>
       </div>
       <div class="board-legend" id="boardLegend"></div>
       <div class="board-hint" id="boardHint"><span class="bh-text">Trascina blocchi, gruppi ed etichette per spostarli (Alt = senza griglia) · frecce: sposta l’elemento selezionato (Maiusc = passi da 10) · trascina tratti e punti (●) di una linea per modificarne il percorso · doppio clic sulla linea: nuovo punto · clic destro: opzioni · rotella = zoom</span><button type="button" class="ov-btn" id="btnHint"></button></div>
@@ -904,8 +929,8 @@ const APP = {
   format: 'IDV-Interface-Manager',
   projectFormat: 'IDV-Interface-Manager-Project',
   backupFormat: 'IDV-Interface-Manager-Backup',
-  version: '2.00',         // rilascio dell'applicazione (Rev X.YY: major.minor)
-  schema: 7,               // versione del formato dei dati di progetto (vedi normalizeData)
+  version: '3.00',         // rilascio dell'applicazione (Rev X.YY: major.minor)
+  schema: 8,               // versione del formato dei dati di progetto (vedi normalizeData)
   legacyModelKey: 'idv-interface-manager.model.v1',
   uiKey: 'idv-interface-manager.ui.v1',
   dbName: 'idv-interface-manager'
@@ -920,7 +945,7 @@ const DEFAULT_CATEGORIES = [
     subAbbr: { 'Aria': 'ARIA', 'Acqua': 'H2O', 'Olio': 'OLIO', 'Gas combustibile': 'GAS', 'Combustibile': 'COMB' } },
   { name: 'Segnale', abbr: 'SEG', color: '#1d5fbf', cables: true, subtypes: ['Dati analogici', 'Dati discreti', 'Comunicazioni', 'Sincronizzazione', 'Service'],
     subAbbr: { 'Dati analogici': 'ANA', 'Dati discreti': 'DIS', 'Comunicazioni': 'COM', 'Sincronizzazione': 'SYNC', 'Service': 'SRV' } },
-  { name: 'Elettrica di potenza', abbr: 'PWR', color: '#c4410c', cables: true, subtypes: ['Power'], subAbbr: { 'Power': 'PWR' } }
+  { name: 'Elettrica di potenza', abbr: 'ELP', color: '#c4410c', cables: true, subtypes: ['Power'], subAbbr: { 'Power': 'PWR' } }
 ];
 const CATEGORY_COLORS = ['#1d5fbf', '#c4410c', '#0f8a7e', '#7a5c2e', '#6250d6', '#c2417a', '#0a7f3f', '#b07800', '#5b6b7d', '#00838f'];
 const DEFAULT_LISTS = {
@@ -940,7 +965,7 @@ const SIMPLE_LISTS = ['owners', 'functions', 'directions', 'statuses', 'reqStatu
 /* Elenchi di suggerimenti: il campo accetta anche valori liberi e l'elenco può essere vuoto (nessuno, dal formato 7) */
 const SUGGEST_LISTS = new Set();
 const LIST_LABELS = {
-  owners: 'Owner', functions: 'Funzioni (connettori e cavi)', directions: 'Direzioni dei connettori',
+  owners: 'Owner', functions: 'Funzioni dei cavi', directions: 'Direzioni dei connettori',
   statuses: 'Stati di componenti, interfacce e cavi', reqStatuses: 'Stati dei requisiti', reqTypes: 'Tipi di requisito',
   reqOrigins: 'Origini dei requisiti', reqMethods: 'Metodi di verifica'
 };
@@ -948,7 +973,7 @@ const LIST_LABELS = {
    'connectors' indica i connettori di tutti i componenti */
 const LIST_USES = {
   owners: [['groups', 'owner'], ['interfaces', 'owner'], ['requirements', 'owner']],
-  functions: [['connectors', 'function'], ['cables', 'function']], directions: [['connectors', 'direction']],
+  functions: [['cables', 'function']], directions: [['connectors', 'direction']],
   statuses: [['components', 'status'], ['interfaces', 'status'], ['cables', 'status']],
   reqStatuses: [['requirements', 'status']], reqTypes: [['requirements', 'type']], reqOrigins: [['requirements', 'origin']], reqMethods: [['requirements', 'method']]
 };
@@ -957,7 +982,6 @@ const CF_ENTITIES = { group: 'groups', component: 'components', interface: 'inte
 const CF_ENTITY_LABELS = { group: 'Gruppi funzionali', component: 'Componenti', interface: 'Interfacce', cable: 'Cavi', requirement: 'Requisiti' };
 const CF_TYPES = { text: 'Testo', number: 'Numero', list: 'Elenco', date: 'Data', checkbox: 'Casella (sì/no)' };
 const DIR_ABBR = { 'Input': 'IN', 'Output': 'OUT', 'Bidirectional': 'I/O', 'Not applicable': '' };
-const FUNC_ABBR = { 'Ethernet': 'ETH', 'Seriale': 'SER', 'CAN': 'CAN', 'USB': 'USB', 'RF': 'RF', 'Alimentazione': 'PWR' };
 const APPROVED_STATUSES = new Set(['Concordata', 'Baselined', 'Verified']);
 const REQ_APPROVED = new Set(['Approved', 'Verified']);
 const GROUP_COLORS = [
@@ -1093,11 +1117,15 @@ const ui = {
   zoom: 1, panX: 40, panY: 40,
   fitted: true,
   showPorts: true, showGroups: true, showLabels: true,
+  showConnType: false, showCablePn: false,   // vista cavi: tipologia dei connettori fuori dai blocchi, PN dei cavi nelle etichette
   legendMin: false, hintMin: false,   // legenda e descrizione dei comandi della lavagna ridotte a icona
   selected: null,          // {kind, uid}
   activeWp: null,          // punto di instradamento attivo {key, k}
   filter: { hidden: [], hideComps: false },   // filtro della lavagna: 'C:categoria' / 'S:categoria/sottotipo' nascosti
-  cols: {},                // colonne nascoste di ogni tabella: { interfaces: ['protocol', 'cf:…'], … }
+  cols: {},                // colonne nascoste di ogni tabella: { interfaces: ['owner', 'cf:…'], … }
+  colsOn: {},              // colonne normalmente nascoste che l'utente ha scelto di mostrare (es. pinout)
+  colOrder: {},            // ordine delle colonne scelto trascinando le intestazioni
+  xcols: {},               // colonne prese da altre viste: { cables: [{ rel: 'connA', key: 'type', label: '…' }], … }
   filters: {},             // per tabella: {q, sort:{key,dir}, ...}
   dashCat: null
 };
@@ -1108,15 +1136,15 @@ const ui = {
 function buildDemo() {
   let n = 0;
   const U = (p) => p + '_demo' + (++n).toString(36);
-  // connettore: ID, funzione, tipologia, direzione, pinout [pin, segnale]
-  const conn = (id, fn, type, direction, pins) => ({ uid: U('k'), id, function: fn, type, direction, pinout: (pins || []).map(([pin, signal]) => ({ pin, signal })) });
+  // connettore: ID, etichetta, tipologia, direzione, pinout [pin, segnale]
+  const conn = (id, label, type, direction, pins) => ({ uid: U('k'), id, label, type, direction, pinout: (pins || []).map(([pin, signal]) => ({ pin, signal })) });
   const gNav = { uid: U('g'), id: 'GF-NAV', name: 'Navigazione', description: 'Posizionamento e riferimento di tempo.', color: '#008300', owner: 'Navigation Integration' };
   const gVet = { uid: U('g'), id: 'GF-VET', name: 'Vetronica di base', description: 'Distribuzione energia e controllo del veicolo.', color: '#2a78d6', owner: 'Vehicle Integration' };
   const gC3 = { uid: U('g'), id: 'GF-C3HMI', name: 'C3 e postazione operatore', description: 'Comunicazioni tattiche e interfaccia uomo-macchina.', color: '#6250d6', owner: 'C3 Integration' };
   const gPlt = { uid: U('g'), id: 'GF-PIATT', name: 'Piattaforma e servizi', description: 'Struttura del vano equipaggio e raffreddamento a liquido.', color: '#5b6b7d', owner: 'Vehicle Integration' };
   const comp = (id, name, description, supplier, status, x, y, group, connectors, pns) => ({
     uid: U('c'), id, name, description, supplier, supplierPn: (pns || [])[0] || '', idvPn: (pns || [])[1] || '', status, x, y,
-    groupUid: group ? group.uid : null, connectors, attachments: [], custom: {}
+    groupUid: group ? group.uid : null, connectors, attachments: [], custom: {}, boardImage: ''
   });
   const PWR_IN = (id, type) => conn(id, 'Alimentazione', type, 'Input', [['A', '+28V'], ['B', 'RTN']]);
   const PDU = comp('PDU', 'Power Distribution Unit', 'Distribuisce l’alimentazione 28 VDC ai sottosistemi del veicolo.', 'Fornitore A', 'Concordata', 480, 40, gVet, [
@@ -1205,7 +1233,7 @@ function buildDemo() {
   ];
   const data = {
     schema: APP.schema,
-    meta: { name: 'Schema dimostrativo IDV', program: 'Programma dimostrativo', created: new Date().toISOString(), modified: new Date().toISOString(), cableSeq: cables.length },
+    meta: { name: 'Schema dimostrativo IDV', program: 'Programma dimostrativo', created: new Date().toISOString(), modified: new Date().toISOString(), cableSeq: cables.length, sheet: normSheet(null) },
     lists: clone(DEFAULT_LISTS),
     groups: [gNav, gVet, gC3, gPlt],
     components: [PDU, VCU, HMI, GPS, RAD, ANT, STR, CLU],
@@ -1214,6 +1242,7 @@ function buildDemo() {
     requirements,
     routing: { interfaces: {}, cables: {} },
     labels: { interfaces: {}, cables: {} },
+    anchors: {},
     customFields: []
   };
   assignAutoIds(data);
@@ -1223,13 +1252,44 @@ function buildDemo() {
 function buildEmpty(name, program) {
   return {
     schema: APP.schema,
-    meta: { name: name || 'Nuovo progetto', program: program || '', created: new Date().toISOString(), modified: new Date().toISOString(), cableSeq: 0 },
+    meta: { name: name || 'Nuovo progetto', program: program || '', created: new Date().toISOString(), modified: new Date().toISOString(), cableSeq: 0, sheet: normSheet(null) },
     lists: clone(DEFAULT_LISTS),
     groups: [], components: [], interfaces: [], cables: [], requirements: [],
     routing: { interfaces: {}, cables: {} },
     labels: { interfaces: {}, cables: {} },
+    anchors: {},
     customFields: []
   };
+}
+
+/* ---------- Foglio di esportazione e cartiglio (formato dati 8) ----------
+   Formati UNI EN ISO 5457 in mm (orizzontale); "fit" = foglio grande quanto il disegno.
+   Righe del cartiglio: etichetta e valore; i valori vuoti di Titolo, Programma, Autore e Data
+   si compilano da soli all'esportazione (nome e programma del progetto, utente, data del giorno). */
+const PAPER = { A4: [297, 210], A3: [420, 297], A2: [594, 420], A1: [841, 594], A0: [1189, 841] };
+const SHEET_HEAD = 'IDV Interface Manager — Schema di interfacciamento';
+const SHEET_ROWS = ['Titolo', 'Programma', 'N. documento', 'Revisione', 'Autore', 'Verificato', 'Approvato', 'Data'];
+function normSheet(v) {
+  const o = v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+  const rows = Array.isArray(o.rows) ? o.rows.filter((r) => r && typeof r === 'object' && str(r.label).trim()).slice(0, 20)
+    .map((r) => ({ label: str(r.label).trim().slice(0, 40), value: str(r.value).slice(0, 200) })) : null;
+  return {
+    paper: o.paper === 'fit' || PAPER[o.paper] ? o.paper : 'A3',
+    orient: o.orient === 'P' ? 'P' : 'L',
+    border: o.border !== false,
+    auto: o.auto !== false,
+    head: o.head != null ? str(o.head).slice(0, 120) : SHEET_HEAD,
+    rows: rows || SHEET_ROWS.map((label) => ({ label, value: '' }))
+  };
+}
+/* Valore proposto per una riga vuota del cartiglio */
+function sheetAuto(label) {
+  const k = str(label).trim().toLowerCase();
+  if (k === 'titolo') return state.meta.name || '';
+  if (k === 'programma') return state.meta.program || '';
+  if (k === 'autore') return prefs.user || '';
+  if (k === 'data') return new Date().toLocaleDateString('it-IT');
+  return '';
 }
 
 /* ---------- ID automatici (formato dati 7) ----------
@@ -1360,7 +1420,7 @@ function compIdOf(uid) { const c = idx.comp.get(uid); return c ? c.id : null; }
 /* "VCU:J2" */
 function connFull(uid) { const e = idx.conn.get(uid); return e ? e.comp.id + ':' + e.conn.id : null; }
 /* "Seriale · D-Sub 9 (DE-9)" */
-function connText(k) { return [k.function, k.type].filter((x) => str(x).trim()).join(' · '); }
+function connText(k) { return [k.label, k.type].filter((x) => str(x).trim()).join(' · '); }
 /* Estremi dei cavi: A, B, C… */
 function endLetter(j) { return j < 26 ? String.fromCharCode(65 + j) : 'E' + (j + 1); }
 /* Chiavi dei collegamenti di un cavo nella vista cavi: il cavo stesso (2 estremi) oppure un ramo per estremo (3+) */
@@ -1428,7 +1488,8 @@ function saveUi() {
     localStorage.setItem(APP.uiKey, JSON.stringify({
       section: ui.section, mode: ui.mode, zoom: ui.zoom, panX: ui.panX, panY: ui.panY, fitted: ui.fitted,
       showPorts: ui.showPorts, showGroups: ui.showGroups, showLabels: ui.showLabels, legendMin: ui.legendMin, hintMin: ui.hintMin,
-      user: prefs.user, filter: ui.filter, cols: ui.cols
+      user: prefs.user, filter: ui.filter, cols: ui.cols, colsOn: ui.colsOn, colOrder: ui.colOrder, xcols: ui.xcols,
+      showConnType: ui.showConnType, showCablePn: ui.showCablePn
     }));
   } catch (e) { /* preferenze non critiche */ }
 }
@@ -1451,7 +1512,14 @@ function loadUi() {
       ui.legendMin = u.legendMin === true;
       ui.hintMin = u.hintMin === true;
       if (typeof u.user === 'string') prefs.user = u.user.slice(0, 80);
-      if (u.cols && typeof u.cols === 'object') Object.keys(u.cols).forEach((k) => { if (Array.isArray(u.cols[k])) ui.cols[k] = u.cols[k].filter((x) => typeof x === 'string').slice(0, 200); });
+      ['cols', 'colsOn', 'colOrder'].forEach((p) => {
+        if (u[p] && typeof u[p] === 'object') Object.keys(u[p]).forEach((k) => { if (Array.isArray(u[p][k])) ui[p][k] = u[p][k].filter((x) => typeof x === 'string').slice(0, 300); });
+      });
+      if (u.xcols && typeof u.xcols === 'object') Object.keys(u.xcols).forEach((k) => {
+        if (Array.isArray(u.xcols[k])) ui.xcols[k] = u.xcols[k].filter((x) => x && typeof x.rel === 'string' && typeof x.key === 'string').slice(0, 60).map((x) => ({ rel: x.rel, key: x.key, label: str(x.label).slice(0, 80) }));
+      });
+      ui.showConnType = u.showConnType === true;
+      ui.showCablePn = u.showCablePn === true;
       if (u.filter && Array.isArray(u.filter.hidden)) ui.filter = { hidden: u.filter.hidden.filter((x) => typeof x === 'string').slice(0, 500), hideComps: !!u.filter.hideComps };
       return true;
     }
@@ -2868,7 +2936,7 @@ const FIELD_IT = {
   ports: 'porte', attachments: 'allegati', color: 'colore', category: 'Interfaccia Livello 1', subtype: 'Interfaccia Livello 2', protocol: 'protocollo', compA: 'componente A',
   portA: 'porta A', compB: 'componente B', portB: 'porta B', ifaceUid: 'interfaccia', type: 'tipo', connA: 'connettore A', connB: 'connettore B',
   pinout: 'pinout', length: 'lunghezza', lengthUnit: 'unità', shielding: 'schermatura', partNumber: 'PN IDV', supplierPn: 'PN fornitore', idvPn: 'PN IDV', notes: 'note', title: 'titolo',
-  connectors: 'connettori', ifaceUids: 'interfacce', ends: 'estremi', branch: 'diramazione', function: 'funzione', direction: 'direzione',
+  connectors: 'connettori', ifaceUids: 'interfacce', ends: 'estremi', branch: 'diramazione', function: 'funzione', label: 'etichetta', direction: 'direzione', boardImage: 'immagine sulla lavagna',
   text: 'testo', origin: 'origine', links: 'collegamenti', method: 'metodo di verifica', shareable: 'condivisibile', rev: 'revisione', custom: 'campi personalizzati'
 };
 function diffData(a, b) {
@@ -3650,8 +3718,7 @@ function computeIssues() {
       pins.forEach((list) => { if (list.length > 1) add('pinDup', 'component', c.uid, kn + ': pin “' + list[0].pin + '” ripetuto nel pinout.'); });
       const nc = (idx.cablesByConn.get(k.uid) || []).length;
       if (nc && !(k.pinout || []).some((r) => str(r.pin).trim())) add('connNoPin', 'component', c.uid, kn + ' collegato a ' + plural(nc, 'cavo', 'cavi') + ' ma senza pinout.');
-      if (!nc) add('connUnused', 'component', c.uid, kn + (k.function ? ' (' + k.function + ')' : '') + ' non è collegato ad alcun cavo.');
-      if (k.function && !fns.has(k.function)) add('fnUnknown', 'component', c.uid, kn + ': funzione “' + k.function + '” non prevista nell’elenco.');
+      if (!nc) add('connUnused', 'component', c.uid, kn + (k.label ? ' (' + k.label + ')' : '') + ' non è collegato ad alcun cavo.');
     });
     kseen.forEach((list) => { if (list.length > 1) add('dupId', 'component', c.uid, 'Componente ' + c.id + ': ID connettore duplicato “' + list[0].id + '”.'); });
     if (c.status === 'Da verificare') add('toVerify', 'component', c.uid, 'Componente ' + c.id + ' in stato “Da verificare”.');
@@ -3710,7 +3777,7 @@ function issueCount(cat) { return issues.filter((i) => i.cat === cat).length; }
 /* =====================================================================
    8. LAVAGNA (SVG): geometria dei blocchi
    ===================================================================== */
-const BG = { HEAD: 44, ROW: 22, PADB: 6, MINW: 220, MAXW: 400, SNAP: 10, GAP: 44 };
+const BG = { HEAD: 44, ROW: 22, PADB: 6, MINW: 220, MAXW: 1600, SNAP: 10, GAP: 44, IMG: 120, IMGW: 240 };
 const F = {
   name: '700 12.5px ' + FONT_STACK,
   meta: '10.5px ' + FONT_STACK,
@@ -3740,26 +3807,47 @@ function openLinkSoon(kind, uid) {
   linkClickTimer = setTimeout(() => { boardOpenAt = Date.now(); openObject(kind, uid); }, 260);
 }
 
-/* Riga di un connettore sul blocco: "SER · I/O" (funzione e direzione) */
+/* Riga di un connettore sul blocco: "AUDIO · I/O" (etichetta per intero e direzione) */
 function connTag(k) {
-  const f = FUNC_ABBR[k.function] || (k.function ? str(k.function).slice(0, 4).toUpperCase() : '');
   const d = k.direction in DIR_ABBR ? DIR_ABBR[k.direction] : str(k.direction).slice(0, 3).toUpperCase();
-  return [f, d].filter(Boolean).join(' · ');
+  return [str(k.label).trim(), d].filter(Boolean).join(' · ');
 }
+/* Immagine mostrata nel blocco (formato 8): allegato scelto nella scheda del componente */
+function boardImageOf(c) { return c.boardImage ? (c.attachments || []).find((a) => a.fid === c.boardImage) || null : null; }
+/* Immagini dei blocchi: file degli allegati caricati una volta per sessione (URL locale), poi ridisegno */
+const boardImgs = new Map();
+function boardImg(a) {
+  const key = (project ? project.id : '') + '|' + a.fid;
+  let e = boardImgs.get(key);
+  if (!e) {
+    e = { loading: true };
+    boardImgs.set(key, e);
+    attachmentBlob(a).then((blob) => {
+      if (!blob) throw new Error('file non disponibile');
+      e.blob = blob; e.url = URL.createObjectURL(blob);
+    }).catch(() => { e.err = true; }).then(() => { e.loading = false; scheduleBoardRender(); });
+  }
+  return e;
+}
+/* Geometria del blocco: la larghezza segue il testo (nome, etichette e tipologie dei connettori per intero);
+   l'area dell'immagine ha altezza fissa (l'immagine vi è inscritta), così il disegno non dipende dal caricamento */
 function compGeom(c, showPorts) {
   if (showPorts === undefined) showPorts = ui.showPorts;
   const idW = textW(c.id || '?', F.idb) + 12;
   let w = Math.max(textW(c.name || '(senza nome)', F.name) + idW + 34, textW(c.supplier || '', F.meta) + 40);
+  const img = boardImageOf(c);
+  const imgH = img ? BG.IMG + 12 : 0;
+  if (img) w = Math.max(w, BG.IMGW);
   const portY = new Map();
   const rows = showPorts ? (c.connectors || []).map((k) => ({ k })) : [];
   rows.forEach((r, i) => {
     w = Math.max(w, textW(r.k.id, F.portId) + textW('  ' + (r.k.type || ''), F.port) + textW(connTag(r.k), F.ptype) + 70);
-    r.y = BG.HEAD + 3 + i * BG.ROW + BG.ROW / 2;
+    r.y = BG.HEAD + imgH + 3 + i * BG.ROW + BG.ROW / 2;
     portY.set(r.k.uid, r.y);
   });
   w = clamp(Math.ceil(w / 10) * 10, BG.MINW, BG.MAXW);
-  const hgt = showPorts ? BG.HEAD + 3 + Math.max(rows.length, 1) * BG.ROW + BG.PADB : BG.HEAD;
-  return { uid: c.uid, x: Number(c.x) || 0, y: Number(c.y) || 0, w, h: hgt, idW, portY, rows, showPorts };
+  const hgt = showPorts ? BG.HEAD + imgH + 3 + Math.max(rows.length, 1) * BG.ROW + BG.PADB : BG.HEAD + imgH;
+  return { uid: c.uid, x: Number(c.x) || 0, y: Number(c.y) || 0, w, h: hgt, idW, portY, rows, showPorts, img, imgH };
 }
 function geomMap(showPorts) {
   const m = new Map();
@@ -4429,6 +4517,8 @@ function computeRoutes(mode, geom, opts) {
    chiamata dopo ogni modifica, prima del salvataggio, nella stessa voce dello storico. */
 function syncRoutes() {
   if (!state.routing || typeof state.routing !== 'object') state.routing = { interfaces: {}, cables: {} };
+  if (!state.anchors || typeof state.anchors !== 'object') state.anchors = {};
+  Object.keys(state.anchors).forEach((u) => { if (!idx.iface.has(u)) delete state.anchors[u]; });
   const geom = geomMap(true);
   ['interfaces', 'cables'].forEach((mode) => {
     const stored = state.routing[mode] || {};
@@ -4599,7 +4689,10 @@ function fanOut(items, geom) {
     const room = ng && !ng.node ? Math.max(BG.ROW, ng.h - 16) : BG.ROW - 8;
     const step = n > 1 && !(ng && ng.node) ? Math.min(ng && !ng.node ? 9 : 6, room / (n - 1)) : 0;
     list.forEach((e, i) => {
-      const y = a.y + (i - (n - 1) / 2) * step;
+      let y = a.y + (i - (n - 1) / 2) * step;
+      // vista interfacce: aggancio spostato a mano lungo il lato del blocco (distanza dal bordo superiore)
+      const off = e.it.L.kind === 'interface' && ng && !ng.node ? anchorOffset(e.it.L.obj.uid, e.end === 0 ? 'A' : 'B') : null;
+      if (off != null) y = ng.y + clamp(off, 6, ng.h - 6);
       if (e.end === 0) e.it.tyA = y; else e.it.tyB = y;
     });
   });
@@ -4619,6 +4712,13 @@ function fanOut(items, geom) {
     const yn = p[n - 1].y;
     for (let k = n - 1; k >= 0 && Math.abs(p[k].y - yn) < 0.05; k--) p[k].y = yB;
   });
+}
+/* Aggancio di un'interfaccia spostato a mano (o in anteprima durante il trascinamento) */
+let anchorPreview = null;
+function anchorOffset(ifUid, end) {
+  if (anchorPreview && anchorPreview.uid === ifUid && anchorPreview.end === end) return anchorPreview.off;
+  const a = state.anchors && state.anchors[ifUid];
+  return a && Number.isFinite(a[end]) ? a[end] : null;
 }
 /* Percorsi pronti per il disegno: copie dei percorsi canonici + nudging + ventaglio */
 function finalizeRoutes(links, routes, geom, mode) {
@@ -4995,7 +5095,20 @@ function paintFilterPop() {
       h('button', { type: 'button', class: 'btn xs', onclick: () => setFilter(state.lists.ifCategories.map((c) => 'C:' + c.name)) }, 'Nessuna')),
     tree,
     h('label', { class: 'fp-row fp-opt' }, hideComps, h('span', null, 'Nascondi i componenti senza collegamenti visibili')),
-    h('div', { class: 'fp-hint' }, 'Il filtro vale per entrambe le viste (i cavi seguono il Livello 1 della loro interfaccia) e per l’esportazione SVG. Puoi anche fare clic su un Livello 1 nella legenda.'));
+    h('div', { class: 'fp-hint' }, 'Il filtro vale per entrambe le viste (i cavi seguono il Livello 1 della loro interfaccia) e per l’esportazione SVG / PDF. Puoi anche fare clic su un Livello 1 nella legenda.'),
+    // opzioni di visualizzazione della vista cavi (incluse nell'esportazione)
+    h('div', { class: 'fp-head fp-sec' }, h('b', null, 'Mostra nella vista cavi')),
+    boardOpt('showConnType', 'Tipologia dei connettori', 'scritta fuori dal blocco, sopra il cavo collegato'),
+    boardOpt('showCablePn', 'PN dei cavi', 'PN fornitore / PN IDV accanto all’ID del cavo'));
+}
+function boardOpt(key, label, hint) {
+  const cb = h('input', { type: 'checkbox', checked: !!ui[key], 'data-opt': key, onchange: (e) => {
+    ui[key] = e.target.checked;
+    saveUi();
+    if (e.target.checked && ui.mode !== 'cables') toast('L’opzione “' + label + '” vale nella vista cavi.', 'info');
+    renderBoard();
+  } });
+  return h('label', { class: 'fp-row fp-opt' }, cb, h('span', null, h('b', null, label), h('span', { class: 'muted small' }, ' · ' + hint)));
 }
 function renderBoard() {
   if (!B || !state) return;
@@ -5064,10 +5177,15 @@ function renderBoard() {
     const lc = linkColor(L);
     let segHits = '';
     if (ui.showPorts) {
-      for (let k = 1; k < it.pts.length - 2; k++) {
+      // vista interfacce: anche i tratti finali, per spostare l'aggancio lungo il lato del blocco
+      const ends = ui.mode === 'interfaces' && L.kind === 'interface';
+      for (let k = ends ? 0 : 1; k < it.pts.length - (ends ? 1 : 2); k++) {
         const a = it.pts[k], b = it.pts[k + 1];
         const o = Math.abs(a.x - b.x) < 0.05 ? 'v' : 'h';
-        segHits += '<line class="seg-hit ' + o + '" data-seg="' + k + '" data-o="' + o + '" x1="' + r1(a.x) + '" y1="' + r1(a.y) + '" x2="' + r1(b.x) + '" y2="' + r1(b.y) + '"/>';
+        if ((k === 0 || k === it.pts.length - 2) && o !== 'h') continue;
+        const term = k === 0 || k === it.pts.length - 2;
+        segHits += '<line class="seg-hit ' + o + (term ? ' term' : '') + '" data-seg="' + k + '" data-o="' + o + '" x1="' + r1(a.x) + '" y1="' + r1(a.y) + '" x2="' + r1(b.x) + '" y2="' + r1(b.y) + '"' +
+          (term ? '><title>Trascina in alto o in basso per spostare l’aggancio lungo il lato del componente</title></line>' : '/>');
       }
     }
     ls += '<g class="link-g ' + st + (it.manual ? ' manual' : '') + '" style="--lc:' + esc(lc) + '" data-link="' + kindAttr + '" data-uid="' + esc(L.obj.uid) + '" data-key="' + esc(it.key) + '">' +
@@ -5076,7 +5194,8 @@ function renderBoard() {
       '<path class="link-hit" d="' + dHit + '"/><path class="' + cls + '" d="' + d + '"/>' + segHits + '</g>';
     if (ui.showLabels && !(L.node && L.branch > 0)) {   // cavo ramificato: un solo cartellino, sul primo ramo
       const idPart = L.obj.id;
-      const restFit = '';   // l'etichetta mostra solo l'ID (interfacce e cavi)
+      // l'etichetta mostra solo l'ID; con l'opzione "PN dei cavi" (vista cavi) anche PN fornitore / PN IDV
+      const restFit = L.kind === 'cable' && ui.showCablePn ? cablePnText(L.obj) : '';
       labels.push({
         li, idPart, rest: restFit, w: textW(idPart, F.lblId) + textW(restFit, F.label) + 12, h: 16,
         kind: kindAttr, uid: L.obj.uid, key: it.key, st, bundle: it.bundle, color: lc,
@@ -5171,12 +5290,46 @@ function renderBoard() {
   if (!fastDrag) B.comps.innerHTML = cs;
   B.ports.innerHTML = ps + ns;
   markHoverHandles();
-  B.labels.innerHTML = lbs;
+  B.labels.innerHTML = connTypesSvg(items, geom) + lbs;
   renderHandles();
   const be = byId('boardEmpty');
   be.hidden = state.components.length > 0 && !(shownComps && !shownComps.size);
   be.textContent = state.components.length ? 'Nessun collegamento corrisponde al filtro attivo.' : 'Nessun componente. Usa “+ Componente” per iniziare.';
   updateBoardChrome(items, res.links, allItems);
+}
+/* "PN F: Belden 9841 · PN IDV: IDV-CBL-0422" (etichette dei cavi con l'opzione "PN dei cavi") */
+function cablePnText(c) {
+  const t = [c.supplierPn ? 'PN F: ' + c.supplierPn : '', c.partNumber ? 'PN IDV: ' + c.partNumber : ''].filter(Boolean).join(' · ');
+  return t ? '  ' + t : '';
+}
+/* Vista cavi, opzione "Tipologia": tipologia del connettore del componente scritta fuori dal blocco, sopra il cavo
+   (sotto se il cavo sale subito); una sola scritta per connettore e lato */
+function connTypesSvg(items, geom) {
+  if (ui.mode !== 'cables' || !ui.showConnType) return '';
+  const seen = new Map();
+  items.forEach((it) => {
+    if (it.L.kind !== 'cable') return;
+    [[it.L.pA, it.sA, 0], [it.L.pB, it.sB, it.pts.length - 1]].forEach(([u, side, k]) => {
+      const ke = idx.conn.get(u);
+      if (!ke || !str(ke.conn.type).trim()) return;
+      // dopo il primo tratto orizzontale il cavo sale? allora la scritta va sotto la linea
+      const p = it.pts[k], r = it.pts[k === 0 ? 2 : k - 2];
+      const key = u + ':' + side, cur = seen.get(key);
+      if (!cur || p.y < cur.y) seen.set(key, { k: ke.conn, side, x: p.x, y: p.y, up: !!r && r.y < p.y - 0.5 });
+    });
+  });
+  // scritte che si sovrapporrebbero: la seconda si allontana dalla linea (sopra o sotto) a passi di 10 px
+  const placed = [];
+  let s = '';
+  [...seen.values()].sort((a, b) => a.y - b.y || a.x - b.x).forEach((t) => {
+    const w = textW(t.k.type, '600 9.5px ' + MONO_STACK) + 2;
+    const x = t.side === 'R' ? t.x + 5 : t.x - 5, x0 = t.side === 'R' ? x : x - w, x1 = x0 + w;
+    let y = t.up ? t.y + 11 : t.y - 4;
+    for (let n = 0; n < 6 && placed.some((b) => x0 < b.x1 && x1 > b.x0 && y - 9 < b.y1 && y + 2 > b.y0); n++) y += t.up ? 10 : -10;
+    placed.push({ x0, x1, y0: y - 9, y1: y + 2 });
+    s += '<text class="ctype-ext" x="' + r1(x) + '" y="' + r1(y) + '"' + (t.side === 'L' ? ' text-anchor="end"' : '') + '>' + esc(t.k.type) + '</text>';
+  });
+  return s;
 }
 /* Punti di connessione (quadratini sui bordi), in un livello separato sopra i blocchi */
 /* Punti di connessione sui bordi del blocco (livello separato sopra i blocchi).
@@ -5223,7 +5376,7 @@ function compSvg(c, g, hlPorts) {
   let s = '<g class="comp' + (sel ? ' selected' : '') + '" data-comp="' + esc(c.uid) + '" transform="translate(' + g.x + ',' + g.y + ')">' +
     '<title>' + esc(tip) + '</title>' +
     '<rect class="comp-body" width="' + w + '" height="' + hh + '" rx="2"/>' +
-    '<path class="comp-head" d="M0,' + (g.showPorts ? H : hh) + ' V2 A2,2 0 0 1 2,0 H' + (w - 2) + ' A2,2 0 0 1 ' + w + ',2 V' + (g.showPorts ? H : hh) + ' Z"/>' +
+    '<path class="comp-head" d="M0,' + (g.showPorts || g.img ? H : hh) + ' V2 A2,2 0 0 1 2,0 H' + (w - 2) + ' A2,2 0 0 1 ' + w + ',2 V' + (g.showPorts || g.img ? H : hh) + ' Z"/>' +
     '<rect x="0" y="0" width="' + w + '" height="3" fill="' + band + '"/>';
   s += '<text class="comp-name" x="10" y="22">' + esc(fitText(c.name || '(senza nome)', F.name, w - g.idW - 28)) + '</text>';
   s += '<g class="comp-idb"><rect x="' + (w - g.idW - 8) + '" y="9" width="' + g.idW + '" height="17" rx="1.5"/>' +
@@ -5235,16 +5388,27 @@ function compSvg(c, g, hlPorts) {
       '<path d="M5.5,3.5 V9.5 A2,2 0 0 1 1.5,9.5 V2.8 A1.3,1.3 0 0 1 4.1,2.8 V8.6" fill="none" stroke-width="1.1" stroke-linecap="round"/>' +
       '<text x="9" y="9.5">' + nAtt + '</text></g>';
   }
+  if (g.img) {
+    // immagine del componente fra intestazione e connettori (inscritta nell'area, proporzioni conservate)
+    const im = boardImg(g.img);
+    const ix = 8, iy = H + 6, iw = w - 16, ih = BG.IMG;
+    s += '<line class="comp-sep" x1="0" y1="' + H + '" x2="' + w + '" y2="' + H + '"/>' +
+      '<rect class="comp-img-bg" x="' + ix + '" y="' + iy + '" width="' + iw + '" height="' + ih + '" rx="2"/>' +
+      (im && im.url ? '<image class="comp-img" href="' + esc(im.url) + '" data-fid="' + esc(g.img.fid) + '" x="' + ix + '" y="' + iy + '" width="' + iw + '" height="' + ih + '" preserveAspectRatio="xMidYMid meet"/>'
+        : '<text class="port-none" x="' + (w / 2) + '" y="' + (iy + ih / 2 + 4) + '" text-anchor="middle">' + (im && im.err ? 'immagine non disponibile' : 'caricamento immagine…') + '</text>');
+  }
   if (g.showPorts) {
-    s += '<line class="comp-sep" x1="0" y1="' + H + '" x2="' + w + '" y2="' + H + '"/>';
-    if (!g.rows.length) s += '<text class="port-none" x="12" y="' + (H + 3 + BG.ROW / 2 + 4) + '">Nessun connettore</text>';
+    const H2 = H + g.imgH;
+    s += '<line class="comp-sep" x1="0" y1="' + H2 + '" x2="' + w + '" y2="' + H2 + '"/>';
+    if (!g.rows.length) s += '<text class="port-none" x="12" y="' + (H2 + 3 + BG.ROW / 2 + 4) + '">Nessun connettore</text>';
+    // vista cavi con l'opzione "Tipologia": la tipologia è scritta fuori dal blocco, sopra il cavo
+    const typeOut = ui.mode === 'cables' && ui.showConnType;
     g.rows.forEach((r, i) => {
-      // connettore: ▣ ID tipologia … funzione · direzione
+      // connettore: ▣ ID tipologia … etichetta · direzione (testi per intero: il blocco si allarga)
       const k = r.k, cy = r.y;
       const cbs = (idx.cablesByConn.get(k.uid) || []).map((x) => x.id);
       const tag = connTag(k);
-      const typeMax = w - 44 - textW(k.id, F.portId) - textW(tag, F.ptype) - 14;
-      const ktip = 'Connettore ' + c.id + ':' + k.id + '\nFunzione: ' + (k.function || '—') + ' · Tipologia: ' + (k.type || '—') + ' · Direzione: ' + (k.direction || '—') +
+      const ktip = 'Connettore ' + c.id + ':' + k.id + '\nEtichetta: ' + (k.label || '—') + ' · Tipologia: ' + (k.type || '—') + ' · Direzione: ' + (k.direction || '—') +
         '\nPinout: ' + (connPinoutSummary(k) || 'non definito') + '\nCavi: ' + (cbs.length ? cbs.join(', ') : 'nessuno') +
         (ui.mode === 'cables' ? '\n(trascina dal quadratino di connessione per collegare un cavo)' : '');
       s += '<g class="conn' + (hlPorts.has(k.uid) ? ' hl' : '') + '" data-connrow="' + esc(k.uid) + '"><title>' + esc(ktip) + '</title>' +
@@ -5252,7 +5416,7 @@ function compSvg(c, g, hlPorts) {
         '<rect class="conn-glyph" x="8.5" y="' + r1(cy - 4.5) + '" width="11" height="9" rx="2.5"/>' +
         '<circle class="conn-glyph-pin" cx="11.8" cy="' + cy + '" r="1.15"/><circle class="conn-glyph-pin" cx="16.2" cy="' + cy + '" r="1.15"/>' +
         '<text class="port-text" x="24" y="' + (cy + 3.8) + '"><tspan class="port-id">' + esc(k.id) + '</tspan><tspan class="conn-type" dx="7">' +
-        esc(fitText(k.type || '', F.port, typeMax)) + '</tspan></text>' +
+        esc(typeOut ? '' : k.type || '') + '</tspan></text>' +
         (tag ? '<text class="port-type" x="' + (w - 14) + '" y="' + (cy + 3.2) + '" text-anchor="end">' + esc(tag) + '</text>' : '') + '</g>';
     });
   }
@@ -5488,58 +5652,461 @@ function updateHistoryButtons() {
   });
 }
 /* Esportazione dello schema in SVG vettoriale con cartiglio */
-function exportSvg() {
+/* =====================================================================
+   9b. ESPORTAZIONE DELLO SCHEMA: SVG e PDF su foglio A4–A0 (o grande quanto il disegno),
+   con cartiglio modificabile e bordo con i riferimenti di zona (A, B, C… / 1, 2, 3…)
+   ===================================================================== */
+const MM_PER_PX = 25.4 / 96;
+/* Righe del cartiglio pronte per la stampa: valori vuoti compilati in automatico, poi i dati dello schema */
+function sheetRowsFor(sh) {
+  const rows = sh.rows.map((r) => [r.label, str(r.value).trim() || sheetAuto(r.label)]);
+  if (sh.auto) {
+    rows.push(['Vista', ui.mode === 'interfaces' ? 'Interfacce logiche' : 'Cavi fisici']);
+    rows.push(['Contenuto', plural(state.components.length, 'componente', 'componenti') + ' · ' + plural(state.interfaces.length, 'interfaccia', 'interfacce') + ' · ' + plural(state.cables.length, 'cavo', 'cavi')]);
+    rows.push(['Filtro', filterActive() ? filterSummary(true) : 'nessuno (tutti i livelli)']);
+  }
+  return rows;
+}
+/* Zone di riferimento (UNI EN ISO 5457): campi di circa 50 mm, numero pari; lettere senza I e O */
+function zoneCount(len) { return Math.max(2, 2 * Math.round(len / 100)); }
+function zoneLetter(i) { const L = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; return i < L.length ? L[i] : L[i % L.length] + (Math.floor(i / L.length) + 1); }
+function sheetFrameSvg(W, H, m, band) {
+  let s = '<g class="sheet-frame" fill="none" stroke="#1b2533">';
+  if (!band) return s + '<rect x="' + m + '" y="' + m + '" width="' + r1(W - 2 * m) + '" height="' + r1(H - 2 * m) + '" stroke-width="0.7"/></g>';
+  const x0 = m, y0 = m, x1 = W - m, y1 = H - m;
+  s += '<rect x="' + x0 + '" y="' + y0 + '" width="' + r1(x1 - x0) + '" height="' + r1(y1 - y0) + '" stroke-width="0.35"/>' +
+    '<rect x="' + (x0 + band) + '" y="' + (y0 + band) + '" width="' + r1(x1 - x0 - 2 * band) + '" height="' + r1(y1 - y0 - 2 * band) + '" stroke-width="0.7"/>';
+  const nx = zoneCount(W), ny = zoneCount(H);
+  const zw = (x1 - x0) / nx, zh = (y1 - y0) / ny;
+  let t = '';
+  for (let i = 0; i < nx; i++) {
+    const cx = x0 + zw * (i + 0.5);
+    if (i) { const x = r1(x0 + zw * i); s += '<line x1="' + x + '" y1="' + y0 + '" x2="' + x + '" y2="' + (y0 + band) + '" stroke-width="0.35"/><line x1="' + x + '" y1="' + r1(y1 - band) + '" x2="' + x + '" y2="' + y1 + '" stroke-width="0.35"/>'; }
+    [y0 + band / 2 + 1.1, y1 - band / 2 + 1.1].forEach((ty) => { t += '<text x="' + r1(cx) + '" y="' + r1(ty) + '" text-anchor="middle">' + (i + 1) + '</text>'; });
+  }
+  for (let j = 0; j < ny; j++) {
+    const cy = y0 + zh * (j + 0.5);
+    if (j) { const y = r1(y0 + zh * j); s += '<line x1="' + x0 + '" y1="' + y + '" x2="' + (x0 + band) + '" y2="' + y + '" stroke-width="0.35"/><line x1="' + r1(x1 - band) + '" y1="' + y + '" x2="' + x1 + '" y2="' + y + '" stroke-width="0.35"/>'; }
+    [x0 + band / 2, x1 - band / 2].forEach((tx) => { t += '<text x="' + r1(tx) + '" y="' + r1(cy + 1.1) + '" text-anchor="middle">' + zoneLetter(j) + '</text>'; });
+  }
+  return s + '</g><g class="sheet-zones" font-size="3" font-weight="600" fill="#1b2533" font-family="' + esc(FONT_STACK) + '">' + t + '</g>';
+}
+function titleBlockSvg(x, y, w, sh, rows) {
+  const headH = 8, rowH = 6, lw = Math.min(42, w * 0.3);
+  const font = (sz, wt) => (wt ? wt + ' ' : '') + sz + 'px ' + FONT_STACK;
+  let s = '<g class="title-block" transform="translate(' + r1(x) + ',' + r1(y) + ')" font-family="' + esc(FONT_STACK) + '">' +
+    '<rect width="' + r1(w) + '" height="' + (headH + rows.length * rowH) + '" fill="#fff" stroke="#1b2533" stroke-width="0.5"/>' +
+    '<rect width="' + r1(w) + '" height="' + headH + '" fill="#0b2140"/>' +
+    '<text x="3" y="5.6" fill="#fff" font-size="3.4" font-weight="700">' + esc(fitText(sh.head || SHEET_HEAD, font(3.4, 700), w - 6)) + '</text>';
+  rows.forEach((rw, i) => {
+    const ry = headH + i * rowH;
+    s += (i ? '<line x1="0" y1="' + ry + '" x2="' + r1(w) + '" y2="' + ry + '" stroke="#9aa4b1" stroke-width="0.25"/>' : '') +
+      '<line x1="' + r1(lw) + '" y1="' + ry + '" x2="' + r1(lw) + '" y2="' + (ry + rowH) + '" stroke="#9aa4b1" stroke-width="0.25"/>' +
+      '<text x="2.5" y="' + r1(ry + 4.1) + '" font-size="2.3" font-weight="700" fill="#4b5665">' + esc(fitText(str(rw[0]).toUpperCase(), font(2.3, 700), lw - 4)) + '</text>' +
+      '<text x="' + r1(lw + 2.5) + '" y="' + r1(ry + 4.2) + '" font-size="2.9" fill="#111b28">' + esc(fitText(rw[1], font(2.9), w - lw - 5)) + '</text>';
+  });
+  return s + '</g>';
+}
+/* Foglio di esportazione: copia della lavagna (senza maniglie) scalata nel riquadro del disegno, in millimetri */
+async function buildSheet(sh) {
   const sel = ui.selected;
   ui.selected = null;
   renderBoard();
   const bb = contentBounds();
-  if (!bb) { ui.selected = sel; renderBoard(); toast('Lo schema è vuoto.', 'warn'); return; }
-  const pad = 30, tbW = 380, tbH = 128;
-  const W = Math.ceil(Math.max(bb.x1 - bb.x0 + pad * 2, tbW + pad * 2));
-  const Hh = Math.ceil(bb.y1 - bb.y0 + pad * 2 + tbH + 14);
-  const svg = B.svg.cloneNode(true);
+  const svg = bb ? B.svg.cloneNode(true) : null;
   ui.selected = sel;
   renderBoard();
-  svg.removeAttribute('class');
-  svg.removeAttribute('style');
-  svg.removeAttribute('id');
-  svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
-  svg.setAttribute('width', W);
-  svg.setAttribute('height', Hh);
-  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + Hh);
-  const grid = svg.querySelector('#gridBg');
-  if (grid) { grid.removeAttribute('fill'); grid.setAttribute('fill', '#ffffff'); }
-  svg.querySelector('#viewport').setAttribute('transform', 'translate(' + r1(pad - bb.x0) + ',' + r1(pad - bb.y0) + ')');
-  svg.querySelectorAll('.link-hit,.seg-hit,.pin-hit,.bnode-hit,.g-handle,#layerTemp > *,#layerHandles > *').forEach((n) => n.remove());
+  if (!bb) { toast('Lo schema è vuoto.', 'warn'); return null; }
   const NS = 'http://www.w3.org/2000/svg';
+  ['class', 'style', 'id', 'role', 'aria-label'].forEach((a) => svg.removeAttribute(a));
+  svg.setAttribute('xmlns', NS);
+  qsa('#gridBg, defs', svg).forEach((n) => n.remove());
+  qsa('.link-hit,.seg-hit,.pin-hit,.bnode-hit,.g-handle,.lbl-row-hit,#layerTemp > *,#layerHandles > *,title', svg).forEach((n) => n.remove());
+  const bw = bb.x1 - bb.x0, bh = bb.y1 - bb.y0;
+  const rows = sheetRowsFor(sh);
+  const m = 10, band = sh.border ? 5 : 0, pad = 5;
+  let W, H, tbW, s;
+  if (sh.paper === 'fit') {
+    s = MM_PER_PX;
+    tbW = Math.min(180, Math.max(120, bw * s));
+    const tbH = 8 + rows.length * 6;
+    W = Math.max(bw * s, tbW) + 2 * (m + band + pad);
+    H = bh * s + tbH + 6 + 2 * (m + band + pad);
+  } else {
+    [W, H] = PAPER[sh.paper];
+    if (sh.orient === 'P') [W, H] = [H, W];
+  }
+  W = Math.round(W * 10) / 10; H = Math.round(H * 10) / 10;
+  const ix = m + band, iy = m + band, iw = W - 2 * (m + band), ih = H - 2 * (m + band);
+  tbW = Math.min(180, iw);
+  const tbH = 8 + rows.length * 6;
+  const area = { x: ix + pad, y: iy + pad, w: iw - 2 * pad, h: ih - 2 * pad - tbH - 4 };
+  if (sh.paper !== 'fit') s = Math.min(area.w / bw, area.h / bh, MM_PER_PX * 2);
+  const dx = sh.paper === 'fit' ? area.x : area.x + (area.w - bw * s) / 2, dy = sh.paper === 'fit' ? area.y : area.y + Math.max(0, (area.h - bh * s) / 2);
+  svg.querySelector('#viewport').setAttribute('transform', 'translate(' + r1(dx) + ',' + r1(dy) + ') scale(' + s.toFixed(5) + ') translate(' + r1(-bb.x0) + ',' + r1(-bb.y0) + ')');
+  svg.querySelector('#viewport').removeAttribute('id');
+  qsa('[id]', svg).forEach((n) => n.removeAttribute('id'));
+  svg.setAttribute('width', W + 'mm');
+  svg.setAttribute('height', H + 'mm');
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
   const style = document.createElementNS(NS, 'style');
   style.textContent = 'svg { font-family: ' + FONT_STACK + '; }\n' + document.querySelector('head style').textContent;
   svg.insertBefore(style, svg.firstChild);
-  const tx = W - pad - tbW, ty = Hh - pad - tbH + 14;
-  const today = new Date().toLocaleDateString('it-IT');
-  const rows = [
-    ['Titolo', state.meta.name || '—'],
-    ['Vista', ui.mode === 'interfaces' ? 'Interfacce logiche' : 'Cavi fisici'],
-    ['Contenuto', plural(state.components.length, 'componente', 'componenti') + ' · ' + plural(state.interfaces.length, 'interfaccia', 'interfacce') + ' · ' + plural(state.cables.length, 'cavo', 'cavi')],
-    ['Instradamento', 'ortogonale' + (lastRouteStats.manual ? ' (' + plural(lastRouteStats.manual, 'percorso manuale', 'percorsi manuali') + ')' : ' automatico') + ' · ' + plural(lastRouteStats.crossings, 'incrocio', 'incroci')],
-    ['Filtro', filterActive() ? filterSummary(true) : 'nessuno (tutti i livelli)'],
-    ['Data', today]
+  const bg = document.createElementNS(NS, 'rect');
+  bg.setAttribute('width', W); bg.setAttribute('height', H); bg.setAttribute('fill', '#fff');
+  style.after(bg);
+  svg.insertAdjacentHTML('beforeend', sheetFrameSvg(W, H, m, band) + titleBlockSvg(ix + iw - tbW, iy + ih - tbH, tbW, sh, rows));
+  // immagini dei componenti incorporate nel file (data URL)
+  for (const im of qsa('image[data-fid]', svg)) {
+    const e = [...boardImgs.values()].find((x) => x.url === im.getAttribute('href'));
+    if (e && e.blob) {
+      if (!e.dataUrl) e.dataUrl = await blobToDataURL(e.blob);
+      im.setAttribute('href', e.dataUrl);
+    } else im.remove();
+  }
+  return { svg, W, H };
+}
+function exportBaseName() {
+  return 'IDV_schema_' + (ui.mode === 'interfaces' ? 'interfacce' : 'cavi') + (filterActive() ? '_' + safeFileName(filterSummary()).replace(/[^\w-]+/g, '_') : '') + '_' + stamp();
+}
+/* Finestra di esportazione: formato, foglio, bordo, cartiglio (salvato nel progetto) */
+async function openExportDialog() {
+  const sh = clone(normSheet(state.meta.sheet));
+  const fmt = h('select', { class: 'inp', 'aria-label': 'Formato' });
+  fillSelect(fmt, [{ value: 'pdf', label: 'PDF (vettoriale)' }, { value: 'svg', label: 'SVG (vettoriale)' }], ui.exportFmt === 'svg' ? 'svg' : 'pdf');
+  const paper = h('select', { class: 'inp', 'aria-label': 'Foglio' });
+  fillSelect(paper, Object.keys(PAPER).map((k) => ({ value: k, label: k + ' (' + PAPER[k][0] + ' × ' + PAPER[k][1] + ' mm)' })).concat([{ value: 'fit', label: 'Grande quanto il disegno' }]), sh.paper);
+  const orient = h('select', { class: 'inp', 'aria-label': 'Orientamento' });
+  fillSelect(orient, [{ value: 'L', label: 'Orizzontale' }, { value: 'P', label: 'Verticale' }], sh.orient);
+  const syncOrient = () => { orient.disabled = paper.value === 'fit'; };
+  paper.addEventListener('change', syncOrient);
+  syncOrient();
+  const border = h('input', { type: 'checkbox', checked: sh.border });
+  const auto = h('input', { type: 'checkbox', checked: sh.auto });
+  const head = h('input', { class: 'inp', value: sh.head, maxlength: 120, 'aria-label': 'Intestazione del cartiglio' });
+  const tb = h('tbody');
+  const paintRows = () => {
+    tb.innerHTML = '';
+    sh.rows.forEach((r, i) => {
+      const lb = h('input', { class: 'inp', value: r.label, maxlength: 40, 'aria-label': 'Voce ' + (i + 1) });
+      lb.addEventListener('input', () => { r.label = lb.value; });
+      const auto0 = sheetAuto(r.label);
+      const vl = h('input', { class: 'inp', value: r.value, maxlength: 200, placeholder: auto0 ? auto0 + ' (automatico)' : '', 'aria-label': 'Valore di ' + (r.label || 'voce ' + (i + 1)) });
+      vl.addEventListener('input', () => { r.value = vl.value; });
+      tb.appendChild(h('tr', null, h('td', null, lb), h('td', null, vl),
+        h('td', { class: 'act' }, h('button', { type: 'button', class: 'btn xs danger', title: 'Togli la voce', 'aria-label': 'Togli la voce ' + r.label, onclick: () => { sh.rows.splice(i, 1); paintRows(); } }, '✕'))));
+    });
+  };
+  paintRows();
+  const body = [
+    h('div', { class: 'form-grid three' },
+      fld('Formato', fmt), fld('Foglio', paper), fld('Orientamento', orient)),
+    h('label', { class: 'inline-check', style: { marginTop: '10px' } }, border, ' Bordo con i riferimenti di zona (A, B, C… sui lati, 1, 2, 3… in alto e in basso)'),
+    h('div', { class: 'sp-section' }, h('h3', null, 'Cartiglio'),
+      fld('Intestazione', head, { wide: true }),
+      h('table', { class: 'mini sheet-rows', style: { marginTop: '8px' } }, h('thead', null, h('tr', null, h('th', null, 'Voce'), h('th', null, 'Valore'), h('th', null, ''))), tb),
+      h('div', { class: 'row-actions' },
+        h('button', { type: 'button', class: 'btn xs', onclick: () => { sh.rows.push({ label: '', value: '' }); paintRows(); const ins = qsa('input', tb); if (ins.length) ins[ins.length - 2].focus(); } }, '+ Voce'),
+        h('button', { type: 'button', class: 'btn xs', onclick: () => { sh.rows = SHEET_ROWS.map((label) => ({ label, value: '' })); head.value = SHEET_HEAD; paintRows(); } }, 'Voci predefinite'),
+        h('span', { class: 'muted small' }, 'Titolo, Programma, Autore e Data vuoti si compilano da soli.')),
+      h('label', { class: 'inline-check', style: { marginTop: '6px' } }, auto, ' Aggiungi i dati dello schema (vista, contenuto, filtro)')),
+    h('p', { class: 'muted small' }, 'Le impostazioni del foglio e del cartiglio sono salvate nel progetto. L’esportazione comprende la vista attuale (' + (ui.mode === 'interfaces' ? 'interfacce' : 'cavi') + '), il filtro e le opzioni di visualizzazione attive.')
   ];
-  let tb = '<g class="title-block" transform="translate(' + tx + ',' + ty + ')"><rect width="' + tbW + '" height="' + tbH + '" fill="#fff" stroke="#3f4b59" stroke-width="1"/>' +
-    '<rect width="' + tbW + '" height="20" fill="#0b2140"/><text x="10" y="14" fill="#fff" font-size="11" font-weight="700">IDV Interface Manager — Schema di interfacciamento</text>';
-  rows.forEach((rw, i) => {
-    const y = 20 + i * 18;
-    tb += '<line x1="0" y1="' + y + '" x2="' + tbW + '" y2="' + y + '" stroke="#c3cad3" stroke-width=".8"/>' +
-      '<line x1="106" y1="' + y + '" x2="106" y2="' + (y + 18) + '" stroke="#c3cad3" stroke-width=".8"/>' +
-      '<text x="8" y="' + (y + 12.5) + '" font-size="9.5" fill="#5b6676" font-weight="700">' + esc(rw[0].toUpperCase()) + '</text>' +
-      '<text x="114" y="' + (y + 12.5) + '" font-size="10.5" fill="#16202d">' + esc(fitText(rw[1], '10.5px ' + FONT_STACK, tbW - 122)) + '</text>';
+  const ok = await showModal({ title: 'Esporta lo schema', wide: true, body, buttons: [{ label: 'Annulla', value: false }, { label: 'Esporta', value: true, cls: 'primary' }] });
+  if (!ok) return;
+  sh.paper = paper.value; sh.orient = orient.value; sh.border = border.checked; sh.auto = auto.checked; sh.head = head.value.trim();
+  sh.rows = sh.rows.filter((r) => str(r.label).trim());
+  const next = normSheet(sh);
+  if (JSON.stringify(next) !== JSON.stringify(normSheet(state.meta.sheet))) commit((st) => { st.meta.sheet = next; }, null, 'Impostazioni del foglio e del cartiglio');
+  ui.exportFmt = fmt.value;
+  await exportSheet(fmt.value, next);
+}
+async function exportSheet(fmt, sh) {
+  const res = await buildSheet(sh);
+  if (!res) return;
+  const name = exportBaseName();
+  if (fmt === 'svg') {
+    const text = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(res.svg);
+    downloadFile(name + '.svg', text, 'image/svg+xml');
+    toast('Schema esportato in SVG (' + sheetLabel(sh, res) + ')', 'ok');
+    return;
+  }
+  const bytes = await svgToPdf(res.svg, res.W, res.H, state.meta.name || 'Schema');
+  downloadFile(name + '.pdf', bytes, 'application/pdf');
+  toast('Schema esportato in PDF (' + sheetLabel(sh, res) + ')', 'ok');
+}
+function sheetLabel(sh, res) { return sh.paper === 'fit' ? Math.round(res.W) + ' × ' + Math.round(res.H) + ' mm' : sh.paper + (sh.orient === 'P' ? ' verticale' : ' orizzontale'); }
+
+/* ---------- Conversione SVG → PDF vettoriale (senza librerie): linee, rettangoli, percorsi, testi e immagini ----------
+   Il foglio viene disegnato in un contenitore nascosto per leggere stili calcolati, matrici e posizioni dei caratteri.
+   Testi in Helvetica / Courier (font standard del PDF, codifica WinAnsi) con larghezza adattata a quella dello schermo. */
+const WIN_ANSI = (() => {
+  const m = new Map();
+  for (let c = 32; c < 127; c++) m.set(c, c);
+  for (let c = 160; c < 256; c++) m.set(c, c);
+  const hi = { 0x20AC: 0x80, 0x201A: 0x82, 0x0192: 0x83, 0x201E: 0x84, 0x2026: 0x85, 0x2020: 0x86, 0x2021: 0x87, 0x02C6: 0x88, 0x2030: 0x89, 0x0160: 0x8A, 0x2039: 0x8B, 0x0152: 0x8C, 0x017D: 0x8E,
+    0x2018: 0x91, 0x2019: 0x92, 0x201C: 0x93, 0x201D: 0x94, 0x2022: 0x95, 0x2013: 0x96, 0x2014: 0x97, 0x02DC: 0x98, 0x2122: 0x99, 0x0161: 0x9A, 0x203A: 0x9B, 0x0153: 0x9C, 0x017E: 0x9E, 0x0178: 0x9F };
+  Object.keys(hi).forEach((k) => m.set(Number(k), hi[k]));
+  return m;
+})();
+const PDF_SUBST = { '⇄': '<>', '↔': '<->', '→': '->', '←': '<-', '≤': '<=', '≥': '>=', 'Ω': 'Ohm', 'μ': 'µ', '−': '-', '＋': '+', '▴': '^', '▾': 'v', '✓': 'v', '⚠': '!', ' ': ' ' };
+function winAnsiHex(text) {
+  let out = '';
+  for (const ch of text) {
+    const sub = PDF_SUBST[ch];
+    const seq = sub != null ? sub : ch;
+    for (const c2 of seq) {
+      const b = WIN_ANSI.get(c2.codePointAt(0));
+      out += (b != null ? b : 63).toString(16).padStart(2, '0');
+    }
+  }
+  return out;
+}
+function pdfColor(v) {
+  const m = /rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+%?))?\s*\)/.exec(str(v));
+  if (!m) return null;
+  let a = m[4] == null ? 1 : (m[4].endsWith('%') ? parseFloat(m[4]) / 100 : parseFloat(m[4]));
+  if (!(a >= 0)) a = 1;
+  return { rgb: [m[1], m[2], m[3]].map((x) => (Number(x) / 255).toFixed(3)).join(' '), a };
+}
+const pn = (n) => (Math.abs(n) < 1e-6 ? '0' : String(Math.round(n * 1000) / 1000));
+/* Percorso SVG → operatori PDF (m l c h), con archi e quadratiche convertiti in curve di Bézier cubiche */
+function pathToPdf(d) {
+  const tk = str(d).match(/[MmLlHhVvCcSsQqTtAaZz]|[-+]?(?:\d+\.?\d*|\.\d+)(?:[eE][-+]?\d+)?/g) || [];
+  let i = 0, cmd = '', x = 0, y = 0, sx = 0, sy = 0, cx2 = null, cy2 = null, qx = null, qy = null, out = '';
+  const num = () => Number(tk[i++]);
+  const isNum = () => i < tk.length && !/^[A-Za-z]$/.test(tk[i]);
+  const C = (x1, y1, x2, y2, x3, y3) => { out += pn(x1) + ' ' + pn(y1) + ' ' + pn(x2) + ' ' + pn(y2) + ' ' + pn(x3) + ' ' + pn(y3) + ' c\n'; };
+  while (i < tk.length) {
+    if (/^[A-Za-z]$/.test(tk[i])) cmd = tk[i++];
+    const rel = cmd === cmd.toLowerCase(), C0 = cmd.toUpperCase();
+    if (C0 === 'Z') { out += 'h\n'; x = sx; y = sy; cx2 = qx = null; if (!isNum()) continue; }
+    if (C0 === 'M') { x = (rel ? x : 0) + num(); y = (rel ? y : 0) + num(); sx = x; sy = y; out += pn(x) + ' ' + pn(y) + ' m\n'; cmd = rel ? 'l' : 'L'; cx2 = qx = null; continue; }
+    if (C0 === 'L') { x = (rel ? x : 0) + num(); y = (rel ? y : 0) + num(); out += pn(x) + ' ' + pn(y) + ' l\n'; cx2 = qx = null; continue; }
+    if (C0 === 'H') { x = (rel ? x : 0) + num(); out += pn(x) + ' ' + pn(y) + ' l\n'; cx2 = qx = null; continue; }
+    if (C0 === 'V') { y = (rel ? y : 0) + num(); out += pn(x) + ' ' + pn(y) + ' l\n'; cx2 = qx = null; continue; }
+    if (C0 === 'C' || C0 === 'S') {
+      let x1, y1;
+      if (C0 === 'C') { x1 = (rel ? x : 0) + num(); y1 = (rel ? y : 0) + num(); } else { x1 = cx2 != null ? 2 * x - cx2 : x; y1 = cy2 != null ? 2 * y - cy2 : y; }
+      const x2 = (rel ? x : 0) + num(), y2 = (rel ? y : 0) + num(), x3 = (rel ? x : 0) + num(), y3 = (rel ? y : 0) + num();
+      C(x1, y1, x2, y2, x3, y3); cx2 = x2; cy2 = y2; qx = null; x = x3; y = y3; continue;
+    }
+    if (C0 === 'Q' || C0 === 'T') {
+      let x1, y1;
+      if (C0 === 'Q') { x1 = (rel ? x : 0) + num(); y1 = (rel ? y : 0) + num(); } else { x1 = qx != null ? 2 * x - qx : x; y1 = qy != null ? 2 * y - qy : y; }
+      const x3 = (rel ? x : 0) + num(), y3 = (rel ? y : 0) + num();
+      C(x + 2 / 3 * (x1 - x), y + 2 / 3 * (y1 - y), x3 + 2 / 3 * (x1 - x3), y3 + 2 / 3 * (y1 - y3), x3, y3);
+      qx = x1; qy = y1; cx2 = null; x = x3; y = y3; continue;
+    }
+    if (C0 === 'A') {
+      let rx = Math.abs(num()), ry = Math.abs(num());
+      const phi = num() * Math.PI / 180, fa = num(), fs = num();
+      const x3 = (rel ? x : 0) + num(), y3 = (rel ? y : 0) + num();
+      cx2 = qx = null;
+      if (!rx || !ry) { out += pn(x3) + ' ' + pn(y3) + ' l\n'; x = x3; y = y3; continue; }
+      const cs = Math.cos(phi), sn = Math.sin(phi);
+      const x1p = cs * (x - x3) / 2 + sn * (y - y3) / 2, y1p = -sn * (x - x3) / 2 + cs * (y - y3) / 2;
+      let lam = (x1p * x1p) / (rx * rx) + (y1p * y1p) / (ry * ry);
+      if (lam > 1) { rx *= Math.sqrt(lam); ry *= Math.sqrt(lam); }
+      const num2 = rx * rx * ry * ry - rx * rx * y1p * y1p - ry * ry * x1p * x1p, den = rx * rx * y1p * y1p + ry * ry * x1p * x1p;
+      let co = Math.sqrt(Math.max(0, num2 / den));
+      if (fa === fs) co = -co;
+      const cxp = co * rx * y1p / ry, cyp = -co * ry * x1p / rx;
+      const ccx = cs * cxp - sn * cyp + (x + x3) / 2, ccy = sn * cxp + cs * cyp + (y + y3) / 2;
+      const ang = (ux, uy, vx, vy) => { const a = Math.atan2(ux * vy - uy * vx, ux * vx + uy * vy); return a; };
+      let t1 = ang(1, 0, (x1p - cxp) / rx, (y1p - cyp) / ry), dt = ang((x1p - cxp) / rx, (y1p - cyp) / ry, (-x1p - cxp) / rx, (-y1p - cyp) / ry);
+      if (!fs && dt > 0) dt -= 2 * Math.PI; else if (fs && dt < 0) dt += 2 * Math.PI;
+      const nseg = Math.max(1, Math.ceil(Math.abs(dt) / (Math.PI / 2))), dd = dt / nseg, kk = 4 / 3 * Math.tan(dd / 4);
+      for (let j = 0; j < nseg; j++) {
+        const a1 = t1 + j * dd, a2 = a1 + dd;
+        const p = (a) => ({ x: ccx + rx * Math.cos(a) * cs - ry * Math.sin(a) * sn, y: ccy + rx * Math.cos(a) * sn + ry * Math.sin(a) * cs });
+        const d1 = (a) => ({ x: -rx * Math.sin(a) * cs - ry * Math.cos(a) * sn, y: -rx * Math.sin(a) * sn + ry * Math.cos(a) * cs });
+        const P1 = p(a1), P2 = p(a2), D1 = d1(a1), D2 = d1(a2);
+        C(P1.x + kk * D1.x, P1.y + kk * D1.y, P2.x - kk * D2.x, P2.y - kk * D2.y, P2.x, P2.y);
+      }
+      x = x3; y = y3; continue;
+    }
+    i++;   // comando non riconosciuto: si salta
+  }
+  return out;
+}
+function rectPath(x, y, w, hh, rx, ry) {
+  if (!(w > 0) || !(hh > 0)) return '';
+  rx = Math.min(rx || 0, w / 2); ry = Math.min(ry || rx || 0, hh / 2);
+  if (!rx || !ry) return pn(x) + ' ' + pn(y) + ' ' + pn(w) + ' ' + pn(hh) + ' re\n';
+  return pathToPdf('M' + (x + rx) + ',' + y + ' H' + (x + w - rx) + ' A' + rx + ',' + ry + ' 0 0 1 ' + (x + w) + ',' + (y + ry) + ' V' + (y + hh - ry) + ' A' + rx + ',' + ry + ' 0 0 1 ' + (x + w - rx) + ',' + (y + hh) +
+    ' H' + (x + rx) + ' A' + rx + ',' + ry + ' 0 0 1 ' + x + ',' + (y + hh - ry) + ' V' + (y + ry) + ' A' + rx + ',' + ry + ' 0 0 1 ' + (x + rx) + ',' + y + ' Z');
+}
+function ellipsePath(cx, cy, rx, ry) {
+  if (!(rx > 0) || !(ry > 0)) return '';
+  return pathToPdf('M' + (cx - rx) + ',' + cy + ' A' + rx + ',' + ry + ' 0 1 0 ' + (cx + rx) + ',' + cy + ' A' + rx + ',' + ry + ' 0 1 0 ' + (cx - rx) + ',' + cy + ' Z');
+}
+const pdfFontW = new Map();
+/* Larghezza del testo nel font standard del PDF (Helvetica ≈ Arial; Courier: 0,6 em) */
+function pdfTextWidth(text, font, size) {
+  if (/^Courier/.test(font)) return [...text].length * 0.6 * size;
+  const f = (font.includes('Bold') ? 'bold ' : '') + (font.includes('Oblique') ? 'italic ' : '') + '100px Arial, "Liberation Sans", Helvetica, sans-serif';
+  const key = f + '\u0001' + text;
+  let w = pdfFontW.get(key);
+  if (w === undefined) { measureCtx.font = f; w = measureCtx.measureText(text).width / 100; pdfFontW.set(key, w); }
+  return w * size;
+}
+async function svgToPdf(svgSrc, W, H, title) {
+  const svg = svgSrc.cloneNode(true);
+  svg.setAttribute('width', W); svg.setAttribute('height', H);
+  const host = h('div', { style: { position: 'fixed', left: '-30000px', top: '0', width: W + 'px', height: H + 'px', overflow: 'hidden', pointerEvents: 'none', opacity: '0' } });
+  host.appendChild(svg);
+  document.body.appendChild(host);
+  const k = 72 / 25.4;
+  const fonts = new Map(), gstates = new Map(), images = [];
+  const fontRef = (name) => { if (!fonts.has(name)) fonts.set(name, 'F' + (fonts.size + 1)); return fonts.get(name); };
+  const gsRef = (ca, CA) => { const key = ca.toFixed(3) + '/' + CA.toFixed(3); if (!gstates.has(key)) gstates.set(key, { n: 'GS' + (gstates.size + 1), ca, CA }); return gstates.get(key).n; };
+  let ops = pn(k) + ' 0 0 ' + pn(-k) + ' 0 ' + pn(H * k) + ' cm\n';
+  const mtx = (el) => { const m = el.getCTM(); return m ? [m.a, m.b, m.c, m.d, m.e, m.f].map(pn).join(' ') + ' cm\n' : ''; };
+  const opacityOf = (el) => { let o = 1; for (let n = el; n && n !== svg.parentNode; n = n.parentNode) { if (n.nodeType === 1) { const v = parseFloat(getComputedStyle(n).opacity); if (v >= 0) o *= v; } } return o; };
+  const visible = (el) => { const cs = getComputedStyle(el); return cs.display !== 'none' && cs.visibility !== 'hidden'; };
+  async function imageOp(el) {
+    const href = el.getAttribute('href') || el.getAttribute('xlink:href');
+    if (!href) return '';
+    const img = document.createElement('img');
+    img.src = href;
+    try { await img.decode(); } catch (e) { return ''; }
+    const iw = img.naturalWidth || 1, ih = img.naturalHeight || 1;
+    const x = Number(el.getAttribute('x')) || 0, y = Number(el.getAttribute('y')) || 0, w = Number(el.getAttribute('width')) || 0, hh = Number(el.getAttribute('height')) || 0;
+    const sc = Math.min(w / iw, hh / ih), dw = iw * sc, dh = ih * sc, ox = x + (w - dw) / 2, oy = y + (hh - dh) / 2;
+    const cw = Math.max(1, Math.min(2000, iw)), chh = Math.max(1, Math.round(cw * ih / iw));
+    const cv = document.createElement('canvas'); cv.width = cw; cv.height = chh;
+    const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cw, chh); cx.drawImage(img, 0, 0, cw, chh);
+    const bin = atob(cv.toDataURL('image/jpeg', 0.92).split(',')[1]);
+    const bytes = new Uint8Array(bin.length);
+    for (let j = 0; j < bin.length; j++) bytes[j] = bin.charCodeAt(j);
+    const name = 'Im' + (images.length + 1);
+    images.push({ name, w: cw, h: chh, bytes });
+    const op = opacityOf(el);
+    return 'q\n' + mtx(el) + (op < 1 ? '/' + gsRef(op, op) + ' gs\n' : '') + pn(dw) + ' 0 0 ' + pn(-dh) + ' ' + pn(ox) + ' ' + pn(oy + dh) + ' cm\n/' + name + ' Do\nQ\n';
+  }
+  function shapeOp(el, geo) {
+    if (!geo) return '';
+    const cs = getComputedStyle(el), op = opacityOf(el);
+    if (!(op > 0)) return '';
+    const fill = cs.fill && cs.fill !== 'none' && !/^url/.test(cs.fill) ? pdfColor(cs.fill) : null;
+    const stroke = cs.stroke && cs.stroke !== 'none' && !/^url/.test(cs.stroke) ? pdfColor(cs.stroke) : null;
+    const sw = parseFloat(cs.strokeWidth) || 0;
+    const fa = fill ? fill.a * (parseFloat(cs.fillOpacity) >= 0 ? parseFloat(cs.fillOpacity) : 1) * op : 0;
+    const sa = stroke ? stroke.a * (parseFloat(cs.strokeOpacity) >= 0 ? parseFloat(cs.strokeOpacity) : 1) * op : 0;
+    const doFill = fill && fa > 0.001 && el.tagName !== 'line', doStroke = stroke && sa > 0.001 && sw > 0;
+    if (!doFill && !doStroke) return '';
+    let o = 'q\n' + mtx(el);
+    if ((doFill && fa < 0.999) || (doStroke && sa < 0.999)) o += '/' + gsRef(doFill ? fa : 1, doStroke ? sa : 1) + ' gs\n';
+    if (doFill) o += fill.rgb + ' rg\n';
+    if (doStroke) {
+      o += stroke.rgb + ' RG\n' + pn(sw) + ' w\n';
+      o += ({ round: 1, square: 2 }[cs.strokeLinecap] || 0) + ' J\n' + ({ round: 1, bevel: 2 }[cs.strokeLinejoin] || 0) + ' j\n';
+      const da = cs.strokeDasharray && cs.strokeDasharray !== 'none' ? cs.strokeDasharray.split(/[\s,]+/).map(parseFloat).filter((v) => v >= 0) : [];
+      if (da.length && da.some((v) => v > 0)) o += '[' + da.map(pn).join(' ') + '] ' + pn(parseFloat(cs.strokeDashoffset) || 0) + ' d\n';
+    }
+    const eo = cs.fillRule === 'evenodd' ? '*' : '';
+    o += geo + (doFill && doStroke ? 'B' + eo : (doFill ? 'f' + eo : 'S')) + '\nQ\n';
+    return o;
+  }
+  function textOp(el) {
+    const kids = [...el.children].filter((c) => c.tagName === 'tspan');
+    const runs = kids.length ? kids : [el];
+    let o = '';
+    runs.forEach((r, ri) => {
+      let n = 0;
+      try { n = r.getNumberOfChars(); } catch (e) { n = 0; }
+      if (!n || !visible(r)) return;
+      let txt = r.textContent.replace(/\s+/g, ' ');
+      if (txt.length > n) txt = txt.replace(/^ /, '');
+      if (txt.length > n) txt = txt.replace(/ $/, '');
+      if (txt.length > n || (ri === 0 && /^ /.test(txt) && r === el)) txt = txt.trim();
+      if (!txt.trim()) return;
+      let pos;
+      try { pos = r.getStartPositionOfChar(0); } catch (e) { return; }
+      const cs = getComputedStyle(r), op = opacityOf(r);
+      const fill = pdfColor(cs.fill), size = parseFloat(cs.fontSize) || 10;
+      if (!fill || !(op > 0)) return;
+      const bold = (parseInt(cs.fontWeight, 10) || 400) >= 600, ital = cs.fontStyle === 'italic' || cs.fontStyle === 'oblique';
+      const mono = /mono|consol|courier|menlo|cascadia/i.test(cs.fontFamily);
+      const font = mono ? 'Courier' + (bold ? '-Bold' : '') : 'Helvetica' + (bold && ital ? '-BoldOblique' : (bold ? '-Bold' : (ital ? '-Oblique' : '')));
+      let tw = 0;
+      try { tw = r.getComputedTextLength(); } catch (e) { tw = 0; }
+      const pw = pdfTextWidth(txt, font, size);
+      const tz = tw > 0 && pw > 0 ? clamp(100 * tw / pw, 50, 200) : 100;
+      const hex = winAnsiHex(txt);
+      const fa = fill.a * (parseFloat(cs.fillOpacity) >= 0 ? parseFloat(cs.fillOpacity) : 1) * op;
+      const stroke = cs.stroke && cs.stroke !== 'none' ? pdfColor(cs.stroke) : null, sw = parseFloat(cs.strokeWidth) || 0;
+      const base = 'BT\n/' + fontRef(font) + ' ' + pn(size) + ' Tf\n' + pn(tz) + ' Tz\n1 0 0 -1 ' + pn(pos.x) + ' ' + pn(pos.y) + ' Tm\n';
+      o += 'q\n' + mtx(el) + (fa < 0.999 ? '/' + gsRef(fa, fa) + ' gs\n' : '');
+      // alone (paint-order: stroke) disegnato sotto al testo
+      if (stroke && stroke.a > 0 && sw > 0) o += stroke.rgb + ' RG\n' + pn(sw) + ' w\n1 j\n' + base + '1 Tr\n<' + hex + '> Tj\nET\n';
+      o += fill.rgb + ' rg\n' + base + '0 Tr\n<' + hex + '> Tj\nET\nQ\n';
+    });
+    return o;
+  }
+  async function walk(el) {
+    for (const c of [...el.children]) {
+      const tag = c.tagName.toLowerCase();
+      if (['style', 'title', 'defs', 'desc', 'metadata', 'pattern', 'clippath', 'marker'].includes(tag) || !visible(c)) continue;
+      if (tag === 'g' || tag === 'a' || tag === 'svg') { await walk(c); continue; }
+      const A = (n) => Number(c.getAttribute(n)) || 0;
+      if (tag === 'rect') ops += shapeOp(c, rectPath(A('x'), A('y'), A('width'), A('height'), A('rx'), A('ry')));
+      else if (tag === 'line') ops += shapeOp(c, pn(A('x1')) + ' ' + pn(A('y1')) + ' m\n' + pn(A('x2')) + ' ' + pn(A('y2')) + ' l\n');
+      else if (tag === 'circle') ops += shapeOp(c, ellipsePath(A('cx'), A('cy'), A('r'), A('r')));
+      else if (tag === 'ellipse') ops += shapeOp(c, ellipsePath(A('cx'), A('cy'), A('rx'), A('ry')));
+      else if (tag === 'path') ops += shapeOp(c, pathToPdf(c.getAttribute('d')));
+      else if (tag === 'polyline' || tag === 'polygon') {
+        const pts = str(c.getAttribute('points')).trim().split(/[\s,]+/).map(Number);
+        let g = '';
+        for (let j = 0; j + 1 < pts.length; j += 2) g += pn(pts[j]) + ' ' + pn(pts[j + 1]) + (j ? ' l\n' : ' m\n');
+        ops += shapeOp(c, g + (tag === 'polygon' ? 'h\n' : ''));
+      } else if (tag === 'text') ops += textOp(c);
+      else if (tag === 'image') ops += await imageOp(c);
+    }
+  }
+  try { await walk(svg); } finally { host.remove(); }
+  // --- file PDF
+  const enc = new TextEncoder();
+  let content = enc.encode(ops), filter = '';
+  if (typeof CompressionStream === 'function') {
+    try {
+      const cs = new Blob([content]).stream().pipeThrough(new CompressionStream('deflate'));
+      content = new Uint8Array(await new Response(cs).arrayBuffer());
+      filter = ' /Filter /FlateDecode';
+    } catch (e) { content = enc.encode(ops); filter = ''; }
+  }
+  const objs = [];   // [testo del dizionario, flusso binario opzionale]
+  const add = (dict, stream) => { objs.push([dict, stream || null]); return objs.length; };
+  const catalog = add(''), pages = add(''), page = add('');
+  const contents = add('<< /Length ' + content.length + filter + ' >>', content);
+  const fontObjs = [...fonts.entries()].map(([name, ref]) => '/' + ref + ' ' + add('<< /Type /Font /Subtype /Type1 /BaseFont /' + name + ' /Encoding /WinAnsiEncoding >>') + ' 0 R');
+  const gsObjs = [...gstates.values()].map((g) => '/' + g.n + ' ' + add('<< /Type /ExtGState /ca ' + pn(g.ca) + ' /CA ' + pn(g.CA) + ' >>') + ' 0 R');
+  const imObjs = images.map((im) => '/' + im.name + ' ' + add('<< /Type /XObject /Subtype /Image /Width ' + im.w + ' /Height ' + im.h + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + im.bytes.length + ' >>', im.bytes) + ' 0 R');
+  const utf16 = (t) => { let o = 'FEFF'; for (let j = 0; j < t.length; j++) o += t.charCodeAt(j).toString(16).padStart(4, '0'); return '<' + o + '>'; };
+  const d = new Date(), p2 = (x) => String(x).padStart(2, '0');
+  const info = add('<< /Title ' + utf16(str(title)) + ' /Creator ' + utf16('IDV Interface Manager Rev ' + APP.version) + ' /Producer ' + utf16('IDV Interface Manager') +
+    ' /CreationDate (D:' + d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + p2(d.getHours()) + p2(d.getMinutes()) + p2(d.getSeconds()) + ') >>');
+  objs[catalog - 1][0] = '<< /Type /Catalog /Pages ' + pages + ' 0 R >>';
+  objs[pages - 1][0] = '<< /Type /Pages /Kids [' + page + ' 0 R] /Count 1 >>';
+  objs[page - 1][0] = '<< /Type /Page /Parent ' + pages + ' 0 R /MediaBox [0 0 ' + pn(W * k) + ' ' + pn(H * k) + '] /Contents ' + contents + ' 0 R /Resources << /ProcSet [/PDF /Text /ImageC]' +
+    (fontObjs.length ? ' /Font << ' + fontObjs.join(' ') + ' >>' : '') + (gsObjs.length ? ' /ExtGState << ' + gsObjs.join(' ') + ' >>' : '') + (imObjs.length ? ' /XObject << ' + imObjs.join(' ') + ' >>' : '') + ' >> >>';
+  const parts = [], offsets = [];
+  let len = 0;
+  const push = (u8) => { parts.push(u8); len += u8.length; };
+  push(enc.encode('%PDF-1.4\n%âãÏÓ\n'));
+  objs.forEach(([dict, stream], j) => {
+    offsets[j] = len;
+    push(enc.encode((j + 1) + ' 0 obj\n' + dict + (stream ? '\nstream\n' : '\nendobj\n')));
+    if (stream) { push(stream); push(enc.encode('\nendstream\nendobj\n')); }
   });
-  tb += '</g>';
-  svg.querySelector('#viewport').insertAdjacentHTML('afterend', tb);
-  const text = '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(svg);
-  const fname = 'IDV_schema_' + (ui.mode === 'interfaces' ? 'interfacce' : 'cavi') + (filterActive() ? '_' + safeFileName(filterSummary()).replace(/[^\w-]+/g, '_') : '') + '_' + stamp() + '.svg';
-  downloadFile(fname, text, 'image/svg+xml');
-  toast('Schema esportato in SVG', 'ok');
+  const xref = len;
+  push(enc.encode('xref\n0 ' + (objs.length + 1) + '\n0000000000 65535 f \n' + offsets.map((o) => String(o).padStart(10, '0') + ' 00000 n \n').join('') +
+    'trailer\n<< /Size ' + (objs.length + 1) + ' /Root ' + catalog + ' 0 R /Info ' + info + ' 0 R >>\nstartxref\n' + xref + '\n%%EOF\n'));
+  const out = new Uint8Array(len);
+  let at = 0;
+  parts.forEach((u8) => { out.set(u8, at); at += u8.length; });
+  return out;
 }
 
 function setupBoard() {
@@ -5633,7 +6200,7 @@ function setupBoard() {
   byId('btnReroute').addEventListener('click', autoReroute);
   byId('btnBoardUndo').addEventListener('click', undo);
   byId('btnBoardRedo').addEventListener('click', redo);
-  byId('btnExportSvg').addEventListener('click', exportSvg);
+  byId('btnExportSvg').addEventListener('click', safely(openExportDialog));
   const find = byId('boardFind');
   const doFind = () => {
     const q = find.value.trim();
@@ -5697,6 +6264,18 @@ function onBoardPointerDown(e) {
     const it = lastItems.get(link.dataset.key);
     if (!it) { drag = null; return; }
     const k = Number(seg.dataset.seg), o = seg.dataset.o;
+    const last = it.pts.length - 2;
+    if (ui.mode === 'interfaces' && it.L.kind === 'interface' && o === 'h' && (k === 0 || k === last)) {
+      // tratto finale di un'interfaccia: si sposta il punto d'aggancio lungo il lato del componente
+      const w = clientToWorld(e.clientX, e.clientY);
+      const end = k === 0 && k === last ? (Math.abs(w.x - it.pts[0].x) <= Math.abs(w.x - it.pts[it.pts.length - 1].x) ? 'A' : 'B') : (k === 0 ? 'A' : 'B');
+      const cu = end === 'A' ? it.L.pA : it.L.pB, g = lastGeom && lastGeom.get(cu);
+      if (g) {
+        Object.assign(drag, { type: 'anchor', uid: it.L.obj.uid, key: it.key, end, comp: cu, g, oy: end === 'A' ? it.pts[0].y : it.pts[it.pts.length - 1].y, snap: snapshot() });
+        e.preventDefault();
+        return;
+      }
+    }
     Object.assign(drag, {
       type: 'seg', kind: it.L.kind === 'ghost' ? 'interface' : it.L.kind, uid: it.L.obj.uid, key: it.key, k, o, mode: ui.mode,
       it, base: it.pts.map((p) => ({ x: p.x, y: p.y })), orig: o === 'v' ? it.pts[k].x : it.pts[k].y, snap: snapshot(), cur: null
@@ -5733,6 +6312,14 @@ function dragSegment(dx, dy) {
   const nc = Math.round((d.orig + delta) / 5) * 5;
   const p = routeMoveSegment(d.base, d.it.sA, d.it.sB, d.k, d.o, nc);
   if (editOk(d, p)) previewRoute(d, p);
+}
+/* Aggancio di un'interfaccia trascinato lungo il lato del blocco (passi di 2 px, dentro il blocco) */
+function dragAnchor(dy) {
+  const d = drag, g = d.g;
+  const off = clamp(Math.round((d.oy + dy / ui.zoom - g.y) / 2) * 2, 6, g.h - 6);
+  anchorPreview = { uid: d.uid, end: d.end, off };
+  d.off = off;
+  scheduleBoardRender();
 }
 /* Spostamento di un punto di instradamento */
 function dragWaypoint(dx, dy) {
@@ -5978,6 +6565,10 @@ function onBoardContextMenu(e) {
   if (wp && hnd) items.push({ label: 'Elimina punto di instradamento', fn: () => removeWaypointAt(it.key, Number(wp.dataset.wp)) });
   else items.push({ label: 'Aggiungi punto di instradamento qui', fn: () => addWaypointAt(it.key, w), disabled: !ui.showPorts });
   items.push({ label: 'Ripristina percorso automatico', fn: () => resetRoute(it.key), disabled: !it.manual });
+  if (it.L.kind === 'interface') {
+    const an = state.anchors && state.anchors[it.L.obj.uid];
+    items.push({ label: 'Agganci automatici ai componenti', disabled: !an, fn: () => commit((st) => { if (st.anchors) delete st.anchors[it.L.obj.uid]; }, null, 'Agganci automatici ' + it.L.obj.id) });
+  }
   const lpos = lastLabelPos.get(it.key);
   if (lpos) items.push({ label: 'Ripristina posizione automatica dell’etichetta', fn: () => resetLabelPos(lpos.lkey), disabled: !storedLabel(lpos.lkey) });
   items.push({ sep: true });
@@ -6015,6 +6606,9 @@ function onBoardPointerMove(e) {
   } else if (drag.type === 'label') {
     B.svg.classList.add('label-move');
     drag.el.setAttribute('transform', 'translate(' + r1(dx / ui.zoom) + ',' + r1(dy / ui.zoom) + ')');
+  } else if (drag.type === 'anchor') {
+    B.svg.classList.add('seg-h');
+    dragAnchor(dy);
   } else if (drag.type === 'seg') {
     B.svg.classList.add(drag.o === 'v' ? 'seg-v' : 'seg-h');
     dragSegment(dx, dy);
@@ -6107,6 +6701,14 @@ function onBoardPointerUp(e) {
       boardOpenAt = Date.now();
       openObject('group', d.uid);
     }
+  } else if (d.type === 'anchor') {
+    anchorPreview = null;
+    if (!d.moved || d.off == null) { if (!d.moved) openLinkSoon('interface', d.uid); else renderBoard(); return; }
+    const f = idx.iface.get(d.uid), c = idx.comp.get(d.comp);
+    commit((st) => {
+      st.anchors = st.anchors || {};
+      st.anchors[d.uid] = Object.assign({}, st.anchors[d.uid], { [d.end]: d.off });
+    }, null, 'Spostamento aggancio ' + (f ? f.id : '') + ' su ' + (c ? c.id : ''));
   } else if (d.type === 'seg') {
     dragRoute = null;
     if (!d.moved) { openLinkSoon(d.kind, d.uid); return; }
@@ -6198,9 +6800,10 @@ async function startLinkFromPorts(pA, pB) {
     buttons: [{ label: 'Annulla', value: null }, { label: 'Crea nuova interfaccia', value: 'new' },
       { label: 'Associa il cavo a un’interfaccia esistente', value: 'assoc', cls: 'primary', validate: () => { if (!chosen.size) { toast('Seleziona almeno un’interfaccia esistente, oppure crea una nuova interfaccia.', 'warn'); return false; } return true; } }]
   });
-  // funzione del cavo proposta: quella comune ai due connettori
+  // funzione del cavo proposta: l'etichetta comune ai due connettori, se è una delle funzioni dei cavi
   const ka = connEntry(a.conn), kb = connEntry(b.conn);
-  const fn = ka && kb && ka.conn.function && ka.conn.function === kb.conn.function ? ka.conn.function : '';
+  const lab = ka && kb && eqId(ka.conn.label, kb.conn.label) ? normId(ka.conn.label) : '';
+  const fn = lab ? state.lists.functions.find((x) => normId(x) === lab) || '' : '';
   if (r === 'assoc') openCablePanel(null, { ifaceUids: state.interfaces.filter((f) => chosen.has(f.uid)).map((f) => f.uid), ends: [a, b], function: fn });
   else if (r === 'new') openInterfacePanel(null, { compA: a.comp, compB: b.comp });
 }
@@ -6465,8 +7068,9 @@ function formChanged() {
 async function panelSave() {
   const ctx = panelCtx;
   if (!ctx) return;
-  if (ctx.flushPending && !ctx.flushPending()) {
-    toast('Completa o annulla la modifica in corso.', 'err');
+  const fp = ctx.flushPending ? ctx.flushPending() : true;
+  if (fp !== true) {
+    toast(typeof fp === 'string' ? fp : 'Completa o annulla la modifica in corso.', 'err', 7000);
     return;
   }
   const res = ctx.validate(ctx.draft);
@@ -6866,13 +7470,13 @@ async function quickCreateConnector(compUid) {
   const conns = c.connectors || [];
   const v = await promptDialog('Nuovo connettore di ' + c.id, [
     { key: 'id', label: 'ID connettore', required: true, max: 20, value: nextId('J', conns.map((k) => k.id), 1) },
-    { key: 'function', label: 'Funzione', options: [{ value: '', label: '— non indicata —' }].concat(state.lists.functions), value: '' },
+    { key: 'label', label: 'Etichetta', max: 60, placeholder: 'es. AUDIO, RS-422 CTRL, 28 VDC IN' },
     { key: 'type', label: 'Tipologia', placeholder: 'es. MIL-DTL-38999 III 11-35' },
     { key: 'direction', label: 'Direzione', options: state.lists.directions, value: state.lists.directions.includes('Bidirectional') ? 'Bidirectional' : state.lists.directions[0] }
   ], 'Crea connettore');
   if (!v) return null;
   if (conns.some((k) => eqId(k.id, v.id))) { toast('Il componente ' + c.id + ' ha già un connettore “' + v.id + '”.', 'err'); return null; }
-  const k = { uid: newUid('k'), id: v.id, function: v.function, type: v.type, direction: v.direction, pinout: [] };
+  const k = { uid: newUid('k'), id: v.id, label: str(v.label).trim(), type: v.type, direction: v.direction, pinout: [] };
   commit((st) => { const cc = st.components.find((x) => x.uid === compUid); if (cc) cc.connectors.push(k); }, 'Connettore ' + c.id + ':' + k.id + ' creato');
   return { value: 'k:' + k.uid, label: k.id + (connText(k) ? ' · ' + connText(k) : '') };
 }
@@ -7036,9 +7640,18 @@ function openComponentPanel(uid, preset, focusConnUid) {
     uid: newUid('c'), id: nextId('CMP-', state.components.map((c) => c.id), 2), name: '', description: '',
     supplier: '', supplierPn: '', idvPn: '', status: 'Proposta',
     x: preset && Number.isFinite(preset.x) ? preset.x : nextFreePosition().x, y: preset && Number.isFinite(preset.y) ? preset.y : nextFreePosition().y,
-    groupUid: (preset && preset.groupUid) || null, connectors: [], attachments: [], custom: {}
+    groupUid: (preset && preset.groupUid) || null, connectors: [], attachments: [], custom: {}, boardImage: ''
   } : clone(src);
   if (!Array.isArray(draft.attachments)) draft.attachments = [];
+  if (!draft.boardImage) draft.boardImage = '';
+  let viewSel = null;
+  // "Sulla lavagna": rettangolo schematico oppure una delle immagini allegate (l'elenco segue gli allegati della scheda)
+  const viewOpts = (d) => [{ value: '', label: 'Rettangolo schematico' }].concat(d.attachments.filter((a) => fileKind(a).k === 'img').map((a) => ({ value: a.fid, label: 'Immagine: ' + a.name })));
+  const paintView = (d) => {
+    if (!viewSel) return;
+    if (d.boardImage && !d.attachments.some((a) => a.fid === d.boardImage)) d.boardImage = '';
+    fillSelect(viewSel, viewOpts(d), d.boardImage || '');
+  };
   if (!Array.isArray(draft.connectors)) draft.connectors = [];
   const originalConns = new Set(isNew ? [] : (src.connectors || []).map((k) => k.uid));
   if (!draft.custom) draft.custom = {};
@@ -7049,8 +7662,11 @@ function openComponentPanel(uid, preset, focusConnUid) {
     title: isNew ? 'Nuovo componente' : draft.id + ' — ' + draft.name,
     subtitle: isNew ? 'Compila i dati e aggiungi i connettori' : plural(draft.connectors.length, 'connettore', 'connettori') + ' · ' + plural((idx.ifacesByComp.get(uid) || []).length, 'interfaccia', 'interfacce'),
     draft,
-    onChange: (d) => { byId('spTitle').textContent = (d.id || '?') + ' — ' + (d.name || ''); },
+    onChange: (d) => { byId('spTitle').textContent = (d.id || '?') + ' — ' + (d.name || ''); paintView(d); },
     build: (d) => {
+      viewSel = h('select', { class: 'inp', 'aria-label': 'Aspetto sulla lavagna' });
+      viewSel.addEventListener('change', () => { d.boardImage = viewSel.value; formChanged(); });
+      paintView(d);
       const groupOpts = [{ value: '', label: '— nessun gruppo —' }].concat(state.groups.slice().sort((a, b) => cmpNat(a.id, b.id)).map((g) => ({ value: g.uid, label: g.id + ' — ' + g.name })));
       const grid = h('div', { class: 'form-grid' },
         fld('ID', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id', hint: 'Identificativo univoco, es. VCU (senza “.” e “:”, usati negli ID delle interfacce)' }),
@@ -7060,7 +7676,8 @@ function openComponentPanel(uid, preset, focusConnUid) {
         fld('Stato', selectFor(d, 'status', state.lists.statuses, null, null, addList('statuses'))),
         fld('PN fornitore', inputFor(d, 'supplierPn', { placeholder: 'Codice del costruttore' }), { field: 'supplierPn' }),
         fld('PN IDV', inputFor(d, 'idvPn', { placeholder: 'Codice / specifica interna' }), { field: 'idvPn' }),
-        fld('Gruppo funzionale', selectFor(d, 'groupUid', groupOpts, null, (v) => { d.groupUid = v || null; }, { label: 'Nuovo gruppo…', onAdd: quickCreateGroup }), { field: 'groupUid' })
+        fld('Gruppo funzionale', selectFor(d, 'groupUid', groupOpts, null, (v) => { d.groupUid = v || null; }, { label: 'Nuovo gruppo…', onAdd: quickCreateGroup }), { field: 'groupUid' }),
+        fld('Sulla lavagna', viewSel, { field: 'boardImage', hint: 'Rettangolo oppure una delle immagini allegate (riquadro Allegati), mostrata nel blocco sopra i connettori' })
       );
       const connBox = h('div');
       connectorsEditor(d, connBox, focusConnUid);
@@ -7113,8 +7730,9 @@ function openComponentPanel(uid, preset, focusConnUid) {
       clean.custom = cleanCustom(clean.custom, 'component');
       clean.supplierPn = str(clean.supplierPn).trim();
       clean.idvPn = str(clean.idvPn).trim();
+      clean.boardImage = clean.boardImage && clean.attachments.some((a) => a.fid === clean.boardImage) ? clean.boardImage : '';
       clean.connectors = clean.connectors.map((k) => ({
-        uid: k.uid, id: str(k.id).trim(), function: str(k.function).trim(), type: str(k.type).trim(), direction: str(k.direction),
+        uid: k.uid, id: str(k.id).trim(), label: str(k.label).trim(), type: str(k.type).trim(), direction: str(k.direction),
         pinout: k.pinout.map((r) => ({ pin: str(r.pin).trim(), signal: str(r.signal).trim() })).filter((r) => r.pin || r.signal)
       }));
       const gone = [...originalConns].filter((u) => !clean.connectors.some((k) => k.uid === u));
@@ -7128,13 +7746,39 @@ function openComponentPanel(uid, preset, focusConnUid) {
     }
   });
 }
-/* Connettori del componente: ID, funzione, tipologia, direzione e pinout (pin e segnale), modificabili sul posto */
+/* Pinout di un connettore (pin e segnale): tabella modificabile sul posto, usata nella scheda del componente
+   e negli estremi dei cavi (il pinout è uno solo, quello del connettore del componente) */
+function pinoutTable(pins, onChange, rerender) {
+  const tb = h('tbody');
+  pins.forEach((r, i) => {
+    const pin = h('input', { class: 'inp', value: r.pin || '', placeholder: 'Pin', 'aria-label': 'Pin' });
+    pin.addEventListener('input', () => { r.pin = pin.value; onChange(); });
+    const sig = h('input', { class: 'inp', value: r.signal || '', placeholder: 'Segnale', 'aria-label': 'Segnale' });
+    sig.addEventListener('input', () => { r.signal = sig.value; onChange(); });
+    tb.appendChild(h('tr', null, h('td', null, pin), h('td', null, sig),
+      h('td', { class: 'act' }, h('button', { type: 'button', class: 'btn xs danger', title: 'Elimina il pin', 'aria-label': 'Elimina il pin', onclick: () => { pins.splice(i, 1); onChange(); rerender(); } }, '✕'))));
+  });
+  if (!pins.length) tb.appendChild(h('tr', null, h('td', { colspan: 3, class: 'muted small' }, 'Pinout vuoto.')));
+  const addPin = () => {
+    const last = pins[pins.length - 1];
+    const n = last && /^\d+$/.test(str(last.pin)) ? String(Number(last.pin) + 1) : (last && /^[A-Y]$/i.test(str(last.pin)) ? String.fromCharCode(last.pin.charCodeAt(0) + 1) : String(pins.length + 1));
+    pins.push({ pin: n, signal: '' });
+    onChange();
+    rerender(true);
+  };
+  return h('div', { class: 'conn-pins' }, h('table', { class: 'mini' }, h('thead', null, h('tr', null, h('th', null, 'Pin'), h('th', null, 'Segnale'), h('th', null, ''))), tb),
+    h('div', { class: 'row-actions' }, h('button', { type: 'button', class: 'btn xs', onclick: addPin }, '+ Pin')));
+}
+/* Connettori del componente: ID, etichetta, tipologia, direzione e pinout (pin e segnale), modificabili sul posto.
+   L'ordine (posizione sulla lavagna) si cambia trascinando la maniglia ⠿ della riga, o con ↑ / ↓ sulla maniglia. */
 function connectorsEditor(draft, box, focusUid) {
   const openPins = new Set(focusUid ? [focusUid] : []);
-  function swap(i, j) {
-    const a = draft.connectors;
-    if (j < 0 || j >= a.length) return;
-    const t = a[i]; a[i] = a[j]; a[j] = t;
+  let dragK = null;
+  function moveTo(k, to) {
+    const a = draft.connectors, from = a.indexOf(k);
+    if (from < 0 || to < 0 || to > a.length) return;
+    a.splice(from, 1);
+    a.splice(to > from ? to - 1 : to, 0, k);
     render(); formChanged();
   }
   async function remove(k) {
@@ -7154,34 +7798,29 @@ function connectorsEditor(draft, box, focusUid) {
     render(); formChanged();
   }
   function add() {
-    const k = { uid: newUid('k'), id: nextId('J', draft.connectors.map((x) => x.id), 1), function: '', type: '', direction: state.lists.directions.includes('Bidirectional') ? 'Bidirectional' : (state.lists.directions[0] || ''), pinout: [] };
+    const k = { uid: newUid('k'), id: nextId('J', draft.connectors.map((x) => x.id), 1), label: '', type: '', direction: state.lists.directions.includes('Bidirectional') ? 'Bidirectional' : (state.lists.directions[0] || ''), pinout: [] };
     draft.connectors.push(k);
     render(); formChanged();
     const ins = qsa('tr[data-conn="' + k.uid + '"] input', box);
     if (ins.length) { ins[0].focus(); ins[0].select(); }
   }
   function pinoutRow(k) {
-    const tb = h('tbody');
-    k.pinout.forEach((r, i) => {
-      const pin = h('input', { class: 'inp', value: r.pin || '', placeholder: 'Pin', 'aria-label': 'Pin' });
-      pin.addEventListener('input', () => { r.pin = pin.value; formChanged(); });
-      const sig = h('input', { class: 'inp', value: r.signal || '', placeholder: 'Segnale', 'aria-label': 'Segnale' });
-      sig.addEventListener('input', () => { r.signal = sig.value; formChanged(); });
-      tb.appendChild(h('tr', null, h('td', null, pin), h('td', null, sig),
-        h('td', { class: 'act' }, h('button', { type: 'button', class: 'btn xs danger', title: 'Elimina il pin', 'aria-label': 'Elimina il pin', onclick: () => { k.pinout.splice(i, 1); render(); formChanged(); } }, '✕'))));
-    });
-    if (!k.pinout.length) tb.appendChild(h('tr', null, h('td', { colspan: 3, class: 'muted small' }, 'Pinout vuoto.')));
-    const addPin = () => {
-      const last = k.pinout[k.pinout.length - 1];
-      const n = last && /^\d+$/.test(str(last.pin)) ? String(Number(last.pin) + 1) : (last && /^[A-Y]$/i.test(str(last.pin)) ? String.fromCharCode(last.pin.charCodeAt(0) + 1) : String(k.pinout.length + 1));
-      k.pinout.push({ pin: n, signal: '' });
-      render(); formChanged();
-      const ins = qsa('tr[data-pins="' + k.uid + '"] tbody input', box);
-      if (ins.length) ins[ins.length - 1].focus();
-    };
     return h('tr', { class: 'conn-pins-row', 'data-pins': k.uid }, h('td', { colspan: 7 },
-      h('div', { class: 'conn-pins' }, h('table', { class: 'mini' }, h('thead', null, h('tr', null, h('th', null, 'Pin'), h('th', null, 'Segnale'), h('th', null, ''))), tb),
-        h('div', { class: 'row-actions' }, h('button', { type: 'button', class: 'btn xs', onclick: addPin }, '+ Pin')))));
+      pinoutTable(k.pinout, formChanged, (focusLast) => {
+        render();
+        if (focusLast) { const ins = qsa('tr[data-pins="' + k.uid + '"] tbody input', box); if (ins.length) ins[ins.length - 2].focus(); }
+      })));
+  }
+  // trascinamento delle righe: la riga del pinout segue il suo connettore
+  const rowOf = (el) => { const tr = el && el.closest ? el.closest('tr[data-conn], tr[data-pins]') : null; return tr ? draft.connectors.find((k) => k.uid === (tr.dataset.conn || tr.dataset.pins)) : null; };
+  const clearMarks = () => qsa('tr.drop-before, tr.drop-after', box).forEach((x) => x.classList.remove('drop-before', 'drop-after'));
+  function dropIndex(e) {
+    const k = rowOf(e.target);
+    if (!k) return null;
+    const tr = box.querySelector('tr[data-conn="' + k.uid + '"]');
+    const r = tr.getBoundingClientRect();
+    const after = e.clientY > r.top + r.height / 2 || (openPins.has(k.uid) && e.target.closest('tr[data-pins]'));
+    return { k, tr, after: !!after, to: draft.connectors.indexOf(k) + (after ? 1 : 0) };
   }
   function render() {
     box.innerHTML = '';
@@ -7191,10 +7830,8 @@ function connectorsEditor(draft, box, focusUid) {
     draft.connectors.forEach((k, i) => {
       const idIn = h('input', { class: 'inp mono', value: k.id, maxlength: 20, placeholder: 'J1', 'aria-label': 'ID connettore' });
       idIn.addEventListener('input', () => { k.id = idIn.value; formChanged(); });
-      const fnSel = listSelect('functions');
-      fillSelect(fnSel, [{ value: '', label: '— non indicata —' }].concat(state.lists.functions), k.function || '');
-      fnSel.addEventListener('change', () => { k.function = fnSel.value; formChanged(); });
-      fnSel.setAttribute('aria-label', 'Funzione del connettore');
+      const lbIn = h('input', { class: 'inp', value: k.label || '', maxlength: 60, placeholder: 'es. AUDIO', 'aria-label': 'Etichetta del connettore' });
+      lbIn.addEventListener('input', () => { k.label = lbIn.value; formChanged(); });
       const tyIn = h('input', { class: 'inp', value: k.type || '', maxlength: 80, placeholder: 'es. MIL-DTL-38999 III 11-35', 'aria-label': 'Tipologia del connettore' });
       tyIn.addEventListener('input', () => { k.type = tyIn.value; formChanged(); });
       const drSel = listSelect('directions');
@@ -7202,22 +7839,56 @@ function connectorsEditor(draft, box, focusUid) {
       drSel.addEventListener('change', () => { k.direction = drSel.value; formChanged(); });
       drSel.setAttribute('aria-label', 'Direzione del connettore');
       const cbs = idx.cablesByConn.get(k.uid) || [];
+      const grip = h('button', {
+        type: 'button', class: 'btn xs ghost drag-grip', draggable: 'true', title: 'Trascina per cambiare l’ordine (posizione sulla lavagna); da tastiera ↑ / ↓', 'aria-label': 'Sposta il connettore ' + k.id,
+        ondragstart: (e) => { dragK = k; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', k.uid); } catch (err) { /* nessun dato */ } const tr = e.target.closest('tr'); if (tr) { tr.classList.add('dragging'); e.dataTransfer.setDragImage(tr, 12, 12); } },
+        ondragend: () => { dragK = null; clearMarks(); qsa('tr.dragging', box).forEach((x) => x.classList.remove('dragging')); },
+        onkeydown: (e) => {
+          if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+          e.preventDefault();
+          const j = draft.connectors.indexOf(k) + (e.key === 'ArrowUp' ? -1 : 2);
+          if (j < 0 || j > draft.connectors.length) return;
+          moveTo(k, j);
+          const g = box.querySelector('tr[data-conn="' + k.uid + '"] .drag-grip');
+          if (g) g.focus();
+        }
+      }, '⠿');
       tb.appendChild(h('tr', { 'data-conn': k.uid, class: focusUid === k.uid ? 'focus' : null },
-        h('td', { class: 'c-id' }, idIn), h('td', { class: 'c-fn' }, fnSel), h('td', null, tyIn), h('td', { class: 'c-dir' }, drSel),
+        h('td', { class: 'c-grip' }, grip),
+        h('td', { class: 'c-id' }, idIn), h('td', { class: 'c-fn' }, lbIn), h('td', null, tyIn), h('td', { class: 'c-dir' }, drSel),
         h('td', { class: 'nowrap' }, h('button', { type: 'button', class: 'btn xs' + (openPins.has(k.uid) ? ' on' : ''), title: 'Pin e segnali del connettore', 'aria-expanded': openPins.has(k.uid) ? 'true' : 'false',
           onclick: () => { if (openPins.has(k.uid)) openPins.delete(k.uid); else openPins.add(k.uid); render(); } }, 'Pinout (' + k.pinout.length + ')'),
-          cbs.length ? h('div', { class: 'muted small', title: 'Cavi collegati' }, cbs.map((c) => c.id).join(', ')) : null),
+          cbs.length ? h('div', { class: 'muted small', title: 'Cavi collegati (il pinout è lo stesso anche nella scheda del cavo)' }, cbs.map((c) => c.id).join(', ')) : null),
         h('td', { class: 'act nowrap' },
-          h('button', { type: 'button', class: 'btn xs ghost', title: 'Sposta su', 'aria-label': 'Sposta su', disabled: i === 0, onclick: () => swap(i, i - 1) }, '▲'),
-          h('button', { type: 'button', class: 'btn xs ghost', title: 'Sposta giù', 'aria-label': 'Sposta giù', disabled: i === draft.connectors.length - 1, onclick: () => swap(i, i + 1) }, '▼'),
           h('button', { type: 'button', class: 'btn xs danger', title: 'Elimina il connettore', 'aria-label': 'Elimina il connettore ' + k.id, onclick: () => remove(k) }, '✕'))));
       if (openPins.has(k.uid)) tb.appendChild(pinoutRow(k));
+      void i;
+    });
+    tb.addEventListener('dragover', (e) => {
+      if (!dragK) return;
+      const t = dropIndex(e);
+      if (!t) return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      clearMarks();
+      t.tr.classList.add(t.after ? 'drop-after' : 'drop-before');
+    });
+    tb.addEventListener('dragleave', (e) => { if (!tb.contains(e.relatedTarget)) clearMarks(); });
+    tb.addEventListener('drop', (e) => {
+      if (!dragK) return;
+      e.preventDefault();
+      const t = dropIndex(e);
+      const k = dragK;
+      dragK = null;
+      clearMarks();
+      if (t) moveTo(k, t.to);
     });
     if (draft.connectors.length) {
       box.appendChild(h('table', { class: 'mini conn-table' },
-        h('thead', null, h('tr', null, ['ID', 'Funzione', 'Tipologia', 'Direzione', 'Pinout', ''].map((t) => h('th', null, t)))), tb));
+        h('thead', null, h('tr', null, ['', 'ID', 'Etichetta', 'Tipologia', 'Direzione', 'Pinout', ''].map((t) => h('th', null, t)))), tb));
     } else box.appendChild(h('div', { class: 'muted small', style: { margin: '4px 0 8px' } }, 'Nessun connettore.'));
-    box.appendChild(h('div', { class: 'row-actions' }, h('button', { type: 'button', class: 'btn sm', onclick: add }, '+ Connettore')));
+    box.appendChild(h('div', { class: 'row-actions' }, h('button', { type: 'button', class: 'btn sm', onclick: add }, '+ Connettore'),
+      draft.connectors.length > 1 ? h('span', { class: 'muted small' }, 'Trascina ⠿ per cambiare l’ordine') : null));
   }
   render();
 }
@@ -7675,6 +8346,28 @@ function ifaceChecklist(d, onChange) {
 function endsEditor(d, onChange) {
   const box = h('div');
   const changed = () => { if (onChange) onChange(); formChanged(); };
+  if (!d._pins) d._pins = {};
+  const openPins = new Set();
+  // pinout dell'estremo: è quello del connettore del componente (uno solo); le modifiche si salvano sul connettore
+  function pinBox(e, j) {
+    const ke = e.conn ? connEntry(e.conn) : null;
+    if (!ke) return h('div', { class: 'fld-hint end-pins' }, 'Pinout: ' + (e.comp ? 'seleziona il connettore del componente' : 'seleziona prima il componente') + '; si compila da solo con quello del connettore.');
+    const pins = d._pins[e.conn] || clone(ke.conn.pinout || []);
+    const open = openPins.has(j);
+    const sum = pins.filter((r) => str(r.pin).trim()).length;
+    const wrap = h('div', { class: 'end-pins', 'data-end-pins': e.conn },
+      h('div', { class: 'inline-row' },
+        h('button', { type: 'button', class: 'btn xs' + (open ? ' on' : ''), 'aria-expanded': open ? 'true' : 'false', title: 'Pin e segnali del connettore ' + connFull(e.conn) + ' (lo stesso pinout della scheda del componente)',
+          onclick: () => { if (open) openPins.delete(j); else openPins.add(j); render(); } }, 'Pinout (' + sum + ')'),
+        h('span', { class: 'muted small' }, 'di ' + connFull(e.conn) + ', condiviso con la scheda del componente')));
+    if (open) {
+      wrap.appendChild(pinoutTable(pins, () => { d._pins[e.conn] = pins; changed(); }, (focusLast) => {
+        render();
+        if (focusLast) { const ins = qsa('[data-end-pins="' + e.conn + '"] tbody input', box); if (ins.length) ins[ins.length - 2].focus(); }
+      }));
+    }
+    return wrap;
+  }
   function align() {
     const pr = endsFromIfaces(d.ifaceUids);
     if (pr.length < 2) { toast('Seleziona prima le interfacce: gli estremi si ricavano dai loro componenti.', 'warn'); return; }
@@ -7703,9 +8396,9 @@ function endsEditor(d, onChange) {
         e.comp = compSel.value;
         const c = idx.comp.get(e.comp), ks = c ? c.connectors || [] : [];
         e.conn = ks.length === 1 ? ks[0].uid : '';
-        fillConn(); changed();
+        render(); changed();
       });
-      connSel.addEventListener('change', () => { const v = connSel.value; e.conn = v.indexOf('k:') === 0 ? v.slice(2) : ''; changed(); });
+      connSel.addEventListener('change', () => { const v = connSel.value; e.conn = v.indexOf('k:') === 0 ? v.slice(2) : ''; render(); changed(); });
       grid.appendChild(h('div', { class: 'endpoint-box', 'data-field': 'end' + j },
         h('h4', null, 'Estremo ' + L, d.ends.length > 2 ? h('button', {
           type: 'button', class: 'btn xs ghost', style: { float: 'right' }, title: 'Elimina l’estremo ' + L,
@@ -7713,7 +8406,8 @@ function endsEditor(d, onChange) {
         }, '✕') : null),
         fld('Componente ' + L, compSel, { required: true }), h('div', { style: { height: '8px' } }),
         fld('Connettore componente ' + L, connSel, { hint: 'Connettore fisicamente presente sul componente' }), h('div', { style: { height: '8px' } }),
-        fld('Tipo connettore cavo', inputFor(e, 'plugType', { maxlength: 80, placeholder: 'es. MIL-DTL-38999 plug 11-35' }))));
+        fld('Tipo connettore cavo', inputFor(e, 'plugType', { maxlength: 80, placeholder: 'es. MIL-DTL-38999 plug 11-35' })),
+        pinBox(e, j)));
     });
     box.appendChild(grid);
     box.appendChild(h('div', { class: 'row-actions' },
@@ -7750,6 +8444,7 @@ function openCablePanel(uid, preset) {
   while (draft.ends.length < 2) draft.ends.push(blankEnd());
   draft._reqs = isNew ? [] : (idx.reqsByObj.get(uid) || []).map((r) => r.uid);
   draft._newReqs = [];
+  draft._pins = {};
   const shownId = isNew ? nextCableIdPreview() : draft.id;
   const title = (d) => shownId + (d.function ? ' — ' + d.function : '');
   openPanel({
@@ -7800,6 +8495,13 @@ function openCablePanel(uid, preset) {
         label = clean.id;
         const i = st.cables.findIndex((c) => c.uid === clean.uid);
         if (i >= 0) st.cables[i] = clean; else st.cables.push(clean);
+        // pinout modificati dagli estremi: appartengono ai connettori dei componenti
+        Object.keys(d._pins || {}).forEach((ku) => {
+          if (!clean.ends.some((e) => e.conn === ku)) return;
+          st.components.forEach((c) => (c.connectors || []).forEach((k) => {
+            if (k.uid === ku) k.pinout = d._pins[ku].map((r) => ({ pin: str(r.pin).trim(), signal: str(r.signal).trim() })).filter((r) => r.pin || r.signal);
+          }));
+        });
         applyReqLinks(st, 'cable', clean.uid, d._reqs, d._newReqs);
       }, isNew ? 'Cavo ' + nextCableIdPreview() + ' creato' : 'Cavo ' + clean.id + ' aggiornato') && label;
     }
@@ -7811,6 +8513,17 @@ function validateCable(d) {
   d.ifaceUids.forEach((u) => { if (!idx.iface.get(u)) E.push({ f: 'ifaceUids', m: 'Un’interfaccia associata non esiste più: togli la spunta.' }); });
   if (!d.function) W.push({ f: 'function', m: 'Funzione cavo non indicata.' });
   if (d.ends.length < 2) E.push({ m: 'Un cavo ha almeno due estremi.' });
+  d.ends.forEach((e, j) => {
+    const pins = e.conn && d._pins && d._pins[e.conn];
+    if (!pins) return;
+    const seenPins = new Set();
+    pins.forEach((r) => {
+      const pn = normId(r.pin);
+      if (!pn && str(r.signal).trim()) E.push({ f: 'end' + j, m: 'Estremo ' + endLetter(j) + ': una riga del pinout non ha il numero del pin.' });
+      else if (pn && seenPins.has(pn)) E.push({ f: 'end' + j, m: 'Estremo ' + endLetter(j) + ': pin ' + r.pin + ' ripetuto nel pinout di ' + connFull(e.conn) + '.' });
+      if (pn) seenPins.add(pn);
+    });
+  });
   const approved = APPROVED_STATUSES.has(d.status);
   const seen = new Set();
   d.ends.forEach((e, j) => {
@@ -7955,7 +8668,7 @@ function openGroupPanel(uid, preset) {
     subtitle: 'Raggruppa componenti che concorrono alla stessa funzione',
     draft,
     onChange: (d) => { byId('spTitle').textContent = (d.id || '?') + ' — ' + (d.name || ''); },
-    build: (d) => {
+    build: (d, ctx) => {
       const colors = h('div', { class: 'color-pick' });
       const renderColors = () => {
         colors.innerHTML = '';
@@ -7971,9 +8684,12 @@ function openGroupPanel(uid, preset) {
         list.innerHTML = '';
         countEl.textContent = '(' + (d._members.length + d._newComps.length) + ')';
         d._newComps.forEach((nc) => {
+          // l'ID dei nuovi componenti (e delle copie) si può ancora cambiare prima di salvare
+          const idIn = h('input', { class: 'inp mono ck-id-in', value: nc.id, maxlength: 40, 'aria-label': 'ID del nuovo componente ' + nc.name });
+          idIn.addEventListener('input', () => { nc.id = idIn.value.trim(); formChanged(); });
           list.appendChild(h('div', { class: 'ck ck-new' }, h('input', { type: 'checkbox', checked: true, disabled: true }),
-            h('div', { style: { flex: '1' } }, h('span', { class: 'ck-id' }, nc.id), ' ', nc.name,
-              h('div', { class: 'muted small' }, 'Nuovo · ' + plural(nc.connectors.length, 'connettore', 'connettori') + ' · creato al salvataggio del gruppo')),
+            h('div', { style: { flex: '1' } }, idIn, ' ', nc.name,
+              h('div', { class: 'muted small' }, (nc._copyOf ? 'Copia di ' + nc._copyOf : 'Nuovo') + ' · ' + plural(nc.connectors.length, 'connettore', 'connettori') + ' · creato al salvataggio del gruppo')),
             h('button', { type: 'button', class: 'btn xs danger', title: 'Non creare questo componente', onclick: () => { d._newComps = d._newComps.filter((x) => x !== nc); renderList(); formChanged(); } }, '✕')));
         });
         state.components.slice().sort((a, b) => cmpNat(a.id, b.id)).forEach((c) => {
@@ -7995,36 +8711,60 @@ function openGroupPanel(uid, preset) {
       const ncName = h('input', { class: 'inp', placeholder: 'es. Mission Computer' });
       const ncPorts = h('input', { class: 'inp', placeholder: 'es. J1 MIL-DTL-38999 III 11-35; J2 RJ45' });
       const ncErr = h('div', { class: 'msg-box err', style: { display: 'none', margin: '6px 0 0' } });
-      const addBtn = h('button', {
-        type: 'button', class: 'btn sm primary', onclick: () => {
-          const id = ncId.value.trim(), name = ncName.value.trim();
-          const fail = (m) => { ncErr.textContent = m; ncErr.style.display = ''; };
-          if (!id || !name) return fail('ID e nome del componente sono obbligatori.');
-          if (allIds().some((x) => eqId(x, id))) return fail('L’ID “' + id + '” è già usato da un altro componente.');
-          if (/[.:]/.test(id)) return fail('L’ID del componente non può contenere “.” o “:”.');
-          const connectors = [];
-          for (const chunk of ncPorts.value.split(/[;\n]/).map((x) => x.trim()).filter(Boolean)) {
-            const m = chunk.match(/^(\S+)\s*(.*)$/);
-            if (connectors.some((k) => eqId(k.id, m[1]))) return fail('Connettore duplicato: ' + m[1] + '.');
-            connectors.push({ uid: newUid('k'), id: m[1], function: '', type: m[2] || '', direction: '', pinout: [] });
-          }
-          ncErr.style.display = 'none';
-          d._newComps.push({ uid: newUid('c'), id, name, description: '', supplier: '', supplierPn: '', idvPn: '', status: 'Proposta', x: 0, y: 0, groupUid: d.uid, connectors, attachments: [], custom: {} });
-          ncName.value = ''; ncPorts.value = '';
-          ncId.value = nextId('CMP-', allIds(), 2);
-          renderList();
-          formChanged();
-          ncName.focus();
+      // aggiunge al gruppo il componente compilato nei campi qui sotto; restituisce il motivo se non è possibile
+      const addPending = () => {
+        const id = ncId.value.trim(), name = ncName.value.trim();
+        const fail = (m) => { ncErr.textContent = m; ncErr.style.display = ''; return m; };
+        if (!id || !name) return fail('ID e nome del componente sono obbligatori.');
+        if (allIds().some((x) => eqId(x, id))) return fail('L’ID “' + id + '” è già usato da un altro componente.');
+        if (/[.:]/.test(id)) return fail('L’ID del componente non può contenere “.” o “:”.');
+        const connectors = [];
+        for (const chunk of ncPorts.value.split(/[;\n]/).map((x) => x.trim()).filter(Boolean)) {
+          const m = chunk.match(/^(\S+)\s*(.*)$/);
+          if (connectors.some((k) => eqId(k.id, m[1]))) return fail('Connettore duplicato: ' + m[1] + '.');
+          connectors.push({ uid: newUid('k'), id: m[1], label: '', type: m[2] || '', direction: '', pinout: [] });
         }
-      }, '+ Aggiungi al gruppo');
+        ncErr.style.display = 'none';
+        d._newComps.push({ uid: newUid('c'), id, name, description: '', supplier: '', supplierPn: '', idvPn: '', status: 'Proposta', x: 0, y: 0, groupUid: d.uid, connectors, attachments: [], custom: {}, boardImage: '' });
+        ncName.value = ''; ncPorts.value = '';
+        ncId.value = nextId('CMP-', allIds(), 2);
+        renderList();
+        formChanged();
+        return '';
+      };
+      const addBtn = h('button', { type: 'button', class: 'btn sm primary', onclick: () => { if (!addPending()) ncName.focus(); } }, '+ Aggiungi al gruppo');
+      // "Salva" con un componente compilato ma non ancora aggiunto: lo si aggiunge prima di salvare il gruppo
+      const pendingFilled = () => !!(ncName.value.trim() || ncPorts.value.trim());
+      ctx.hasPending = pendingFilled;
+      ctx.flushPending = () => {
+        if (!pendingFilled()) return true;
+        const n = d._newComps.length;
+        const err = addPending();
+        if (err) return 'Il componente compilato non è stato aggiunto al gruppo: ' + err + ' Correggi i dati, oppure svuota i campi del nuovo componente.';
+        if (d._newComps.length > n) toast('Componente ' + d._newComps[d._newComps.length - 1].id + ' aggiunto al gruppo (non avevi premuto “Aggiungi al gruppo”).', 'info', 6000);
+        return true;
+      };
+      // copia di componenti esistenti (anche di altri gruppi): nuovi componenti con gli stessi dati, l'originale resta dov'è
+      const copyBtn = h('button', { type: 'button', class: 'btn sm', title: 'Crea in questo gruppo una copia di componenti già esistenti (anche di altri gruppi), che restano al loro posto', onclick: async () => {
+        const picked = await pickComponentsToCopy(d);
+        if (!picked.length) return;
+        picked.forEach((c) => d._newComps.push(copyComponent(c, allIds(), d.uid)));
+        renderList();
+        formChanged();
+        toast(plural(picked.length, 'copia pronta', 'copie pronte') + ': verifica l’ID nell’elenco; i componenti vengono creati al salvataggio del gruppo.', 'info', 6000);
+      } }, 'Copia componenti esistenti…');
       [ncId, ncName, ncPorts].forEach((el) => el.addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addBtn.click(); } }));
       const quick = h('div', { class: 'endpoint-box', style: { marginTop: '10px' } },
         h('h4', null, 'Nuovo componente in questo gruppo'),
         h('div', { class: 'form-grid' },
           fld('ID', ncId, { required: true }), fld('Nome', ncName, { required: true }),
-          fld('Connettori iniziali (facoltativi)', ncPorts, { wide: true, hint: 'Un connettore per voce, separati da “;”: ID seguito dalla tipologia (facoltativa). Funzione, direzione e pinout si completano poi nel componente.' })),
+          fld('Connettori iniziali (facoltativi)', ncPorts, { wide: true, hint: 'Un connettore per voce, separati da “;”: ID seguito dalla tipologia (facoltativa). Etichetta, direzione e pinout si completano poi nel componente.' })),
         ncErr,
-        h('div', { class: 'row-actions' }, addBtn, h('span', { class: 'muted small' }, 'Il componente viene creato e posizionato nella cornice del gruppo quando salvi il gruppo.')));
+        h('div', { class: 'row-actions' }, addBtn, h('span', { class: 'muted small' }, 'Il componente viene creato e posizionato nella cornice del gruppo quando salvi il gruppo (anche premendo direttamente “Salva”).')));
+      const copyBox = h('div', { class: 'endpoint-box', style: { marginTop: '10px' } },
+        h('h4', null, 'Componenti già esistenti'),
+        h('div', { class: 'row-actions', style: { marginTop: '0' } }, copyBtn,
+          h('span', { class: 'muted small' }, 'Per riusare un componente di un altro gruppo (es. una seconda radio): la copia ha un nuovo ID e gli stessi dati, connettori, pinout e allegati; l’originale resta nel suo gruppo.')));
       return [
         h('div', { class: 'form-grid' },
           fld('ID', inputFor(d, 'id', { maxlength: 40 }), { required: true, field: 'id' }),
@@ -8033,7 +8773,7 @@ function openGroupPanel(uid, preset) {
           fld('Owner', selectFor(d, 'owner', ownerOptions(), null, null, addList('owners')), { field: 'owner' }),
           fld('Colore sulla lavagna', colors)),
         customFieldsSection('group', d),
-        h('div', { class: 'sp-section' }, h('h3', null, 'Componenti del gruppo', countEl), list, quick,
+        h('div', { class: 'sp-section' }, h('h3', null, 'Componenti del gruppo', countEl), list, quick, copyBox,
           h('div', { class: 'fld-hint', style: { marginTop: '6px' } }, 'Ogni componente appartiene al massimo a un gruppo. Sulla lavagna la cornice del gruppo racchiude i suoi componenti; trascinane l’intestazione per spostarli insieme.'))
       ];
     },
@@ -8041,7 +8781,11 @@ function openGroupPanel(uid, preset) {
       const E = [], W = [];
       checkUniqueId(state.groups, d, 'del gruppo', E);
       if (!str(d.name).trim()) E.push({ f: 'name', m: 'Il nome del gruppo è obbligatorio.' });
-      d._newComps.forEach((c) => { if (state.components.some((x) => eqId(x.id, c.id))) E.push({ m: 'L’ID del nuovo componente “' + c.id + '” è già usato.' }); });
+      d._newComps.forEach((c, i) => {
+        if (!str(c.id).trim()) E.push({ m: 'Un nuovo componente (' + c.name + ') non ha ID.' });
+        else if (state.components.some((x) => eqId(x.id, c.id)) || d._newComps.some((x, j) => j < i && eqId(x.id, c.id))) E.push({ m: 'L’ID del nuovo componente “' + c.id + '” è già usato.' });
+        else if (/[.:]/.test(c.id)) E.push({ m: 'L’ID del nuovo componente “' + c.id + '” non può contenere “.” o “:”.' });
+      });
       if (!d._members.length && !d._newComps.length) W.push({ m: 'Il gruppo non contiene componenti: non sarà visibile sulla lavagna.' });
       return { errors: E, warnings: W };
     },
@@ -8051,7 +8795,7 @@ function openGroupPanel(uid, preset) {
       clean.name = str(clean.name).trim();
       clean.custom = cleanCustom(clean.custom, 'group');
       const members = new Set(d._members);
-      const created = placeNewComponents(d._newComps.map((c) => Object.assign(clone(c), { groupUid: clean.uid })), d._members);
+      const created = placeNewComponents(d._newComps.map((c) => { const o = Object.assign(clone(c), { groupUid: clean.uid }); delete o._copyOf; return o; }), d._members);
       return commit((st) => {
         const i = st.groups.findIndex((g) => g.uid === clean.uid);
         if (i >= 0) st.groups[i] = clean; else st.groups.push(clean);
@@ -8063,6 +8807,48 @@ function openGroupPanel(uid, preset) {
       }, (isNew ? 'Gruppo ' + clean.id + ' creato' : 'Gruppo ' + clean.id + ' aggiornato') + (created.length ? ' con ' + plural(created.length, 'nuovo componente', 'nuovi componenti') : ''));
     }
   });
+}
+/* Copia di un componente: nuovo uid e ID (ID-2, ID-3…), stessi dati, connettori con pinout, allegati e immagine */
+function copyComponent(c, takenIds, groupUid) {
+  const o = clone(c);
+  let n = 2, id = c.id + '-' + n;
+  while (takenIds.some((x) => eqId(x, id))) id = c.id + '-' + (++n);
+  o.uid = newUid('c'); o.id = id; o.groupUid = groupUid; o.x = 0; o.y = 0; o._copyOf = c.id;
+  o.connectors = (c.connectors || []).map((k) => Object.assign(clone(k), { uid: newUid('k') }));
+  o.attachments = clone(c.attachments || []);
+  if (!o.boardImage) o.boardImage = '';
+  return o;
+}
+/* Scelta dei componenti da copiare in un gruppo (elenco per gruppo, con filtro) */
+async function pickComponentsToCopy(d) {
+  const chosen = new Set();
+  const q = h('input', { type: 'search', class: 'inp', placeholder: 'Filtra componenti…', style: { marginBottom: '8px' } });
+  const list = h('div', { class: 'checklist', style: { maxHeight: '340px' } });
+  const paint = () => {
+    list.innerHTML = '';
+    const t = q.value.trim().toLowerCase();
+    const groups = [{ uid: null, label: 'Senza gruppo' }].concat(state.groups.slice().sort((a, b) => cmpNat(a.id, b.id)).map((g) => ({ uid: g.uid, label: g.id + ' — ' + g.name })));
+    let n = 0;
+    groups.forEach((g) => {
+      const cs = state.components.filter((c) => (c.groupUid || null) === g.uid && (!t || (c.id + ' ' + c.name).toLowerCase().includes(t))).sort((a, b) => cmpNat(a.id, b.id));
+      if (!cs.length) return;
+      list.appendChild(h('div', { class: 'ck-group' }, g.uid === d.uid ? g.label + ' (questo gruppo)' : g.label));
+      cs.forEach((c) => {
+        n++;
+        list.appendChild(h('label', { class: 'ck' }, h('input', { type: 'checkbox', checked: chosen.has(c.uid), onchange: (e) => { if (e.target.checked) chosen.add(c.uid); else chosen.delete(c.uid); } }),
+          h('div', null, h('span', { class: 'ck-id' }, c.id), ' ', c.name, h('span', { class: 'muted small' }, ' · ' + plural((c.connectors || []).length, 'connettore', 'connettori')))));
+      });
+    });
+    if (!n) list.appendChild(h('div', { class: 'ck-empty' }, 'Nessun componente corrisponde al filtro.'));
+  };
+  q.addEventListener('input', paint);
+  paint();
+  const ok = await showModal({
+    title: 'Copia componenti esistenti nel gruppo ' + (str(d.id).trim() || 'nuovo'), wide: true,
+    body: [h('p', null, 'Ogni componente scelto viene copiato in questo gruppo con un nuovo ID (es. RAD → RAD-2) e gli stessi dati, connettori, pinout e allegati. L’originale resta nel suo gruppo; interfacce e cavi non vengono copiati.'), q, list],
+    buttons: [{ label: 'Annulla', value: false }, { label: 'Copia nel gruppo', value: true, cls: 'primary', validate: () => { if (!chosen.size) { toast('Seleziona almeno un componente.', 'warn'); return false; } return true; } }]
+  });
+  return ok ? state.components.filter((c) => chosen.has(c.uid)) : [];
 }
 /* Posiziona i nuovi componenti sotto ai membri del gruppo (o al centro della vista), senza sovrapposizioni */
 function placeNewComponents(list, memberUids) {
@@ -8125,6 +8911,8 @@ function endConnId(e) {
   return k ? k.conn.id + (k.conn.type ? ' · ' + k.conn.type : '') : '';
 }
 const endPlug = (e) => (e ? str(e.plugType) : '');
+/* Pinout dell'estremo: quello del connettore del componente ("A +28V; B RTN") */
+const endPins = (e) => { const k = e && e.conn ? idx.conn.get(e.conn) : null; return k ? connPinoutSummary(k.conn) : ''; };
 function delBtn(kind, uid) {
   return h('button', { type: 'button', class: 'btn xs danger', title: 'Elimina', onclick: (e) => { e.stopPropagation(); deleteObject(kind, uid); } }, 'Elimina');
 }
@@ -8147,7 +8935,7 @@ const TABLES = {
   },
   components: {
     kind: 'component', title: 'Componenti', add: '+ Componente', onAdd: () => openComponentPanel(null, nextFreePosition()),
-    desc: 'Ogni componente possiede i suoi connettori (funzione, tipologia, direzione, pinout). Clic su una riga per modificare il componente.',
+    desc: 'Ogni componente possiede i suoi connettori (etichetta, tipologia, direzione, pinout). Clic su una riga per modificare il componente.',
     rows: () => state.components,
     filters: [
       { key: 'group', label: 'Gruppo', options: () => [{ value: '__none', label: '(nessun gruppo)' }].concat(state.groups.map((g) => ({ value: g.uid, label: g.id }))), test: (c, v) => (v === '__none' ? !c.groupUid : c.groupUid === v) }
@@ -8161,8 +8949,9 @@ const TABLES = {
       { key: 'idvPn', label: 'PN IDV', cls: 'nowrap', get: (c) => c.idvPn || '' },
       { key: 'status', label: 'Stato', get: (c) => c.status, render: (c) => pill(c.status) },
       { key: 'nconn', label: 'N. connettori', cls: 'num', get: (c) => (c.connectors || []).length },
+      { key: 'pinout', label: 'Pinout', cls: 'text', def: false, get: (c) => (c.connectors || []).filter((k) => connPinoutSummary(k)).map((k) => k.id + ': ' + connPinoutSummary(k)).join(' | ') },
       { key: 'conns', label: 'Connettori', get: (c) => (c.connectors || []).map((k) => k.id + (connText(k) ? ' (' + connText(k) + ')' : '')).join('; '),
-        render: (c) => (c.connectors || []).length ? c.connectors.map((k) => h('span', { class: 'chip link', 'data-open': 'connector:' + k.uid, title: [connText(k) || 'funzione e tipologia non indicate', k.direction, (k.pinout || []).length ? plural(k.pinout.length, 'pin', 'pin') : 'pinout vuoto'].filter(Boolean).join(' · ') }, h('b', null, k.id), k.function ? ' ' + k.function : '')) : h('span', { class: 'muted' }, 'nessuno') },
+        render: (c) => (c.connectors || []).length ? c.connectors.map((k) => h('span', { class: 'chip link', 'data-open': 'connector:' + k.uid, title: [connText(k) || 'etichetta e tipologia non indicate', k.direction, (k.pinout || []).length ? plural(k.pinout.length, 'pin', 'pin') : 'pinout vuoto'].filter(Boolean).join(' · ') }, h('b', null, k.id), k.label ? ' ' + k.label : '')) : h('span', { class: 'muted' }, 'nessuno') },
       { key: 'nif', label: 'Interfacce', cls: 'num', get: (c) => (idx.ifacesByComp.get(c.uid) || []).length },
       { key: 'natt', label: 'Allegati', cls: 'num', get: (c) => (c.attachments || []).length, csv: (c) => (c.attachments || []).map((a) => a.name).join('; '), render: (c) => (c.attachments || []).length ? h('span', { class: 'chip', title: c.attachments.map((a) => a.name).join('\n') }, '📎 ' + c.attachments.length) : '' }
     ]
@@ -8206,9 +8995,11 @@ const TABLES = {
       { key: 'compA', label: 'Comp. A', get: (c) => endCompId(endOf(c, 0)), render: (c) => (endOf(c, 0) ? compCell(endOf(c, 0).comp) : '') },
       { key: 'connA', label: 'Connettore comp. A', cls: 'nowrap', get: (c) => endConnId(endOf(c, 0)), render: (c) => endConnId(endOf(c, 0)) || h('span', { class: 'ico-warn', title: 'Connettore del componente non indicato' }, '?') },
       { key: 'plugA', label: 'Tipo connettore cavo A', cls: 'nowrap', get: (c) => endPlug(endOf(c, 0)), render: (c) => endPlug(endOf(c, 0)) || h('span', { class: 'ico-warn', title: 'Tipo di connettore cavo non indicato' }, '?') },
+      { key: 'pinA', label: 'Pinout A', cls: 'text', def: false, get: (c) => endPins(endOf(c, 0)) },
       { key: 'compB', label: 'Comp. B', get: (c) => endCompId(endOf(c, 1)), render: (c) => (endOf(c, 1) ? compCell(endOf(c, 1).comp) : '') },
       { key: 'connB', label: 'Connettore comp. B', cls: 'nowrap', get: (c) => endConnId(endOf(c, 1)), render: (c) => endConnId(endOf(c, 1)) || h('span', { class: 'ico-warn', title: 'Connettore del componente non indicato' }, '?') },
       { key: 'plugB', label: 'Tipo connettore cavo B', cls: 'nowrap', get: (c) => endPlug(endOf(c, 1)), render: (c) => endPlug(endOf(c, 1)) || h('span', { class: 'ico-warn', title: 'Tipo di connettore cavo non indicato' }, '?') },
+      { key: 'pinB', label: 'Pinout B', cls: 'text', def: false, get: (c) => endPins(endOf(c, 1)) },
       { key: 'others', label: 'Altri estremi', cls: 'mid', get: (c) => (c.ends || []).slice(2).map((e, j) => endLetter(j + 2) + ': ' + endText(e)).join('; ') },
       { key: 'supplierPn', label: 'PN fornitore', cls: 'nowrap', get: (c) => c.supplierPn || '' },
       { key: 'pn', label: 'PN IDV', cls: 'nowrap', get: (c) => c.partNumber || '' },
@@ -8279,9 +9070,109 @@ function customColumns(kind) {
     render: (o) => cfText(f, o)
   }));
 }
-function tableColumns(name) { const cfg = TABLES[name]; return cfg.columns.concat(customColumns(cfg.kind)); }
-function hiddenCols(name) { return new Set(ui.cols[name] || []); }
-function shownColumns(name) { const hid = hiddenCols(name); return tableColumns(name).filter((c) => c.key === 'id' || !hid.has(c.key)); }
+/* Colonne prese da altre viste: oggetti collegati a ogni riga (una relazione) e i loro campi (le colonne dell'altra vista).
+   Più oggetti collegati (es. le interfacce di un cavo) danno i valori separati da virgola. */
+const one = (o) => (o ? [o] : []);
+const CONN_FIELDS = [
+  { key: 'id', label: 'ID', get: (k) => k.id },
+  { key: 'label', label: 'Etichetta', get: (k) => k.label || '' },
+  { key: 'type', label: 'Tipologia', get: (k) => k.type || '' },
+  { key: 'direction', label: 'Direzione', get: (k) => k.direction || '' },
+  { key: 'pinout', label: 'Pinout', get: (k) => connPinoutSummary(k) },
+  { key: 'npins', label: 'N. pin', get: (k) => (k.pinout || []).filter((r) => str(r.pin).trim()).length }
+];
+function linkRels(name) {
+  const comp = (u) => idx.comp.get(u), grp = (u) => { const c = idx.comp.get(u); return c ? idx.group.get(c.groupUid) : null; };
+  const kOf = (e) => (e && e.conn && idx.conn.get(e.conn) ? idx.conn.get(e.conn).conn : null);
+  const linked = (r, kind) => (r.links || []).filter((l) => l.kind === kind).map((l) => getObj(kind, l.uid)).filter(Boolean);
+  const R = {
+    groups: [{ rel: 'members', label: 'Componenti del gruppo', src: 'components', many: true, get: (g) => idx.compsByGroup.get(g.uid) || [] }],
+    components: [
+      { rel: 'group', label: 'Gruppo', src: 'groups', get: (c) => one(idx.group.get(c.groupUid)) },
+      { rel: 'conns', label: 'Connettori', src: 'connector', many: true, get: (c) => c.connectors || [] },
+      { rel: 'ifaces', label: 'Interfacce', src: 'interfaces', many: true, get: (c) => idx.ifacesByComp.get(c.uid) || [] },
+      { rel: 'cables', label: 'Cavi', src: 'cables', many: true, get: (c) => idx.cablesByComp.get(c.uid) || [] }],
+    interfaces: [
+      { rel: 'compA', label: 'Componente A', src: 'components', get: (f) => one(comp(f.compA)) },
+      { rel: 'compB', label: 'Componente B', src: 'components', get: (f) => one(comp(f.compB)) },
+      { rel: 'groupA', label: 'Gruppo A', src: 'groups', get: (f) => one(grp(f.compA)) },
+      { rel: 'groupB', label: 'Gruppo B', src: 'groups', get: (f) => one(grp(f.compB)) },
+      { rel: 'cables', label: 'Cavi', src: 'cables', many: true, get: (f) => idx.cablesByIface.get(f.uid) || [] },
+      { rel: 'reqs', label: 'Requisiti', src: 'requirements', many: true, get: (f) => idx.reqsByObj.get(f.uid) || [] }],
+    cables: [
+      { rel: 'compA', label: 'Componente A', src: 'components', get: (c) => one(endOf(c, 0) && comp(endOf(c, 0).comp)) },
+      { rel: 'connA', label: 'Connettore componente A', src: 'connector', get: (c) => one(kOf(endOf(c, 0))) },
+      { rel: 'groupA', label: 'Gruppo A', src: 'groups', get: (c) => one(endOf(c, 0) && grp(endOf(c, 0).comp)) },
+      { rel: 'compB', label: 'Componente B', src: 'components', get: (c) => one(endOf(c, 1) && comp(endOf(c, 1).comp)) },
+      { rel: 'connB', label: 'Connettore componente B', src: 'connector', get: (c) => one(kOf(endOf(c, 1))) },
+      { rel: 'groupB', label: 'Gruppo B', src: 'groups', get: (c) => one(endOf(c, 1) && grp(endOf(c, 1).comp)) },
+      { rel: 'ifaces', label: 'Interfacce', src: 'interfaces', many: true, get: (c) => (c.ifaceUids || []).map((u) => idx.iface.get(u)).filter(Boolean) },
+      { rel: 'reqs', label: 'Requisiti', src: 'requirements', many: true, get: (c) => idx.reqsByObj.get(c.uid) || [] }],
+    requirements: [
+      { rel: 'ifaces', label: 'Interfacce collegate', src: 'interfaces', many: true, get: (r) => linked(r, 'interface') },
+      { rel: 'cables', label: 'Cavi collegati', src: 'cables', many: true, get: (r) => linked(r, 'cable') },
+      { rel: 'comps', label: 'Componenti collegati', src: 'components', many: true, get: (r) => linked(r, 'component') },
+      { rel: 'conns', label: 'Connettori collegati', src: 'connector', many: true, get: (r) => linked(r, 'connector') }]
+  };
+  return R[name] || [];
+}
+/* Campi disponibili di una relazione: le colonne della vista collegata (ID compreso) o i campi del connettore */
+function relFields(src) { return src === 'connector' ? CONN_FIELDS : tableColumns(src, true); }
+function linkedColLabel(rel, fld) { return fld.label + ' ' + rel.label.charAt(0).toLowerCase() + rel.label.slice(1); }
+function linkedColumns(name) {
+  const rels = linkRels(name);
+  return (ui.xcols[name] || []).map((x) => {
+    const rel = rels.find((r) => r.rel === x.rel);
+    const fld = rel ? relFields(rel.src).find((c) => c.key === x.key) : null;
+    if (!rel || !fld) return null;
+    const val = (o) => { const v = fld.csv ? fld.csv(o) : fld.get(o); return v === -Infinity || v == null ? '' : v; };
+    return {
+      key: 'x:' + x.rel + ':' + x.key, label: x.label || linkedColLabel(rel, fld), linked: true, cls: 'mid',
+      get: (r) => {
+        const objs = rel.get(r);
+        if (!rel.many) return objs.length ? val(objs[0]) : '';
+        return Array.from(new Set(objs.map((o) => str(val(o))).filter((v) => v !== ''))).join(', ');
+      }
+    };
+  }).filter(Boolean);
+}
+function tableColumns(name, base) { const cfg = TABLES[name]; const cols = cfg.columns.concat(customColumns(cfg.kind)); return base ? cols : cols.concat(linkedColumns(name)); }
+/* Colonne nascoste: quelle tolte dall'utente più quelle normalmente nascoste (def: false) non ancora mostrate */
+function hiddenCols(name) {
+  const set = new Set(ui.cols[name] || []), on = new Set(ui.colsOn[name] || []);
+  TABLES[name].columns.forEach((c) => { if (c.def === false && !on.has(c.key)) set.add(c.key); });
+  return set;
+}
+function setColShown(name, c, show) {
+  const cols = new Set(ui.cols[name] || []), on = new Set(ui.colsOn[name] || []);
+  if (show) { cols.delete(c.key); on.add(c.key); } else { cols.add(c.key); on.delete(c.key); }
+  ui.cols[name] = [...cols]; ui.colsOn[name] = [...on];
+}
+/* Ordine delle colonne: quello scelto trascinando le intestazioni, poi le altre nell'ordine predefinito */
+function orderedColumns(name) {
+  const all = tableColumns(name), ord = ui.colOrder[name] || [];
+  const pos = new Map(ord.map((k, i) => [k, i]));
+  return all.map((c, i) => ({ c, i })).sort((a, b) => {
+    const pa = pos.has(a.c.key) ? pos.get(a.c.key) : null, pb = pos.has(b.c.key) ? pos.get(b.c.key) : null;
+    if (pa != null && pb != null) return pa - pb;
+    if (pa != null || pb != null) {
+      // colonna senza posizione salvata: resta dopo la colonna che la precede nell'ordine predefinito
+      const ref = (x) => { for (let j = x.i; j >= 0; j--) if (pos.has(all[j].key)) return pos.get(all[j].key) + 0.5; return -1; };
+      return (pa != null ? pa : ref(a)) - (pb != null ? pb : ref(b)) || a.i - b.i;
+    }
+    return a.i - b.i;
+  }).map((x) => x.c);
+}
+function moveColumn(name, key, beforeKey) {
+  const keys = orderedColumns(name).map((c) => c.key).filter((k) => k !== key);
+  const j = beforeKey == null ? keys.length : keys.indexOf(beforeKey);
+  keys.splice(j < 0 ? keys.length : j, 0, key);
+  ui.colOrder[name] = keys;
+  saveUi();
+  renderTableSection(name);
+  if (colsPop && colsPop.name === name) colsPop.paint();
+}
+function shownColumns(name) { const hid = hiddenCols(name); return orderedColumns(name).filter((c) => c.key === 'id' || !hid.has(c.key)); }
 /* Filtri: quelli predefiniti + i campi personalizzati a elenco e a casella */
 function tableFilters(name) {
   const cfg = TABLES[name];
@@ -8389,11 +9280,12 @@ function renderTableSection(name) {
   thr.appendChild(h('th', { title: 'Anomalie' }, h('span', { class: 'th-plain' }, '')));
   cols.forEach((c) => {
     const active = f.sort && f.sort.key === c.key;
-    thr.appendChild(h('th', { class: c.custom ? 'th-custom' : null }, h('button', {
-      type: 'button', class: 'th-btn', title: 'Ordina per ' + c.label + (c.custom ? ' (campo personalizzato)' : ''),
-      onclick: () => { f.sort = { key: c.key, dir: active ? -f.sort.dir : 1 }; renderTableSection(name); }
+    thr.appendChild(h('th', { class: [c.custom ? 'th-custom' : '', c.linked ? 'th-linked' : ''].join(' ').trim() || null, 'data-col': c.key }, h('button', {
+      type: 'button', class: 'th-btn', title: 'Ordina per ' + c.label + (c.custom ? ' (campo personalizzato)' : '') + (c.linked ? ' (da un’altra vista)' : '') + ' · trascina per spostare la colonna',
+      onclick: () => { if (colDrag && colDrag.suppress) return; f.sort = { key: c.key, dir: active ? -f.sort.dir : 1 }; renderTableSection(name); }
     }, c.label, h('span', { class: 'sort' }, active ? (f.sort.dir > 0 ? '▲' : '▼') : '↕'))));
   });
+  thr.addEventListener('pointerdown', (e) => startColumnDrag(e, name));
   thr.appendChild(h('th', null, h('span', { class: 'th-plain' }, '')));
   const tb = h('tbody');
   const selUid = ui.selected && ui.selected.kind === cfg.kind ? ui.selected.uid : (panelCtx && panelCtx.kind === cfg.kind ? panelCtx.uid : null);
@@ -8418,35 +9310,134 @@ function renderTableSection(name) {
   wrap.scrollTop = scrollTop; wrap.scrollLeft = scrollLeft;
   if (cfg.onRender) cfg.onRender(sec, rows);
 }
-/* Scelta delle colonne visibili (salvata nelle preferenze di questo browser) */
+/* Spostamento delle colonne trascinando l'intestazione con il tasto sinistro del mouse */
+let colDrag = null;
+function startColumnDrag(e, name) {
+  const th = e.target.closest('th[data-col]');
+  if (!th || e.button !== 0) return;
+  const d = colDrag = { name, key: th.dataset.col, x0: e.clientX, y0: e.clientY, on: false, ghost: null, target: null, raf: 0, cx: e.clientX, cy: e.clientY };
+  const wrap = qs('#sec-' + name + ' [data-role="table"]');
+  const marks = () => qsa('#sec-' + name + ' th.drop-left, #sec-' + name + ' th.drop-right').forEach((x) => x.classList.remove('drop-left', 'drop-right'));
+  // vicino ai bordi della tabella la tabella scorre da sola (colonne lontane)
+  const autoScroll = () => {
+    d.raf = 0;
+    if (!d.on || !wrap) return;
+    const r = wrap.getBoundingClientRect(), m = 48;
+    const v = d.cx < r.left + m ? -Math.ceil((r.left + m - d.cx) / 3) : (d.cx > r.right - m ? Math.ceil((d.cx - r.right + m) / 3) : 0);
+    if (v) { wrap.scrollLeft += v; track(d.cx, d.cy); }
+    d.raf = requestAnimationFrame(autoScroll);
+  };
+  const track = (x, y) => {
+    marks();
+    const el = document.elementFromPoint(x, y);
+    const t = el && el.closest ? el.closest('#sec-' + name + ' th[data-col]') : null;
+    d.target = null;
+    if (t && t.dataset.col !== d.key) {
+      const r = t.getBoundingClientRect(), after = x > r.left + r.width / 2;
+      t.classList.add(after ? 'drop-right' : 'drop-left');
+      d.target = { key: t.dataset.col, after };
+    }
+  };
+  const move = (ev) => {
+    if (!d.on) {
+      if (Math.abs(ev.clientX - d.x0) + Math.abs(ev.clientY - d.y0) < 6) return;
+      d.on = true;
+      th.classList.add('col-dragging');
+      d.ghost = h('div', { class: 'col-ghost' }, (orderedColumns(name).find((c) => c.key === d.key) || {}).label || '');
+      document.body.appendChild(d.ghost);
+      document.body.classList.add('col-drag');
+    }
+    d.ghost.style.left = (ev.clientX + 12) + 'px'; d.ghost.style.top = (ev.clientY + 10) + 'px';
+    d.cx = ev.clientX; d.cy = ev.clientY;
+    track(ev.clientX, ev.clientY);
+    if (!d.raf) d.raf = requestAnimationFrame(autoScroll);
+  };
+  const up = () => {
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', up);
+    if (d.raf) cancelAnimationFrame(d.raf);
+    marks();
+    th.classList.remove('col-dragging');
+    document.body.classList.remove('col-drag');
+    if (d.ghost) d.ghost.remove();
+    if (!d.on) { colDrag = null; return; }
+    d.suppress = true;   // niente ordinamento per il clic che conclude il trascinamento
+    setTimeout(() => { if (colDrag === d) colDrag = null; }, 0);
+    if (!d.target) return;
+    const keys = orderedColumns(name).map((c) => c.key).filter((k) => k !== d.key);
+    const i = keys.indexOf(d.target.key);
+    moveColumn(name, d.key, d.target.after ? (keys[i + 1] != null ? keys[i + 1] : null) : d.target.key);
+  };
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+}
+/* Scelta delle colonne visibili, del loro ordine e delle colonne prese da altre viste (salvata nelle preferenze di questo browser) */
 let colsPop = null;
 function closeColumnsPopover() { if (colsPop) { colsPop.box.remove(); colsPop = null; } }
 function toggleColumnsPopover(name, btn) {
   if (colsPop && colsPop.name === name) { closeColumnsPopover(); return; }
   closeColumnsPopover();
   const box = h('div', { class: 'cols-pop', role: 'dialog', 'aria-label': 'Colonne di ' + TABLES[name].title });
+  const rels = linkRels(name);
+  let relSel = null, fldSel = null, lblIn = null;
   const paint = () => {
     box.innerHTML = '';
     const hid = hiddenCols(name);
-    const all = tableColumns(name);
-    box.appendChild(h('div', { class: 'cols-head' }, h('b', null, 'Colonne visibili'), h('span', { class: 'muted small' }, ' · ' + (all.length - [...hid].filter((k) => all.some((c) => c.key === k && k !== 'id')).length) + ' di ' + all.length)));
+    const all = orderedColumns(name);
+    const nShown = all.filter((c) => c.key === 'id' || !hid.has(c.key)).length;
+    box.appendChild(h('div', { class: 'cols-head' }, h('b', null, 'Colonne visibili'), h('span', { class: 'muted small' }, ' · ' + nShown + ' di ' + all.length)));
     const list = h('div', { class: 'cols-list' });
     all.forEach((c) => {
       const cb = h('input', { type: 'checkbox', checked: c.key === 'id' || !hid.has(c.key), disabled: c.key === 'id' });
       cb.addEventListener('change', () => {
-        const set = hiddenCols(name);
-        if (cb.checked) set.delete(c.key); else set.add(c.key);
-        ui.cols[name] = [...set];
+        setColShown(name, c, cb.checked);
         saveUi();
         renderTableSection(name);
         paint();
       });
-      list.appendChild(h('label', { class: 'cols-item' + (c.custom ? ' custom' : ''), title: c.key === 'id' ? 'La colonna ID è sempre visibile' : '' }, cb, h('span', null, c.label), c.custom ? h('span', { class: 'cols-tag' }, 'personalizzato') : null));
+      const rm = c.linked ? h('button', { type: 'button', class: 'btn xs ghost', title: 'Togli questa colonna', 'aria-label': 'Togli la colonna ' + c.label, onclick: (e) => {
+        e.preventDefault();
+        ui.xcols[name] = (ui.xcols[name] || []).filter((x) => 'x:' + x.rel + ':' + x.key !== c.key);
+        saveUi(); renderTableSection(name); paint();
+      } }, '✕') : null;
+      list.appendChild(h('label', { class: 'cols-item' + (c.custom ? ' custom' : '') + (c.linked ? ' linked' : ''), title: c.key === 'id' ? 'La colonna ID è sempre visibile' : '' }, cb, h('span', null, c.label),
+        c.custom ? h('span', { class: 'cols-tag' }, 'personalizzato') : null, c.linked ? h('span', { class: 'cols-tag' }, 'altra vista') : null, rm));
     });
     box.appendChild(list);
+    // colonne da altre viste: oggetto collegato → campo
+    if (rels.length) {
+      relSel = h('select', { class: 'inp', 'aria-label': 'Oggetto collegato' });
+      fldSel = h('select', { class: 'inp', 'aria-label': 'Campo' });
+      lblIn = h('input', { class: 'inp', placeholder: 'Intestazione', maxlength: 80, 'aria-label': 'Intestazione della colonna' });
+      fillSelect(relSel, rels.map((r) => ({ value: r.rel, label: r.label + (r.many ? ' (tutti)' : '') })), rels[0].rel);
+      const fillFld = () => {
+        const r = rels.find((x) => x.rel === relSel.value);
+        const fl = relFields(r.src);
+        fillSelect(fldSel, fl.map((c) => ({ value: c.key, label: c.label })), fl[0] ? fl[0].key : '');
+        const f0 = fl.find((c) => c.key === fldSel.value);
+        lblIn.value = f0 ? linkedColLabel(r, f0) : '';
+      };
+      relSel.addEventListener('change', fillFld);
+      fldSel.addEventListener('change', () => { const r = rels.find((x) => x.rel === relSel.value); const f0 = relFields(r.src).find((c) => c.key === fldSel.value); if (f0) lblIn.value = linkedColLabel(r, f0); });
+      fillFld();
+      const addBtn = h('button', { type: 'button', class: 'btn xs primary', onclick: () => {
+        const key = 'x:' + relSel.value + ':' + fldSel.value;
+        const list2 = ui.xcols[name] = ui.xcols[name] || [];
+        if (list2.some((x) => 'x:' + x.rel + ':' + x.key === key)) { toast('La colonna è già presente.', 'info'); return; }
+        const lbl = lblIn.value.trim() || fldSel.value;
+        list2.push({ rel: relSel.value, key: fldSel.value, label: lblIn.value.trim() });
+        saveUi(); renderTableSection(name); paint();
+        toast('Colonna “' + lbl + '” aggiunta in fondo alla tabella: trascina l’intestazione per spostarla.', 'ok', 5000);
+      } }, '+ Aggiungi colonna');
+      box.appendChild(h('div', { class: 'cols-add' }, h('b', null, 'Colonne da altre viste'),
+        h('span', { class: 'muted small' }, 'Campi degli oggetti collegati a ogni riga, es. la tipologia del connettore A di un cavo.'),
+        h('label', { class: 'cols-fld' }, h('span', null, 'Oggetto collegato'), relSel), h('label', { class: 'cols-fld' }, h('span', null, 'Campo'), fldSel),
+        h('label', { class: 'cols-fld' }, h('span', null, 'Intestazione'), lblIn), addBtn));
+    }
     box.appendChild(h('div', { class: 'cols-foot' },
-      h('button', { type: 'button', class: 'btn xs', onclick: () => { ui.cols[name] = []; saveUi(); renderTableSection(name); paint(); } }, 'Mostra tutte'),
-      h('span', { class: 'muted small' }, 'Scelta salvata in questo browser')));
+      h('button', { type: 'button', class: 'btn xs', onclick: () => { ui.cols[name] = []; ui.colsOn[name] = TABLES[name].columns.filter((c) => c.def === false).map((c) => c.key); saveUi(); renderTableSection(name); paint(); } }, 'Mostra tutte'),
+      h('button', { type: 'button', class: 'btn xs', title: 'Riporta le colonne nell’ordine predefinito', disabled: !(ui.colOrder[name] || []).length, onclick: () => { delete ui.colOrder[name]; saveUi(); renderTableSection(name); paint(); } }, 'Ordine predefinito'),
+      h('span', { class: 'muted small' }, 'Trascina le intestazioni per cambiare l’ordine · scelte salvate in questo browser')));
   };
   paint();
   document.body.appendChild(box);
@@ -8454,13 +9445,17 @@ function toggleColumnsPopover(name, btn) {
   box.style.top = (r.bottom + 4) + 'px';
   box.style.left = Math.max(8, Math.min(r.right - box.offsetWidth, window.innerWidth - box.offsetWidth - 8)) + 'px';
   box.style.maxHeight = (window.innerHeight - r.bottom - 16) + 'px';
-  colsPop = { name, box, btn };
+  colsPop = { name, box, btn, paint };
 }
 function exportCsv(name) {
   const rows = visibleRows(name);
   const q = (v) => { const s = str(v); return /[";\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   let lines;
-  if (name === 'interfaces') lines = interfacesCsvLines(rows).map((l) => l.map(q).join(';'));
+  if (name === 'interfaces') {
+    // formato fisso delle interfacce; in fondo le colonne visibili prese da altre viste
+    const xc = shownColumns(name).filter((c) => c.linked);
+    lines = interfacesCsvLines(rows).map((l, i) => l.concat(xc.map((c) => (i ? c.get(rows[interfacesCsvRowOf[i]]) : c.label))).map(q).join(';'));
+  }
   else {
     const cols = shownColumns(name);
     lines = [cols.map((c) => q(c.label)).join(';')];
@@ -8473,18 +9468,20 @@ function exportCsv(name) {
    se non ha cavi); in fondo i campi personalizzati delle interfacce */
 const IF_CSV_HEAD = ['ID Interfaccia', 'Rev Interfaccia', 'Interfaccia Livello 1', 'Gruppo di derivazione A', 'Componente A', 'Connettore A',
   'Gruppo di derivazione B', 'Componente B', 'Connettore B', 'ID Cavo', 'Funzione Cavo', 'PN Fornitore Cavo', 'PN IDV Cavo', 'Stato', 'Interfaccia Livello 2', 'Note / Descrizione dello Scambio'];
+let interfacesCsvRowOf = [];   // riga del CSV → indice dell'interfaccia
 function interfacesCsvLines(rows) {
+  interfacesCsvRowOf = [null];
   const cfs = customFieldsOf('interface');
   const grp = (compUid) => { const c = idx.comp.get(compUid); const g = c && idx.group.get(c.groupUid); return g ? g.id : ''; };
   const out = [IF_CSV_HEAD.concat(cfs.map((f) => f.label))];
-  rows.forEach((f) => {
+  rows.forEach((f, fi) => {
     // connettore A / B: quello dell'estremo del cavo sul componente A / B (vuoto se l'interfaccia non ha cavi)
     const connAt = (c, cu) => { const e = c ? (c.ends || []).find((x) => x.comp === cu) : null; const k = e && e.conn ? idx.conn.get(e.conn) : null; return k ? k.conn.id : ''; };
     const row = (c) => [f.id, f.rev || '', f.category, grp(f.compA), compIdOf(f.compA) || '', connAt(c, f.compA), grp(f.compB), compIdOf(f.compB) || '', connAt(c, f.compB)]
       .concat(c ? [c.id, c.function || '', c.supplierPn || '', c.partNumber || ''] : ['', '', '', ''], [f.status, f.subtype || '', f.description || ''], cfs.map((cf) => cfText(cf, f)));
     const cbs = (idx.cablesByIface.get(f.uid) || []).slice().sort((a, b) => cmpNat(a.id, b.id));
-    if (!cbs.length) out.push(row(null));
-    else cbs.forEach((c) => out.push(row(c)));
+    if (!cbs.length) { out.push(row(null)); interfacesCsvRowOf.push(fi); }
+    else cbs.forEach((c) => { out.push(row(c)); interfacesCsvRowOf.push(fi); });
   });
   return out;
 }
@@ -8672,7 +9669,7 @@ function renderDashboard() {
   ];
   if (levelMappingNeeded()) {
     root.appendChild(h('div', { class: 'msg-box warn', style: { margin: '10px 0 0' } },
-      'Alcune interfacce hanno livelli non previsti, oppure cavi e connettori hanno funzioni non previste (progetti dei formati precedenti). ',
+      'Alcune interfacce hanno livelli non previsti, oppure alcuni cavi hanno funzioni non previste (progetti dei formati precedenti). ',
       h('button', { type: 'button', class: 'btn sm', onclick: () => openLevelMapping() }, 'Assegna nuovi livelli e funzioni…')));
   }
   root.appendChild(h('h2', { class: 'dash-h2' }, 'Controlli di completezza e coerenza'));
@@ -8847,8 +9844,12 @@ function normalizeData(raw) {
       });
       if (cats.length) out.lists.ifCategories = cats;
     }
+    // formato 8: la sigla predefinita di Elettrica di potenza passa da PWR a ELP (diversa da quella di Power)
+    if (srcSchema < 8) out.lists.ifCategories.forEach((c) => { if (c.name === 'Elettrica di potenza' && c.abbr === 'PWR') c.abbr = 'ELP'; });
   }
   out.meta.cableSeq = isObj(d.meta) && Number(d.meta.cableSeq) > 0 ? Math.floor(Number(d.meta.cableSeq)) : 0;
+  // formato 8: foglio di esportazione (formato, orientamento, bordo con riferimenti) e righe del cartiglio
+  out.meta.sheet = normSheet(isObj(d.meta) ? d.meta.sheet : null);
   out.customFields = [];
   (Array.isArray(d.customFields) ? d.customFields : []).forEach((f) => {
     if (!isObj(f) || !CF_ENTITIES[f.entity] || !CF_TYPES[f.type] || !str(f.label).trim()) { warnings.push('Campo personalizzato non valido ignorato.'); return; }
@@ -8884,7 +9885,7 @@ function normalizeData(raw) {
     if (!str(c.id).trim()) errors.push('Componente #' + (i + 1) + ': ID mancante.');
     const uid = takeUid(c.uid, 'c');
     const conns = (Array.isArray(c.connectors) ? c.connectors : []).filter((k) => isObj(k) && str(k.id).trim()).map((k) => ({
-      uid: takeUid(k.uid, 'k'), id: str(k.id).trim(), function: str(k.function).trim(), type: str(k.type).trim(),
+      uid: takeUid(k.uid, 'k'), id: str(k.id).trim(), label: str(k.label != null ? k.label : k.function).trim(), type: str(k.type).trim(),
       direction: pick(k.direction, out.lists.directions, ''), pinout: pinsOf(k.pinout), raw: k
     }));
     if (srcSchema < 7) {
@@ -8900,7 +9901,7 @@ function normalizeData(raw) {
         const ps = inK.get(k) || [];
         const fn = ps.map((p) => PORT_TYPE_FUNCTION[p.type]).find(Boolean) || '';
         const dirs = Array.from(new Set(ps.map((p) => str(p.direction)).filter((x) => x && x !== 'Not applicable')));
-        if (!k.function) k.function = fn;
+        if (!k.label) k.label = fn;
         if (!k.direction) k.direction = dirs.length === 1 ? dirs[0] : (dirs.length > 1 ? 'Bidirectional' : (ps.length ? 'Not applicable' : ''));
         k.pinout = k.pinout.map((r) => {
           const p = r.port ? ps.find((x) => x.uid === r.port || eqId(x.id, r.port)) : null;
@@ -8913,7 +9914,7 @@ function normalizeData(raw) {
         if (!PORT_TYPES_TO_CONNECTOR.has(p.type)) { portMap.set(pk(p), { comp: uid, conn: null, id: str(p.id).trim() }); droppedPorts++; return; }
         let kid = str(p.id).trim(), n = 2;
         while (conns.some((k) => eqId(k.id, kid))) kid = str(p.id).trim() + '-' + n++;
-        const k = { uid: takeUid(null, 'k'), id: kid, function: PORT_TYPE_FUNCTION[p.type] || '', type: '', direction: pick(p.direction, out.lists.directions, 'Not applicable'),
+        const k = { uid: takeUid(null, 'k'), id: kid, label: PORT_TYPE_FUNCTION[p.type] || '', type: '', direction: pick(p.direction, out.lists.directions, 'Not applicable'),
           pinout: (Array.isArray(p.legacyPins) ? p.legacyPins : []).filter(isObj).map((r) => ({ pin: str(r.pin).trim(), signal: str(r.signal).trim() })).filter((r) => r.pin || r.signal), raw: {} };
         conns.push(k);
         portConns++;
@@ -8934,8 +9935,12 @@ function normalizeData(raw) {
       attachments: (Array.isArray(c.attachments) ? c.attachments : []).filter((a) => isObj(a) && str(a.fid).trim() && str(a.name).trim()).map((a) => ({
         fid: str(a.fid).trim(), name: str(a.name).trim(), type: str(a.type), size: Number(a.size) >= 0 ? Number(a.size) : 0,
         added: str(a.added) || new Date().toISOString(), by: str(a.by), note: str(a.note)
-      }))
+      })),
+      boardImage: ''
     });
+    // formato 8: immagine mostrata nel blocco sulla lavagna (uno degli allegati; vuoto = rettangolo)
+    const comp0 = out.components[out.components.length - 1];
+    if (str(c.boardImage).trim() && comp0.attachments.some((a) => a.fid === str(c.boardImage).trim())) comp0.boardImage = str(c.boardImage).trim();
   });
   if (portConns) warnings.push(plural(portConns, 'porta senza connettore è diventata un connettore', 'porte senza connettore sono diventate connettori') + '.');
   if (droppedPorts) warnings.push(plural(droppedPorts, 'porta meccanica, fluidica o software è stata eliminata', 'porte meccaniche, fluidiche o software sono state eliminate') + ' (le interfacce restano fra i componenti).');
@@ -9094,6 +10099,18 @@ function normalizeData(raw) {
     });
   } else if (d.routing != null) badRoutes++;
   if (badRoutes) warnings.push(plural(badRoutes, 'percorso grafico non valido', 'percorsi grafici non validi') + ' ignorati: verranno ricalcolati automaticamente.');
+  // formato 8: punti d'aggancio delle interfacce spostati a mano lungo il lato del blocco (distanza dal bordo superiore)
+  out.anchors = {};
+  if (isObj(d.anchors)) {
+    const ifu = new Set(out.interfaces.map((f) => f.uid));
+    Object.keys(d.anchors).forEach((k) => {
+      const v = d.anchors[k];
+      if (!ifu.has(k) || !isObj(v)) return;
+      const a = {};
+      ['A', 'B'].forEach((sd) => { if (v[sd] !== null && v[sd] !== '' && Number.isFinite(Number(v[sd])) && Number(v[sd]) >= 0) a[sd] = Math.round(Number(v[sd])); });
+      if (Object.keys(a).length) out.anchors[k] = a;
+    });
+  }
   // etichette dei collegamenti spostate a mano (formato 4): punto lungo il percorso (t, da 0 a 1) e scostamento
   out.labels = { interfaces: {}, cables: {} };
   if (isObj(d.labels)) {
@@ -9114,7 +10131,7 @@ function normalizeData(raw) {
    ===================================================================== */
 /* Dove è usato ciascun elenco (testo per le Impostazioni) */
 const LIST_USE_TEXT = {
-  owners: 'Gruppi, interfacce e requisiti → Owner', functions: 'Connettori → Funzione e Cavi → Funzione cavo', directions: 'Connettori → Direzione',
+  owners: 'Gruppi, interfacce e requisiti → Owner', functions: 'Cavi → Funzione cavo (l’etichetta dei connettori è testo libero)', directions: 'Connettori → Direzione',
   statuses: 'Componenti, interfacce e cavi → Stato', reqStatuses: 'Requisiti → Stato', reqTypes: 'Requisiti → Tipo',
   reqOrigins: 'Requisiti → Origine', reqMethods: 'Requisiti → Metodo di verifica'
 };
@@ -9228,7 +10245,7 @@ async function openSettings(tab, focusKey) {
   const catBody = h('tbody');
   panes.categories = h('div', { class: 'set-pane' },
     h('p', { class: 'muted small' }, 'Ogni interfaccia ha un valore di Livello 1 (es. Segnale) e uno di Livello 2 (es. Comunicazioni). Le sigle compongono l’ID automatico: Livello 1.Livello 2:Componente A.Componente B (es. SEG.COM:GPS.VCU); cambiandole, gli ID delle interfacce si aggiornano al salvataggio. Rinominando un valore le interfacce vengono aggiornate; un Livello 1 si elimina solo se nessuna interfaccia lo usa.'),
-    levelMappingNeeded() ? h('div', { class: 'msg-box warn' }, 'Alcune interfacce, cavi o connettori hanno valori non previsti (progetti dei formati precedenti). ',
+    levelMappingNeeded() ? h('div', { class: 'msg-box warn' }, 'Alcune interfacce o alcuni cavi hanno valori non previsti (progetti dei formati precedenti). ',
       h('button', { type: 'button', class: 'btn xs', onclick: () => { closeModal(false); openLevelMapping(); } }, 'Assegna nuovi livelli e funzioni…')) : null,
     h('table', { class: 'mini cat-table' }, h('thead', null, h('tr', null, ['Colore', 'Livello 1', 'Sigla', 'Realizzato con cavi', 'Livello 2', 'Uso', ''].map((t) => h('th', null, t)))), catBody),
     h('div', { class: 'row-actions' }, h('button', {
@@ -9393,8 +10410,7 @@ function clearLevelMapFlag() {
 }
 function levelMappingNeeded() {
   const fns = new Set(state.lists.functions || []);
-  return state.interfaces.some((f) => !levelsKnown(f)) || state.cables.some((c) => c.function && !fns.has(c.function)) ||
-    state.components.some((c) => (c.connectors || []).some((k) => k.function && !fns.has(k.function)));
+  return state.interfaces.some((f) => !levelsKnown(f)) || state.cables.some((c) => c.function && !fns.has(c.function));
 }
 /* Finestra di assegnazione: per ogni combinazione Livello 1 / Livello 2 non prevista e per ogni funzione non prevista
    l'utente sceglie il nuovo valore (proposte precompilate, da confermare). Gli ID delle interfacce si aggiornano. */
@@ -9413,7 +10429,6 @@ async function openLevelMapping(afterMigration) {
     fnVals.get(v)[kind]++;
   };
   state.cables.forEach((c) => addFn(c.function, 'cables'));
-  state.components.forEach((c) => (c.connectors || []).forEach((k) => addFn(k.function, 'conns')));
   if (!pairs.size && !fnVals.size) { clearLevelMapFlag(); toast('Tutti i livelli e le funzioni corrispondono già agli elenchi del progetto.', 'info'); return false; }
   const cats = state.lists.ifCategories.map((c) => c.name);
   const KEEP = 'keep';
@@ -9449,7 +10464,7 @@ async function openLevelMapping(afterMigration) {
       rows.push({ type: 'fn', x, sel });
       tb.appendChild(h('tr', null, h('td', null, h('b', null, x.v)), h('td', { class: 'num' }, [x.cables ? plural(x.cables, 'cavo', 'cavi') : '', x.conns ? plural(x.conns, 'connettore', 'connettori') : ''].filter(Boolean).join(' · ')), h('td', null, sel)));
     });
-    body.push(h('h4', { class: 'set-title' }, 'Funzione di cavi e connettori'),
+    body.push(h('h4', { class: 'set-title' }, 'Funzione dei cavi'),
       h('table', { class: 'mini map-table' }, h('thead', null, h('tr', null, ['Valore attuale (es. Tipo cavo)', 'Usato da', 'Funzione'].map((t) => h('th', null, t)))), tb));
   }
   const ok = await showModal({ title: 'Assegna i nuovi livelli e le funzioni', wide: true, body,
@@ -9473,7 +10488,6 @@ async function openLevelMapping(afterMigration) {
       if (m) { f.category = m[0]; f.subtype = m[1]; nIf++; }
     });
     st.cables.forEach((c) => { if (fnMap.has(c.function)) { c.function = fnMap.get(c.function); nFn++; } });
-    st.components.forEach((c) => (c.connectors || []).forEach((k) => { if (fnMap.has(k.function)) { k.function = fnMap.get(k.function); nFn++; } }));
   }, null, 'Nuovi livelli e funzioni assegnati');
   toast('Assegnati i nuovi livelli a ' + plural(nIf, 'interfaccia', 'interfacce') + ' (ID aggiornati) e la funzione a ' + plural(nFn, 'oggetto', 'oggetti') + '.', 'ok', 6000);
   return true;
@@ -9488,9 +10502,9 @@ function openHelp(topic) {
   const secs = [
     S('modello', 'Il modello in breve',
       P('Lo schema è organizzato su cinque livelli, dal più generale al più fisico:'),
-      UL([B('Gruppo funzionale'), ' – raggruppamento architetturale (es. Sistema C4I, Piattaforma). Dalla sua finestra puoi creare direttamente nuovi componenti.'],
+      UL([B('Gruppo funzionale'), ' – raggruppamento architetturale (es. Sistema C4I, Piattaforma). Dalla sua finestra puoi creare direttamente nuovi componenti (anche premendo subito “Salva”) e ', B('copiare componenti esistenti'), ' di altri gruppi: la copia ha un nuovo ID (es. RAD-2) e gli stessi dati, connettori, pinout e allegati, mentre l’originale resta nel suo gruppo.'],
         [B('Componente'), ' – apparato o elemento del sistema (es. VCU, Radio), con fornitore, PN fornitore e PN IDV.'],
-        [B('Connettore'), ' – il connettore fisico del componente (es. J1), con funzione, tipologia, direzione e pinout.'],
+        [B('Connettore'), ' – il connettore fisico del componente (es. J1), con etichetta, tipologia, direzione e pinout (condiviso con il connettore del cavo).'],
         [B('Interfaccia logica'), ' – lo scambio concordato fra il componente A e il componente B (cosa si scambia), classificato con Interfaccia Livello 1 e Livello 2. È sempre punto–punto.'],
         [B('Cavo fisico'), ' – collega i connettori di due o più componenti (cavi ramificati) e realizza una o più interfacce (come si realizza).']),
       P('I ', B('requisiti'), ' possono essere collegati a interfacce, cavi, componenti e connettori. Tutte le viste (lavagna, tabelle, dashboard) leggono gli stessi dati e si aggiornano insieme.')),
@@ -9500,11 +10514,13 @@ function openHelp(topic) {
         ['Più interfacce con gli stessi livelli fra gli stessi componenti ricevono un progressivo: ', h('code', null, 'FLU.H2O:CLU.RAD'), ', ', h('code', null, 'FLU.H2O:CLU.RAD-2'), '.'],
         ['L’ID si aggiorna se cambiano i livelli, i componenti o le sigle (Impostazioni → Livelli di interfaccia); cavi e requisiti restano collegati.'],
         [B('Cavo'), ': ', h('code', null, 'W-001'), ', ', h('code', null, 'W-002'), '… in ordine di creazione; il numero si assegna al salvataggio e i numeri dei cavi eliminati non vengono riusati.'],
-        ['Gli ID dei componenti non possono contenere “.” e “:”, che separano le parti dell’ID delle interfacce.'])),
+        ['Gli ID dei componenti non possono contenere “.” e “:”, che separano le parti dell’ID delle interfacce.'],
+        ['La sigla predefinita di Elettrica di potenza è ', h('code', null, 'ELP'), ' (es. ', h('code', null, 'ELP.PWR:PDU.VCU'), '), distinta da quella del Livello 2 Power (', h('code', null, 'PWR'), ').'])),
     S('lati', 'Punti di aggancio sui lati dei blocchi',
       P('I quadratini sul bordo sinistro e destro di un blocco sono ', B('punti di aggancio grafici'), ': nella vista interfacce appartengono al componente (al centro del lato), nella vista cavi ai connettori (sulla loro riga).'),
       UL(['Non hanno significato funzionale né fisico: il verso dello scambio è dato dalla ', B('Direzione'), ' del connettore e dalla descrizione dell’interfaccia.'],
         ['Il router sceglie automaticamente il lato rivolto verso il componente collegato, per accorciare le linee e ridurre gli incroci.'],
+        [B('Rami delle interfacce'), ': nella vista interfacce trascina in alto o in basso il tratto finale di un’interfaccia per spostare il suo aggancio lungo il lato del componente; la posizione resta salvata. Clic destro sulla linea → “Agganci automatici ai componenti”.'],
         ['I lati non usati restano nascosti e compaiono (tratteggiati) passando con il mouse sul blocco: da lì puoi trascinare per creare un nuovo collegamento.'])),
     S('owner', 'Owner',
       P('L’Owner è ', B('l’ente o il team responsabile'), ' dell’oggetto: lo definisce, lo mantiene aggiornato, chiude i punti aperti e ne porta avanti l’approvazione. È presente su gruppi, interfacce e requisiti.'),
@@ -9512,9 +10528,9 @@ function openHelp(topic) {
         ['Per un requisito è chi ne cura il testo e la verifica.'],
         ['Usa ruoli o team (System Integration, Supplier X), non nomi di persone: la lista è configurabile in Impostazioni.'])),
     S('connettori', 'Connettori e pinout',
-      UL(['Nella scheda del componente, sezione ', B('Connettori'), ': “+ Connettore” aggiunge una riga con ', B('ID'), ' (es. J1), ', B('Funzione'), ' (Ethernet, Seriale, CAN, USB, RF, Alimentazione: elenco configurabile), ', B('Tipologia'), ' (testo libero, es. MIL-DTL-38999 III 15-35) e ', B('Direzione'), '.'],
-        [B('Pinout'), ': pin e segnale di ogni contatto (pulsante “Pinout” sulla riga del connettore). Il pinout appartiene al connettore del componente; il cavo indica solo il tipo del proprio connettore.'],
-        ['L’ordine dei connettori (▲▼) è quello delle righe del blocco sulla lavagna.'],
+      UL(['Nella scheda del componente, sezione ', B('Connettori'), ': “+ Connettore” aggiunge una riga con ', B('ID'), ' (es. J1), ', B('Etichetta'), ' (testo libero, es. AUDIO, RS-422 CTRL, 28 VDC IN), ', B('Tipologia'), ' (testo libero, es. MIL-DTL-38999 III 15-35) e ', B('Direzione'), '.'],
+        [B('Pinout'), ': pin e segnale di ogni contatto (pulsante “Pinout” sulla riga del connettore). Il pinout è ', B('uno solo'), ' per il connettore del componente e per il connettore del cavo collegato: compare da solo nell’estremo del cavo appena scegli il connettore e si modifica indifferentemente dalla scheda del componente o da quella del cavo.'],
+        ['L’ordine dei connettori è quello delle righe del blocco sulla lavagna: si cambia trascinando la maniglia ', B('⠿'), ' della riga (oppure con ↑ / ↓ quando la maniglia è selezionata).'],
         ['Eliminando un connettore, i cavi che vi arrivavano restano senza connettore del componente e la Dashboard lo segnala.'],
         ['Un componente può non avere connettori (es. una struttura collegata solo da interfacce meccaniche).'])),
     S('categoria', 'Interfaccia Livello 1 e Livello 2',
@@ -9529,15 +10545,16 @@ function openHelp(topic) {
     S('cavi', 'Cavi: estremi, interfacce e cavi ramificati',
       UL(['Campi del cavo: ID automatico (W-001…), stato, ', B('interfacce logiche associate'), ' (una o più), ', B('Funzione cavo'), ', PN fornitore, PN IDV, estremi, requisiti e note.'],
         ['Ogni ', B('estremo'), ' (A, B, C…) indica il componente, il ', B('connettore del componente'), ' e il ', B('Tipo connettore cavo'), ' (testo libero). Dal menu del connettore puoi crearne uno nuovo (“＋ Nuovo connettore…”).'],
+        [B('Pinout dell’estremo'), ': è quello del connettore del componente collegato, già compilato; il pulsante “Pinout” lo mostra e lo modifica (le modifiche valgono anche nella scheda del componente). Nelle tabelle sono disponibili le colonne “Pinout A”, “Pinout B” (Cavi) e “Pinout” (Componenti), da attivare con Colonne ▾.'],
         ['“+ Estremo” aggiunge un ramo: il cavo diventa ramificato (bifido, trifido…). “↺ Allinea estremi alle interfacce” ricava gli estremi dai componenti delle interfacce scelte.'],
         ['Un cavo può realizzare più interfacce (ad es. dati e servizi sullo stesso collegamento): la Dashboard segnala le interfacce i cui componenti non sono raggiunti dal cavo.'],
-        [B('Nuovo cavo dalla lavagna'), ': nella vista cavi trascina da un connettore a un altro. La finestra propone le interfacce fra quei componenti: ', B('Associa il cavo a un’interfaccia esistente'), ' oppure ', B('Crea nuova interfaccia'), '. Se i due connettori hanno la stessa funzione, è proposta come funzione del cavo.'],
+        [B('Nuovo cavo dalla lavagna'), ': nella vista cavi trascina da un connettore a un altro. La finestra propone le interfacce fra quei componenti: ', B('Associa il cavo a un’interfaccia esistente'), ' oppure ', B('Crea nuova interfaccia'), '. Se i due connettori hanno la stessa etichetta ed è una delle funzioni dei cavi, è proposta come funzione del cavo.'],
         ['Dalla scheda di un’interfaccia: ', B('+ Cavo per questa interfaccia'), ' oppure ', B('Associa a un cavo esistente…'), '.'],
         [B('Cavi ramificati'), ' sulla lavagna: disegnati a Y, con un ramo da un punto di diramazione (●) a ogni estremo. Trascina il punto per spostarlo (o selezionalo e usa le frecce); clic destro → posizione automatica.'])),
     S('elenchi', 'Menu a tendina: aggiungere, modificare ed eliminare i valori',
       UL(['Aprendo un menu a tendina delle schede compare l’elenco delle voci: il simbolo ', B('−'), ' accanto a una voce la rimuove dall’elenco del progetto; ', B('＋ Aggiungi…'), ' in fondo inserisce un valore nuovo e lo seleziona; ', B('⚙ Gestisci'), ' apre la gestione completa dell’elenco.'],
         ['Rimuovere una voce non cambia gli oggetti che la usano: la conservano e nel menu compare come “non in elenco”. Un Livello 1 usato da interfacce non si può rimuovere.'],
-        ['Vale per tutti i campi configurabili: owner, funzione e direzione dei connettori, funzione cavo, stato, tipo / origine / metodo di verifica e stato dei requisiti, Livello 1 e Livello 2 delle interfacce, campi personalizzati a elenco.'],
+        ['Vale per tutti i campi configurabili: owner, direzione dei connettori, funzione cavo, stato, tipo / origine / metodo di verifica e stato dei requisiti, Livello 1 e Livello 2 delle interfacce, campi personalizzati a elenco.'],
         ['Nei menu che scelgono un oggetto la voce in fondo lo crea: ', B('＋ Nuovo componente…'), ', ', B('＋ Nuovo connettore…'), ' (sul componente dell’estremo del cavo), ', B('＋ Nuovo gruppo…'), '.'],
         [B('Impostazioni → Valori dei campi'), ': per ogni elenco puoi aggiungere voci, ', B('rinominarle'), ' (gli oggetti che le usano vengono aggiornati), eliminarle e cambiarne l’ordine. Per ogni voce è indicato quanti oggetti la usano.'])),
     S('revisioni', 'Revisione delle interfacce (Rev)',
@@ -9547,6 +10564,8 @@ function openHelp(topic) {
         ['Per conservare lo stato completo del progetto alla revisione precedente usa “Salva versione ora” (Progetti → Versioni): le versioni si possono confrontare e ripristinare.'])),
     S('tabelle', 'Tabelle: colonne, filtri ed esportazione CSV',
       UL([B('Colonne ▾'), ' (in alto a destra di ogni tabella): scegli quali colonne mostrare. La scelta è salvata in questo browser e vale anche nelle sessioni successive; la colonna ID resta sempre visibile.'],
+        [B('Ordine delle colonne'), ': trascina l’intestazione di una colonna tenendo premuto il tasto sinistro del mouse e rilasciala nella nuova posizione (vicino ai bordi la tabella scorre da sola). “Ordine predefinito” in Colonne ▾ ripristina l’ordine iniziale.'],
+        [B('Colonne da altre viste'), ': in Colonne ▾ scegli un oggetto collegato alla riga e uno dei suoi campi: ad esempio nei Cavi “Connettore componente A → Tipologia” aggiunge la colonna “Tipologia connettore componente A”; nelle Interfacce “Componente A → Fornitore”. Sono disponibili le colonne delle altre tabelle e i campi dei connettori (ID, etichetta, tipologia, direzione, pinout); con più oggetti collegati i valori sono separati da virgola. L’intestazione si può cambiare; la colonna si toglie con ✕.'],
         ['Clic sull’intestazione di una colonna: ordinamento crescente / decrescente. La ricerca guarda tutte le colonne, anche quelle nascoste.'],
         [B('Esporta CSV'), ' esporta le righe visibili (con filtri e ricerca applicati) e le colonne mostrate. Il file usa il punto e virgola come separatore e si apre direttamente in Excel.'],
         [B('CSV delle interfacce'), ': colonne fisse ID Interfaccia, Rev Interfaccia, Interfaccia Livello 1, Gruppo di derivazione A, Componente A, Connettore A, Gruppo di derivazione B, Componente B, Connettore B, ID Cavo, Funzione Cavo, PN Fornitore Cavo, PN IDV Cavo, Stato, Interfaccia Livello 2, Note / Descrizione dello Scambio, seguite dai campi personalizzati delle interfacce. C’è una riga per ogni cavo che realizza l’interfaccia (una sola riga, con le colonne del cavo vuote, se non ha cavi); i connettori A e B sono quelli del cavo della riga.'])),
@@ -9562,6 +10581,8 @@ function openHelp(topic) {
           'Se la destinazione è lontana, porta il puntatore vicino al bordo della lavagna: la vista scorre da sola nella direzione del movimento, senza dover ridurre lo zoom.'],
         [B('Spostamento di precisione con la tastiera'), ': seleziona un elemento con un clic e usa le ', B('frecce'), ' (1 unità per pressione, ', B('Maiusc + freccia'), ' 10 unità). Funziona per blocchi, gruppi, etichette dei collegamenti, punti di instradamento e punti di diramazione dei cavi.'],
         [B('Etichette'), ': mostrano l’ID dell’interfaccia o del cavo. Trascinale dove sono più leggibili: restano agganciate alla loro linea. Clic destro sull’etichetta → “Ripristina posizione automatica dell’etichetta”.'],
+        [B('Blocchi'), ': le righe dei connettori riportano ID, tipologia, etichetta e direzione per intero (il blocco si allarga quanto serve). Se nella scheda del componente scegli “Sulla lavagna: Immagine…”, la foto allegata compare nel blocco sopra i connettori; altrimenti il blocco resta un rettangolo schematico.'],
+        [B('Filtro ▾ → Mostra nella vista cavi'), ': “Tipologia dei connettori” scrive la tipologia del connettore del componente fuori dal blocco, sopra il cavo collegato; “PN dei cavi” aggiunge PN fornitore e PN IDV accanto all’ID del cavo. Le due opzioni valgono anche nell’esportazione.'],
         [B('Auto-Rerouting'), ' ricalcola i percorsi della vista corrente minimizzando incroci e piegature; se ci sono percorsi modificati a mano puoi scegliere di mantenerli.'],
         ['La legenda (in basso a sinistra) e la descrizione dei comandi (in basso a destra) si riducono con il pulsante “–” e si riaprono con “Legenda” / “ⓘ Comandi”.'],
         ['Annulla / Ripeti: Ctrl+Z / Ctrl+Y (anche per ogni modifica ai percorsi). Canc elimina l’oggetto selezionato.'])),
@@ -9573,15 +10594,18 @@ function openHelp(topic) {
         [B('Clic destro'), ' sulla linea: aggiungi o elimina un punto, ', B('Ripristina percorso automatico'), ', apri le proprietà.'],
         ['I percorsi manuali restano tali anche quando sposti i blocchi collegati: vengono ricollegati mantenendo i tuoi punti (se non è possibile senza attraversare un blocco, il collegamento torna automatico).'],
         ['Ogni modifica è una voce dello storico: Ctrl+Z / Ctrl+Y la annullano o la ripetono.'])),
-    S('filtro', 'Filtro per Livello 1 ed esportazione dello schema',
+    S('filtro', 'Filtro per Livello 1 ed esportazione PDF / SVG',
       UL(['Il pulsante ', B('Filtro'), ' della lavagna mostra solo i Livelli 1 (Meccanica, Fluidica, Segnale, Elettrica di potenza…) o i Livelli 2 che ti interessano; “solo” isola un livello.'],
         ['In alternativa fai clic su un livello nella legenda: mostra solo quello (un secondo clic mostra di nuovo tutto).'],
         ['“Nascondi i componenti senza collegamenti visibili” produce uno schema pulito, ad es. solo l’impianto elettrico.'],
-        [B('Esporta SVG'), ' esporta esattamente ciò che vedi; il cartiglio riporta il filtro applicato. Un cavo resta visibile se almeno una delle interfacce che realizza è visibile.'])),
+        ['Un cavo resta visibile se almeno una delle interfacce che realizza è visibile.'],
+        [B('Esporta PDF / SVG'), ': esporta la vista attuale (con filtro e opzioni) in ', B('PDF vettoriale'), ' o in SVG, su un foglio ', B('A4, A3, A2, A1 o A0'), ' orizzontale o verticale, oppure grande quanto il disegno. Lo schema è scalato nel foglio.'],
+        [B('Bordo con riferimenti'), ': cornice con le zone di riferimento della documentazione tecnica, lettere A, B, C… sui lati e numeri 1, 2, 3… in alto e in basso (campi di circa 50 mm; le lettere I e O non si usano).'],
+        [B('Cartiglio'), ': intestazione e voci modificabili (Titolo, Programma, N. documento, Revisione, Autore, Verificato, Approvato, Data; “+ Voce” ne aggiunge altre). Titolo, Programma, Autore e Data lasciati vuoti si compilano da soli; si possono aggiungere vista, contenuto e filtro dello schema. Le scelte sono salvate nel progetto.'])),
     S('allegati', 'Allegati dei componenti',
       UL(['Nel pannello di un componente, sezione ', B('Allegati'), ': trascina i file o usa “Scegli file…”. Sono ammessi immagini, PDF, documenti Word, fogli Excel e qualunque altro file (fino a 100 MB ciascuno).'],
         [B('Immagini'), ': ne compare subito una piccola anteprima; un clic la ingrandisce. Per gli altri formati c’è il pulsante ', B('Anteprima'), ': PDF e file di testo direttamente, documenti Word (.docx) con testo e tabelle, fogli Excel (.xlsx) con tutti i fogli; gli altri si scaricano.'],
-        ['Sul blocco della lavagna una graffetta indica il numero di allegati; la tabella Componenti ha la colonna “Allegati”.'],
+        ['Sul blocco della lavagna una graffetta indica il numero di allegati; la tabella Componenti ha la colonna “Allegati”. Un’immagine allegata può essere mostrata nel blocco (scheda del componente → “Sulla lavagna”).'],
         ['Gli allegati sono conservati nell’archivio del progetto (non nel file dell’applicazione), inclusi nell’esportazione JSON, nel backup e su GitHub. Rimuovere un allegato si annulla con Ctrl+Z.'])),
     S('progetti', 'Progetti: dove sono salvati e come sono conservati',
       P(B('Dove sono i dati. '), 'Ogni progetto è salvato automaticamente, ad ogni modifica (indicatore “✓ Salvato” in alto), nella posizione scelta in Progetti → ', B('Posizione dei progetti'), ':'),

@@ -8,6 +8,55 @@ Ogni rilascio dell'applicazione indica il formato dei dati (`schema`) che produc
 
 Ogni rilascio ha in Git il tag `rev-X.YY`. I rilasci precedenti (da 1.0 a 3.3) sono elencati più sotto con la loro numerazione originale.
 
+## Rev 3.00 — formato dati 8
+
+**Pinout condiviso fra connettore del componente e connettore del cavo**
+- Il pinout è uno solo per il connettore del componente e per il connettore del cavo collegato.
+- Nella scheda del cavo ogni estremo mostra il pinout del connettore scelto: compare già compilato appena si sceglie il connettore e si può modificare da lì. Le modifiche valgono anche nella scheda del componente, e viceversa.
+- Nuove colonne "Pinout A" e "Pinout B" nella tabella Cavi e "Pinout" nella tabella Componenti; sono nascoste all'inizio e si attivano con Colonne ▾.
+
+**Tabelle**
+- Le colonne si spostano trascinando l'intestazione con il tasto sinistro del mouse. Vicino ai bordi la tabella scorre da sola; "Ordine predefinito" ripristina l'ordine iniziale.
+- **Colonne da altre viste**: in Colonne ▾ si sceglie un oggetto collegato alla riga e uno dei suoi campi.
+  - I campi disponibili sono le colonne delle altre tabelle e i campi dei connettori.
+  - Esempi: nei Cavi "Connettore componente A → Tipologia" diventa la colonna "Tipologia connettore componente A"; nelle Interfacce "Componente A → Fornitore"; nei Cavi "Interfacce → Livello 1".
+  - Con più oggetti collegati i valori sono separati da virgola. L'intestazione è modificabile.
+- Le colonne aggiunte entrano nella ricerca, nell'ordinamento e nel CSV. Nel CSV delle interfacce, che ha un formato fisso, vanno in fondo.
+- Scelta, ordine e colonne aggiunte restano salvati nel browser di ciascun utente.
+
+**Esportazione PDF / SVG**
+- Il pulsante "Esporta PDF / SVG" apre una finestra in cui si scelgono:
+  - il formato: **PDF vettoriale**, generato dall'applicazione senza librerie esterne (funziona anche offline), oppure SVG;
+  - il foglio: A4, A3, A2, A1, A0 orizzontale o verticale, oppure grande quanto il disegno;
+  - il **bordo con i riferimenti di zona**: lettere A, B, C… sui lati e numeri 1, 2, 3… in alto e in basso, con campi di circa 50 mm, senza I e O.
+- **Cartiglio modificabile**: intestazione e voci Titolo, Programma, N. documento, Revisione, Autore, Verificato, Approvato e Data.
+  - Si possono aggiungere altre voci; Titolo, Programma, Autore e Data lasciati vuoti si compilano da soli.
+  - Facoltativamente si aggiungono vista, contenuto e filtro dello schema.
+  - Le impostazioni del foglio e del cartiglio sono salvate nel progetto.
+- Le immagini dei componenti sono incluse nel file; testi e linee restano vettoriali.
+
+**Lavagna**
+- **Immagine del componente**: nella scheda del componente, "Sulla lavagna" sceglie fra rettangolo schematico e una delle immagini allegate. L'immagine compare nel blocco fra l'intestazione e i connettori, e i collegamenti restano agganciati ai connettori.
+- **Testi per intero**: l'etichetta e la tipologia dei connettori non vengono più troncate (prima, ad esempio, "AUDI" al posto di "AUDIO"); il blocco si allarga quanto serve.
+- Nuove opzioni nel **menu Filtro → Mostra nella vista cavi**, ricordate e incluse nell'esportazione:
+  - **Tipologia dei connettori**: la tipologia del connettore del componente è scritta fuori dal blocco, sopra il cavo collegato;
+  - **PN dei cavi**: PN fornitore e PN IDV accanto all'ID di ogni cavo.
+- **Rami delle interfacce**: nella vista interfacce il tratto finale di un'interfaccia si trascina in alto o in basso lungo il lato del componente. La posizione resta salvata; dal clic destro si torna agli "Agganci automatici ai componenti".
+
+**Componenti e gruppi funzionali**
+- Il campo "Funzione" del connettore diventa **Etichetta**, completamente libera (es. AUDIO, RS-422 CTRL, 28 VDC IN). L'elenco delle funzioni resta per la "Funzione cavo".
+- I connettori si riordinano **trascinando la maniglia ⠿** della riga, oppure con ↑ / ↓ da tastiera; le frecce ▲▼ sono state tolte.
+- Nella scheda del gruppo, un componente compilato nei campi "Nuovo componente" ma non aggiunto viene **aggiunto premendo direttamente "Salva"**. Se i suoi dati non sono validi il salvataggio si ferma con un avviso.
+- **Copia di componenti esistenti** in un gruppo, anche durante la creazione del gruppo (es. Radio RED): la copia ha un nuovo ID modificabile (RAD → RAD-2) e gli stessi dati, connettori, pinout e allegati. L'originale resta nel suo gruppo; interfacce e cavi non vengono copiati.
+
+**Sigle**
+- La sigla predefinita di Elettrica di potenza passa da PWR a **ELP**, per non confonderla con quella del Livello 2 Power (PWR). Gli ID diventano, ad esempio, `ELP.PWR:PDU.VCU`.
+
+**Migrazione dal formato 7**
+- La funzione dei connettori diventa la loro etichetta, senza modifiche al valore.
+- Nei progetti in cui Elettrica di potenza ha ancora la sigla PWR, la sigla diventa ELP e gli ID delle interfacce si aggiornano. Una sigla già personalizzata non cambia.
+- Il foglio di esportazione parte da A3 orizzontale con bordo e con le voci predefinite del cartiglio.
+
 ## Rev 2.00 — formato dati 7
 
 **Interfacce**
