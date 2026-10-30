@@ -8,6 +8,37 @@ Ogni rilascio dell'applicazione indica il formato dei dati (`schema`) che produc
 
 Ogni rilascio ha in Git il tag `rev-X.YY`. I rilasci precedenti (da 1.0 a 3.3) sono elencati più sotto con la loro numerazione originale.
 
+## Rev 3.01 — formato dati 9
+
+**Cavi penzolanti**
+- Un estremo del cavo può restare **non collegato** a un componente, per esempio quando l'informazione arriverà più avanti. Nella scheda del cavo il componente dell'estremo ha la scelta "— non collegato (estremo libero) —".
+- Sulla lavagna (vista cavi) l'estremo non collegato è un cerchietto con "?":
+  - si trascina in un punto libero per spostarlo (la posizione è salvata nel progetto; clic destro → posizione automatica);
+  - rilasciato su un connettore, lo collega (il connettore si evidenzia; Esc annulla);
+  - un connettore già usato dallo stesso cavo non è ammesso.
+- **Nuovo cavo rilasciando nel vuoto**: nella vista cavi si trascina da un connettore e si rilascia in un punto vuoto. Nasce un cavo con l'estremo B non collegato in quel punto.
+- Un cavo **senza alcun estremo collegato** non compare sulla lavagna: si trova solo nella tabella Cavi. La legenda della vista cavi ne indica il numero.
+
+**Cavi senza interfaccia**
+- Le interfacce logiche associate al cavo sono facoltative.
+- La finestra "Nuovo cavo" (trascinamento fra due connettori) ha il pulsante **Crea senza interfaccia**.
+
+**Controlli, tabelle e Dashboard**
+- Cavi penzolanti e senza interfaccia sono sempre ammessi, in qualunque stato del cavo: la Dashboard li segnala come avvisi, in tre nuovi controlli ("Cavi penzolanti", "Cavi senza estremi collegati", "Cavi senza interfaccia").
+  - Le regole degli stati Concordata, Baselined e Verified (connettore e tipo di connettore cavo) valgono per gli estremi collegati.
+  - Un'interfaccia non è segnalata come "non raggiunta" se gli estremi liberi del cavo possono ancora raggiungerne i componenti.
+- La casella Cavi della Dashboard riporta penzolanti, cavi non sulla lavagna e cavi senza interfaccia. La nuova scheda "Cavi da completare" ha il pulsante "Mostra", che apre la tabella Cavi filtrata.
+- Tabella Cavi: nuovo filtro **Da completare**. Gli estremi liberi sono indicati come "○ non collegato" e le interfacce mancanti come "nessuna".
+
+**Eliminazioni**
+- Eliminando un componente, i suoi cavi **restano**: l'estremo su quel componente diventa non collegato, vicino a dove si trovava.
+- Eliminando un'interfaccia, i cavi restano, eventualmente senza interfaccia. La finestra di conferma elenca i cavi interessati.
+
+**Formato dati 9**
+- Nuovo campo facoltativo `pos` negli estremi non collegati: la posizione sulla lavagna.
+- I progetti del formato 8 si convertono automaticamente, con la copia dei dati originali conservata come versione.
+- Una copia dell'applicazione alla Rev 3.00 non apre i progetti del formato 9.
+
 ## Rev 3.00 — formato dati 8
 
 **Pinout condiviso fra connettore del componente e connettore del cavo**
