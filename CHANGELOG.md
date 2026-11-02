@@ -8,6 +8,49 @@ Ogni rilascio dell'applicazione indica il formato dei dati (`schema`) che produc
 
 Ogni rilascio ha in Git il tag `rev-X.YY`. I rilasci precedenti (da 1.0 a 3.3) sono elencati più sotto con la loro numerazione originale.
 
+## Rev 4.00 — formato dati 10
+
+**Lavagna**
+- **Selezione multipla**: Ctrl (o Maiusc) + clic aggiunge o toglie un componente; Maiusc + trascinamento nel vuoto disegna un rettangolo di selezione. I blocchi selezionati si spostano insieme, con il mouse o con le frecce.
+- **Scorrimento automatico**: trascinando un blocco (o un gruppo) vicino al bordo della lavagna la vista scorre e il blocco segue il puntatore.
+- **Immagine del componente ridimensionabile** sulla lavagna: con il componente selezionato si trascina l'angolo dell'immagine (proporzioni conservate); doppio clic per la dimensione predefinita.
+- **PN del componente nel blocco** (PN fornitore e PN IDV, sotto il nome). Si attivano dal menu Filtro → "Mostra nei blocchi"; la scelta è salvata nel progetto.
+- **Etichette senza riquadro**: testo appoggiato alla linea (sopra i tratti orizzontali, ruotato lungo quelli verticali), con alone bianco.
+  - Trascinandole, o con le frecce a linea selezionata, scorrono solo lungo il percorso.
+  - Vale per cavi e interfacce. Nella vista cavi ogni cavo ha la sua etichetta: non c'è più il riquadro condiviso fra i cavi della stessa interfaccia.
+- **Etichette dei cavi**: ID, PN fornitore e PN IDV si attivano separatamente dal menu Filtro.
+- **Zoom ridotto**: ID e nome dei componenti ed etichette non scendono sotto una dimensione leggibile a schermo. L'esportazione usa sempre le dimensioni normali.
+- **Vista cavi**: le interfacce senza cavi sono disegnate nella stessa posizione della vista interfacce.
+- **Punti della griglia di sfondo**: si possono nascondere da Impostazioni → Generale (preferenza del browser).
+- **Font incorporati** (Inter, JetBrains Mono, SIL OFL): gli stessi caratteri su lavagna, SVG e PDF. Il PDF li incorpora e il testo resta copiabile.
+- **Clonazione di un componente**: "Duplica…" nella scheda del componente, oppure "Clona da un componente esistente" in "+ Componente".
+  - Si copiano dati, PN e connettori; l'ID diventa il successivo libero.
+  - A scelta si clonano anche le interfacce (ID automatico aggiornato) e i cavi (nuovi W-…, sui connettori corrispondenti).
+
+**Schede**
+- Livello 2 di Segnale: "Dati discreti" e "Dati analogici" non sono più valori predefiniti. Nei progetti esistenti si tolgono se nessuna interfaccia li usa.
+- Cavo: lo stato **Concordata** si può assumere sempre. Baselined e Verified richiedono ancora connettore e tipo di connettore cavo sugli estremi collegati.
+- Il campo "Stato" si chiama **Stato componente**, **Stato interfaccia** o **Stato cavo** in schede, tabelle ed esportazioni (anche nel CSV delle interfacce).
+- Connettore:
+  - l'**Etichetta** si può scegliere dall'elenco delle etichette già usate nel progetto;
+  - un nuovo connettore parte con direzione "non definita".
+- **Nuova interfaccia**: già nella scheda di creazione si può associare un cavo esistente, oppure "Crea con un nuovo cavo" (si apre subito la scheda del cavo).
+
+**Dashboard**
+- Schede **spostabili** (trascinando l'intestazione), **ridimensionabili** (angolo in basso a destra) e **nascondibili** (✕). "Schede ▾" le riattiva e ripristina la disposizione predefinita. È una preferenza del browser.
+- **Controlli di completezza e coerenza** divisi in sezioni per stato (Errore, Avviso, Info, OK), richiudibili, con pulsanti-filtro per stato.
+- Nuovi controlli **Connettori senza direzione** e **Connettori senza tipologia** (lato componente e tipo di connettore del cavo), con l'indicazione se il connettore è cablato.
+- **Matrice N²**: prima riga e prima colonna bloccate durante lo scorrimento.
+
+**Esportazione**
+- **Gruppi da esportare**: tutti o solo alcuni. I cavi e le interfacce verso componenti di altri gruppi restano e finiscono in un riquadro **[Gruppo : Componente : Connettore]** (nella vista interfacce [Gruppo : Componente]).
+
+**Formato dati 10**
+- Componente: `boardImageSize` (dimensione dell'immagine sulla lavagna).
+- Progetto: `meta.blockPn` (PN nei blocchi) e `meta.sheet.groups` (gruppi da esportare).
+- Etichette spostate a mano: solo il punto del percorso `t`; lo scostamento dei formati precedenti si ignora.
+- I progetti del formato 9 si convertono automaticamente, con la copia dei dati originali conservata come versione.
+
 ## Rev 3.01 — formato dati 9
 
 **Cavi penzolanti**
