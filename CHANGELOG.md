@@ -8,6 +8,28 @@ Ogni rilascio dell'applicazione indica il formato dei dati (`schema`) che produc
 
 Ogni rilascio ha in Git il tag `rev-X.YY`. I rilasci precedenti (da 1.0 a 3.3) sono elencati più sotto con la loro numerazione originale.
 
+## Rev 4.02 — formato dati 11
+
+**Duplicazione di componenti**
+- Le interfacce e i cavi clonati **non si collegano mai ai componenti esistenti**:
+  - collegano solo componenti duplicati insieme;
+  - verso gli altri componenti il lato (o l'estremo del cavo) resta **non collegato**.
+- **Duplica la selezione**: si selezionano più blocchi sulla lavagna (Ctrl + clic o Maiusc + rettangolo), poi clic destro → "Duplica i componenti selezionati…" oppure Ctrl+D.
+  - Interfacce e cavi fra i componenti selezionati collegano le copie fra loro, sui connettori corrispondenti.
+  - Le copie compaiono sotto la selezione e restano selezionate.
+- Lo stesso vale per il singolo componente: clic destro → "Duplica…", Ctrl+D, "Duplica…" nella scheda, oppure "+ Componente" → "Clona da un componente esistente".
+- Un solo Ctrl+Z annulla tutta la duplicazione.
+
+**Interfacce con un lato non collegato**
+- Il componente A o B di un'interfaccia può essere "— non collegato —", ma almeno un lato deve essere collegato.
+- L'ID mostra "?" al posto del componente mancante (es. SEG.COM:RAD-2.?) e si aggiorna da solo quando il lato viene collegato.
+- Nella vista interfacce il lato libero finisce in un cerchietto «?»: si trascina su un componente per collegarlo, oppure in un punto libero per spostarlo (clic destro: posizione automatica).
+- La tabella Interfacce mostra "○ non collegato"; la Dashboard ha il nuovo controllo "Interfacce con un lato non collegato" (avviso).
+
+**Formato dati 11**
+- Interfacce: `compA` / `compB` possono essere vuoti (lato non collegato), con la posizione facoltativa `pos.A` / `pos.B` sulla lavagna.
+- I progetti del formato 10 si convertono automaticamente. Una copia dell'applicazione alla Rev 4.01 non apre i progetti del formato 11.
+
 ## Rev 4.01 — formato dati 10
 
 **Correzioni**

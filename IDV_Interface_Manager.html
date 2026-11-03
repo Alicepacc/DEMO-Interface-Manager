@@ -977,8 +977,8 @@ const APP = {
   format: 'IDV-Interface-Manager',
   projectFormat: 'IDV-Interface-Manager-Project',
   backupFormat: 'IDV-Interface-Manager-Backup',
-  version: '4.01',         // rilascio dell'applicazione (Rev X.YY: major.minor)
-  schema: 10,              // versione del formato dei dati di progetto (vedi normalizeData)
+  version: '4.02',         // rilascio dell'applicazione (Rev X.YY: major.minor)
+  schema: 11,              // versione del formato dei dati di progetto (vedi normalizeData)
   legacyModelKey: 'idv-interface-manager.model.v1',
   uiKey: 'idv-interface-manager.ui.v1',
   dbName: 'idv-interface-manager'
@@ -1416,7 +1416,8 @@ function levelAbbr(cats, l1, l2) {
 }
 function ifaceBaseId(st, f, compId) {
   const a = compId(f.compA) || '?', b = compId(f.compB) || '?';
-  const pair = cmpNat(a, b) <= 0 ? a + '.' + b : b + '.' + a;
+  // lato non collegato (formato 11): il componente noto per primo, "?" al posto dell'altro
+  const pair = a === '?' || b === '?' ? (a === '?' ? b + '.' + a : a + '.' + b) : (cmpNat(a, b) <= 0 ? a + '.' + b : b + '.' + a);
   return levelAbbr(st.lists.ifCategories, f.category, f.subtype) + ':' + pair;
 }
 const autoSuffixOk = (id, base) => id === base || (id.indexOf(base + '-') === 0 && /^[1-9]\d*$/.test(id.slice(base.length + 1)) && Number(id.slice(base.length + 1)) >= 2);
@@ -1554,6 +1555,8 @@ function cableMayCarry(c, f) {
 }
 /* Estremo non collegato ad alcun componente (cavo penzolante) */
 function endFree(e) { return !!e && !e.comp; }
+/* Interfaccia con un lato non collegato (formato 11): 'A', 'B', 'AB' oppure '' */
+function ifFreeSides(f) { return (f && !f.compA ? 'A' : '') + (f && !f.compB ? 'B' : ''); }
 function cableIfaceIds(c) { return (c.ifaceUids || []).map((u) => (idx.iface.get(u) || {}).id || '?').join(', '); }
 /* Testo descrittivo standard: "Interface | SEG.COM:HMI.VCU | Segnale / Comunicazioni" */
 function objLabel(kind, uid) {
@@ -3800,6 +3803,7 @@ const ISSUE_CATS = {
   cblNoConn:    { label: 'Cavi con estremi senza connettore', sev: 'warning' },
   connNoDir:    { label: 'Connettori senza direzione', sev: 'warning' },
   connNoType:   { label: 'Connettori senza tipologia (componente e cavo)', sev: 'warning' },
+  ifFree:       { label: 'Interfacce con un lato non collegato', sev: 'warning' },
   cblFree:      { label: 'Cavi penzolanti (estremi non collegati)', sev: 'warning' },
   cblUnplaced:  { label: 'Cavi senza estremi collegati (non sulla lavagna)', sev: 'warning' },
   cblNoIf:      { label: 'Cavi senza interfaccia', sev: 'warning' },
@@ -3860,9 +3864,12 @@ function computeIssues() {
   });
   state.interfaces.forEach((f) => {
     const name = 'Interfaccia ' + (f.id || '(senza ID)');
-    const cA = idx.comp.get(f.compA), cB = idx.comp.get(f.compB);
-    if (!cA) add('badRef', 'interface', f.uid, name + ': il componente A non esiste.');
-    if (!cB) add('badRef', 'interface', f.uid, name + ': il componente B non esiste.');
+    const cA = idx.comp.get(f.compA), cB = idx.comp.get(f.compB), fs = ifFreeSides(f);
+    // lato non collegato (es. interfaccia di un componente duplicato): ammesso, da completare
+    if (fs === 'AB') add('ifFree', 'interface', f.uid, name + ': nessun lato collegato a un componente (compare solo nella tabella Interfacce).');
+    else if (fs) add('ifFree', 'interface', f.uid, name + ': lato ' + fs + ' non collegato ad alcun componente.');
+    if (!cA && f.compA) add('badRef', 'interface', f.uid, name + ': il componente A non esiste.');
+    if (!cB && f.compB) add('badRef', 'interface', f.uid, name + ': il componente B non esiste.');
     if (cA && f.compA === f.compB) add('badRef', 'interface', f.uid, name + ': lato A e lato B sono lo stesso componente.');
     if (!levelsKnown(f)) add('ifLevels', 'interface', f.uid, name + ': livelli “' + (ifClassText(f) || '—') + '” non previsti nelle impostazioni: assegna Livello 1 e Livello 2.');
     else if (!str(f.subtype).trim() && subtypesOf(f.category).length) add('missing', 'interface', f.uid, name + ': Interfaccia Livello 2 non indicata.', 'warning');
@@ -4059,13 +4066,15 @@ function withBranchNodes(geom, links) {
   const autoTaken = [];
   free.forEach((L) => [L.pA, L.pB].forEach((fid) => {
     if (fid.indexOf('f:') !== 0 || rg.has(fid)) return;
-    const c = L.obj, j = Number(fid.slice(fid.lastIndexOf('|') + 1)), e = (c.ends || [])[j];
-    const manual = !!(e && e.pos);
+    const c = L.obj, j = Number(fid.slice(fid.lastIndexOf('|') + 1)), isIf = L.kind === 'interface';
+    const fp = isIf ? (c.pos || {})[j === 0 ? 'A' : 'B'] : ((c.ends || [])[j] || {}).pos;
+    const manual = !!fp;
     let x, y;
-    if (manual) { x = e.pos.x; y = e.pos.y; }
+    if (manual) { x = fp.x; y = fp.y; }
     else {
-      const k = (c.ends || []).find((q) => !endFree(q) && geom.has(anchorComp(endBoardUid(q)) || ''));
-      const g = k ? geom.get(anchorComp(endBoardUid(k))) : null, a = k ? anchorPoint(geom, endBoardUid(k), 'R') : null;
+      // vicino al primo estremo collegato (per un'interfaccia: il componente dell'altro lato)
+      const ku = isIf ? (j === 0 ? c.compB : c.compA) : endBoardUid((c.ends || []).find((q) => !endFree(q) && geom.has(anchorComp(endBoardUid(q)) || '')) || {});
+      const g = ku ? geom.get(anchorComp(ku)) : null, a = ku && g ? anchorPoint(geom, ku, 'R') : null;
       x = g ? g.x + g.w + 90 : 0;
       y = a ? a.y : 0;
       while (autoTaken.some((q) => Math.abs(q.x - x) < 30 && Math.abs(q.y - y) < 20)) y += 30;
@@ -4127,7 +4136,15 @@ function modeLinks(mode) {
     out.push({ key, kind, obj, pA, pB, cA, cB, bundle });
   };
   // interfacce: da componente a componente
-  if (mode === 'interfaces') state.interfaces.forEach((f) => add(f.uid, 'interface', f, f.compA, f.compB, f.uid));
+  if (mode === 'interfaces') state.interfaces.forEach((f) => {
+    const fs = ifFreeSides(f);
+    if (!fs) { add(f.uid, 'interface', f, f.compA, f.compB, f.uid); return; }
+    // lato non collegato (formato 11): termina in un punto libero; senza lati collegati non si disegna
+    if (fs === 'AB') return;
+    const a = fs === 'A' ? freeNodeId(f, 0) : f.compA, b = fs === 'B' ? freeNodeId(f, 1) : f.compB;
+    const ca = fs === 'A' ? a : anchorComp(a), cb = fs === 'B' ? b : anchorComp(b);
+    if (ca && cb) out.push({ key: f.uid, kind: 'interface', obj: f, pA: a, pB: b, cA: ca, cB: cb, bundle: f.uid, free: true });
+  });
   else {
     // cavi da connettore a connettore; i cavi ramificati sono disegnati come rami dalla diramazione a ogni estremo.
     // Un estremo non collegato (cavo penzolante) termina in un punto libero della lavagna; un cavo senza alcun
@@ -5450,16 +5467,16 @@ function renderBoard() {
     ns += '<g class="bnode ' + st + (ui.activeNode === c.uid ? ' active' : '') + '" data-node="' + esc(c.uid) + '"><title>' + esc(tip) + '</title>' +
       '<circle class="bnode-hit" cx="' + r1(g.x) + '" cy="' + r1(g.y) + '" r="10"/><circle class="bnode-dot" cx="' + r1(g.x) + '" cy="' + r1(g.y) + '" r="4.5"/></g>';
   });
-  // --- estremi non collegati (cavi penzolanti): cerchietto con "?" da trascinare su un connettore
+  // --- estremi non collegati (cavi penzolanti, lati delle interfacce): cerchietto con "?" da trascinare su un connettore / componente
   items.forEach((it) => {
     if (!it.L.free) return;
     [[it.L.pB, it.pts[it.pts.length - 1]], [it.L.pA, it.pts[0]]].forEach(([fid, p]) => {
       const g = geom.get(fid);
       if (!g || !g.free) return;
-      const c = it.L.obj, st = sc.linkState(it.L);
-      const tip = 'Cavo ' + c.id + ' · estremo ' + endLetter(g.end) + ' non collegato\nTrascina il cerchietto su un connettore per collegarlo, oppure in un punto libero per spostarlo' +
-        (g.manual ? '\nClic destro: posizione automatica' : '');
-      ns += '<g class="fend ' + st + '" data-fend="' + esc(c.uid + '|' + g.end) + '"><title>' + esc(tip) + '</title>' +
+      const c = it.L.obj, st = sc.linkState(it.L), isIf = it.L.kind === 'interface';
+      const tip = (isIf ? 'Interfaccia ' + c.id + ' · lato ' + (g.end === 0 ? 'A' : 'B') : 'Cavo ' + c.id + ' · estremo ' + endLetter(g.end)) + ' non collegato\nTrascina il cerchietto su ' +
+        (isIf ? 'un componente' : 'un connettore') + ' per collegarlo, oppure in un punto libero per spostarlo' + (g.manual ? '\nClic destro: posizione automatica' : '');
+      ns += '<g class="fend ' + st + '" data-fend="' + esc(c.uid + '|' + g.end) + '" data-fkind="' + (isIf ? 'interface' : 'cable') + '"><title>' + esc(tip) + '</title>' +
         '<circle class="fend-hit" cx="' + r1(p.x) + '" cy="' + r1(p.y) + '" r="11"/><circle class="fend-dot" cx="' + r1(p.x) + '" cy="' + r1(p.y) + '" r="6"/>' +
         '<text class="fend-q" x="' + r1(p.x) + '" y="' + r1(p.y + 3) + '">?</text></g>';
     });
@@ -5502,7 +5519,10 @@ function renderBoard() {
   B.links.innerHTML = ls;
   if (!fastDrag) B.comps.innerHTML = cs;
   B.ports.innerHTML = ps + ns;
-  if (drag && drag.type === 'fend' && drag.target && drag.target.ok) markConnTarget(drag.target.uid);
+  if (drag && drag.type === 'fend' && drag.target && drag.target.ok) {
+    if (drag.kind === 'interface') { const el = B.comps.querySelector('.comp[data-comp="' + drag.target.comp + '"]'); if (el) el.classList.add('target'); }
+    else markConnTarget(drag.target.uid);
+  }
   markHoverHandles();
   B.labels.innerHTML = connTypesSvg(items, geom) + lbs;
   renderHandles();
@@ -5680,7 +5700,10 @@ function updateBoardChrome(items, links, allItems) {
   const all = allItems || items;
   // cavi senza alcun estremo collegato: compaiono solo nella tabella Cavi
   const nUnplaced = state.cables.filter((c) => (c.ends || []).length && c.ends.every(endFree)).length;
-  const notDrawn = ui.mode === 'interfaces' ? nIf - all.length : nC - nUnplaced - new Set(all.filter((it) => it.L.kind === 'cable').map((it) => it.L.obj.uid)).size;
+  // interfacce senza lati collegati: solo nella tabella Interfacce
+  const nIfUnplaced = state.interfaces.filter((f) => ifFreeSides(f) === 'AB').length;
+  const nIfDangling = new Set(items.filter((it) => it.L.kind === 'interface' && it.L.free).map((it) => it.L.obj.uid)).size;
+  const notDrawn = ui.mode === 'interfaces' ? nIf - nIfUnplaced - all.length : nC - nUnplaced - new Set(all.filter((it) => it.L.kind === 'cable').map((it) => it.L.obj.uid)).size;
   const nBranched = new Set(items.filter((it) => it.L.node).map((it) => it.L.obj.uid)).size;
   const nDangling = new Set(items.filter((it) => it.L.free).map((it) => it.L.obj.uid)).size;
   const fb = byId('btnFilter');
@@ -5701,6 +5724,8 @@ function updateBoardChrome(items, links, allItems) {
     lg.innerHTML = '<div class="lg-title">Vista interfacce · ' + plural(nIf, 'interfaccia logica', 'interfacce logiche') + lgMin + '</div>' +
       cats.map((n) => '<div class="lg-row lg-cat" data-lgcat="' + esc(n) + '" title="Clic: mostra solo questo Livello 1 (di nuovo: mostra tutto)">' + line(esc(categoryColor(n)), 2.3, '8 4') + esc(n) + ' (' + catCount.get(n) + ')</div>').join('') +
       flt + ports +
+      (nIfDangling ? '<div class="lg-row"><svg width="34" height="14"><line x1="1" y1="7" x2="25" y2="7" stroke="#1d5fbf" stroke-width="1.6" stroke-dasharray="5 3"/><circle cx="26" cy="7" r="5.5" fill="#fff" stroke="#2b3640" stroke-width="1.3" stroke-dasharray="2.2 1.5"/><text x="26" y="10" font-size="8" font-weight="700" text-anchor="middle" fill="#2b3640">?</text></svg>Lato non collegato: trascinalo su un componente (' + plural(nIfDangling, 'interfaccia', 'interfacce') + ')</div>' : '') +
+      (nIfUnplaced ? '<div class="lg-row">' + plural(nIfUnplaced, 'interfaccia senza lati collegati', 'interfacce senza lati collegati') + ': solo nella tabella Interfacce</div>' : '') +
       (notDrawn > 0 ? '<div class="lg-row lg-err">' + plural(notDrawn, 'interfaccia non disegnata', 'interfacce non disegnate') + ' (riferimenti non validi)</div>' : '') + stats;
   } else {
     lg.innerHTML = '<div class="lg-title">Vista cavi · ' + plural(nC, 'cavo fisico', 'cavi fisici') + lgMin + '</div>' +
@@ -6981,10 +7006,10 @@ function onBoardPointerDown(e) {
     Object.assign(drag, { type: 'imgrz', uid: c.uid, ow: iw, oh: ih, ratio: (im && im.ratio) || iw / ih, snap: snapshot() });
   } else if (fendEl) {
     // estremo non collegato: si sposta, oppure si lascia su un connettore per collegarlo
-    const fe = parseFendKey(fendEl.dataset.fend), c = fe && idx.cable.get(fe.uid);
-    const g = c && lastGeom ? lastGeom.get(freeNodeId(c, fe.j)) : null, e0 = c && c.ends[fe.j];
-    if (!g || !e0) { drag = null; return; }
-    Object.assign(drag, { type: 'fend', uid: c.uid, j: fe.j, ox: g.x, oy: g.y, pos0: e0.pos ? { x: e0.pos.x, y: e0.pos.y } : null, snap: snapshot(), target: null });
+    const fe = parseFendKey(fendEl.dataset.fend), kind = fendEl.dataset.fkind || 'cable';
+    const fr = fe && freeEndOf(kind, fe.uid, fe.j), g = fr && lastGeom ? lastGeom.get(freeNodeId(fr.obj, fe.j)) : null;
+    if (!g) { drag = null; return; }
+    Object.assign(drag, { type: 'fend', kind, uid: fr.obj.uid, j: fe.j, ox: g.x, oy: g.y, pos0: fr.getPos(), snap: snapshot(), target: null });
   } else if (nodeEl) {
     const c = idx.cable.get(nodeEl.dataset.node), g = c && lastGeom ? lastGeom.get('n:' + c.uid) : null;
     if (!g) { drag = null; return; }
@@ -7006,7 +7031,7 @@ function onBoardPointerDown(e) {
       const w = clientToWorld(e.clientX, e.clientY);
       const end = k === 0 && k === last ? (Math.abs(w.x - it.pts[0].x) <= Math.abs(w.x - it.pts[it.pts.length - 1].x) ? 'A' : 'B') : (k === 0 ? 'A' : 'B');
       const cu = end === 'A' ? it.L.pA : it.L.pB, g = lastGeom && lastGeom.get(cu);
-      if (g) {
+      if (g && !g.node) {
         Object.assign(drag, { type: 'anchor', uid: it.L.obj.uid, key: it.key, end, comp: cu, g, oy: end === 'A' ? it.pts[0].y : it.pts[it.pts.length - 1].y, snap: snapshot() });
         e.preventDefault();
         return;
@@ -7292,18 +7317,29 @@ function showContextMenu(cx, cy, items) {
 }
 function hideContextMenu() { const m = byId('ctxMenu'); if (m && !m.hidden) m.hidden = true; }
 function onBoardContextMenu(e) {
+  const compEl = e.target.closest('[data-comp]');
+  if (compEl && !e.target.closest('[data-fend],[data-pin],.lbl,[data-link]')) {
+    e.preventDefault();
+    const cu = compEl.dataset.comp, c = idx.comp.get(cu);
+    if (!c) return;
+    const sel = ui.multiSel.length > 1 && ui.multiSel.includes(cu) ? ui.multiSel.slice() : [cu];
+    showContextMenu(e.clientX, e.clientY, [
+      { label: sel.length > 1 ? 'Duplica i ' + sel.length + ' componenti selezionati…' : 'Duplica ' + c.id + '…', fn: () => duplicateComponents(sel) },
+      { sep: true },
+      { label: 'Apri componente ' + c.id + '…', fn: () => openObject('component', cu) }]);
+    return;
+  }
   const fendEl = e.target.closest('[data-fend]');
   if (fendEl) {
     e.preventDefault();
     clearTimeout(linkClickTimer);
-    const fe = parseFendKey(fendEl.dataset.fend), c = fe && idx.cable.get(fe.uid), e0 = c && c.ends[fe.j];
-    if (!e0) return;
-    const L = endLetter(fe.j);
+    const fe = parseFendKey(fendEl.dataset.fend), kind = fendEl.dataset.fkind || 'cable', fr = fe && freeEndOf(kind, fe.uid, fe.j);
+    if (!fr) return;
     showContextMenu(e.clientX, e.clientY, [
-      { label: 'Posizione automatica dell’estremo ' + L, disabled: !e0.pos,
-        fn: () => commit((st) => { const x = st.cables.find((o) => o.uid === c.uid); if (x && x.ends[fe.j]) delete x.ends[fe.j].pos; }, null, 'Estremo ' + L + ' del cavo ' + c.id + ': posizione automatica') },
+      { label: 'Posizione automatica (' + fr.what + ')', disabled: !fr.getPos(),
+        fn: () => commit(() => { const f2 = freeEndOf(kind, fe.uid, fe.j); if (f2) f2.setPos(null); }, null, fr.title + ', ' + fr.what + ': posizione automatica') },
       { sep: true },
-      { label: 'Apri cavo ' + c.id + '…', fn: () => openObject('cable', c.uid) }]);
+      { label: 'Apri ' + (kind === 'interface' ? 'interfaccia ' : 'cavo ') + fr.obj.id + '…', fn: () => openObject(kind, fr.obj.uid) }]);
     return;
   }
   const nodeEl = e.target.closest('[data-node]');
@@ -7375,10 +7411,10 @@ function onBoardPointerMove(e) {
     B.svg.classList.add('node-move');
     scheduleBoardRender();
   } else if (drag.type === 'fend') {
-    const c = idx.cable.get(drag.uid), e0 = c && c.ends[drag.j];
-    if (!e0) return;
+    const fr = freeEndOf(drag.kind, drag.uid, drag.j);
+    if (!fr) return;
     const sn = e.altKey ? Math.round : snapV;
-    e0.pos = { x: sn(drag.ox + dx / ui.zoom), y: sn(drag.oy + dy / ui.zoom) };
+    fr.setPos({ x: sn(drag.ox + dx / ui.zoom), y: sn(drag.oy + dy / ui.zoom) });
     B.svg.classList.add('fend-move');
     drag.target = fendTarget(drag, e.clientX, e.clientY);
     scheduleBoardRender();
@@ -7553,27 +7589,27 @@ function onBoardPointerUp(e) {
       afterChange();
     } else renderBoard();
   } else if (d.type === 'fend') {
-    const c = idx.cable.get(d.uid), e0 = c && c.ends[d.j];
-    if (!e0) { renderBoard(); return; }
-    ui.selected = { kind: 'cable', uid: c.uid };
-    if (!d.moved) { renderBoard(); openLinkSoon('cable', c.uid); return; }
+    const fr = freeEndOf(d.kind, d.uid, d.j);
+    if (!fr) { renderBoard(); return; }
+    ui.selected = { kind: d.kind, uid: fr.obj.uid };
+    if (!d.moved) { renderBoard(); openLinkSoon(d.kind, fr.obj.uid); return; }
     const t = d.target;   // rilevato durante il trascinamento (il cerchietto, sotto il puntatore, non intercetta i clic)
     if (t && !t.ok) {
       // destinazione non ammessa: l'estremo torna dov'era
-      if (d.pos0) e0.pos = d.pos0; else delete e0.pos;
+      fr.setPos(d.pos0);
       toast(t.msg, 'warn', 5000);
       renderBoard();
       return;
     }
     if (t) {
-      e0.comp = t.comp; e0.conn = t.uid;
-      delete e0.pos;
-      pushHistory(d.snap, 'Cavo ' + c.id + ': estremo ' + endLetter(d.j) + ' collegato a ' + connFull(t.uid));
+      fr.connect(t);
+      pushHistory(d.snap, fr.done(t));
     } else {
       // lasciato sopra un blocco: si memorizza il punto libero più vicino, cioè dove viene disegnato
-      e0.pos = freeSpot(e0.pos.x, e0.pos.y, linkRects(geomMap(true)));
+      const p0 = fr.getPos();
+      fr.setPos(freeSpot(p0.x, p0.y, linkRects(geomMap(true))));
       if (d.snap === snapshot()) { renderBoard(); return; }
-      pushHistory(d.snap, 'Spostamento estremo ' + endLetter(d.j) + ' non collegato del cavo ' + c.id);
+      pushHistory(d.snap, 'Spostamento ' + fr.what + ' non collegato (' + fr.title + ')');
     }
     state.meta.modified = new Date().toISOString();
     afterChange();
@@ -7602,7 +7638,7 @@ function setMultiSel(uids) {
   ui.selected = ui.multiSel.length === 1 ? { kind: 'component', uid: ui.multiSel[0] } : null;
   if (ui.multiSel.length === 1) ui.multiSel = [];
   renderBoard();
-  if (ui.multiSel.length > 1) toast(ui.multiSel.length + ' componenti selezionati: trascinane uno o usa le frecce per spostarli insieme (Esc per deselezionare).', 'info', 4000);
+  if (ui.multiSel.length > 1) toast(ui.multiSel.length + ' componenti selezionati: trascinane uno o usa le frecce per spostarli insieme; clic destro → Duplica… (Esc per deselezionare).', 'info', 4000);
 }
 function toggleMultiSel(uid) {
   const cur = ui.multiSel.length ? ui.multiSel.slice() : (ui.selected && ui.selected.kind === 'component' ? [ui.selected.uid] : []);
@@ -7643,9 +7679,42 @@ function parseFendKey(v) {
   const i = str(v).lastIndexOf('|');
   return i > 0 ? { uid: v.slice(0, i), j: Number(v.slice(i + 1)) } : null;
 }
+/* Estremo non collegato: di un cavo (estremo j) o di un'interfaccia (lato A = 0, B = 1). Legge e modifica lo stato */
+function freeEndOf(kind, uid, j) {
+  if (kind === 'interface') {
+    const f = idx.iface.get(uid), sd = j === 0 ? 'A' : 'B';
+    if (!f || f['comp' + sd]) return null;
+    return {
+      kind, obj: f, j, what: 'lato ' + sd, title: 'Interfaccia ' + f.id,
+      getPos: () => (f.pos && f.pos[sd] ? { x: f.pos[sd].x, y: f.pos[sd].y } : null),
+      setPos: (p) => {
+        if (p) f.pos = Object.assign({}, f.pos, { [sd]: { x: p.x, y: p.y } });
+        else if (f.pos) { delete f.pos[sd]; if (!Object.keys(f.pos).length) delete f.pos; }
+      },
+      connect: (t) => { f['comp' + sd] = t.comp; if (f.pos) { delete f.pos[sd]; if (!Object.keys(f.pos).length) delete f.pos; } },
+      done: (t) => 'Interfaccia ' + f.id + ': lato ' + sd + ' collegato a ' + (compIdOf(t.comp) || '')
+    };
+  }
+  const c = idx.cable.get(uid), e0 = c && c.ends[j];
+  if (!e0) return null;
+  return {
+    kind: 'cable', obj: c, j, what: 'estremo ' + endLetter(j), title: 'Cavo ' + c.id,
+    getPos: () => (e0.pos ? { x: e0.pos.x, y: e0.pos.y } : null),
+    setPos: (p) => { if (p) e0.pos = { x: p.x, y: p.y }; else delete e0.pos; },
+    connect: (t) => { e0.comp = t.comp; e0.conn = t.uid; delete e0.pos; },
+    done: (t) => 'Cavo ' + c.id + ': estremo ' + endLetter(j) + ' collegato a ' + connFull(t.uid)
+  };
+}
 /* Connettore sotto il puntatore mentre si trascina un estremo non collegato: {uid, comp, ok, msg} */
 function fendTarget(d, cx, cy) {
   const t = connectTargetAt(cx, cy);
+  if (d.kind === 'interface') {
+    // lato di un'interfaccia: si collega a un componente diverso da quello dell'altro lato
+    const f = idx.iface.get(d.uid), other = f && (d.j === 0 ? f.compB : f.compA);
+    if (!t || !f || !idx.comp.has(t.comp)) return null;
+    if (t.comp === other) return { uid: t.comp, comp: t.comp, ok: false, msg: 'Lato A e lato B devono essere due componenti diversi.' };
+    return { uid: t.comp, comp: t.comp, ok: true };
+  }
   const c = idx.cable.get(d.uid);
   if (!t || !c || !idx.conn.has(t.uid)) return null;
   const others = c.ends.filter((x, j) => j !== d.j);
@@ -8584,6 +8653,76 @@ function cloneDraftOf(srcC, preset) {
   d._clone = { src: srcC.uid, ifs: true, cables: true, connMap };
   return d;
 }
+/* Copie di interfacce e cavi dei componenti duplicati. compMap: originale → copia; connMap: connettore originale → copia.
+   Fra componenti duplicati insieme si collegano le copie; verso gli altri componenti il lato (o l'estremo) resta
+   non collegato: le copie non si agganciano mai ai componenti esistenti */
+function cloneLinks(st, compMap, connMap, opts) {
+  const ifMap = new Map();
+  let ifs = 0, cables = 0;
+  if (opts.ifs) st.interfaces.filter((f) => compMap.has(f.compA) || compMap.has(f.compB)).forEach((f) => {
+    const nf = Object.assign(clone(f), { uid: newUid('i'), id: '', compA: compMap.get(f.compA) || '', compB: compMap.get(f.compB) || '' });
+    delete nf.pos;
+    ifMap.set(f.uid, nf.uid);
+    st.interfaces.push(nf);
+    ifs++;
+  });
+  if (opts.cables) st.cables.filter((c) => (c.ends || []).some((e) => compMap.has(e.comp))).forEach((c) => {
+    const nc = Object.assign(clone(c), {
+      uid: newUid('w'), id: takeCableId(st), branch: null,
+      ifaceUids: (c.ifaceUids || []).map((u) => ifMap.get(u)).filter(Boolean),
+      ends: c.ends.map((e) => (compMap.has(e.comp) ? { comp: compMap.get(e.comp), conn: connMap.get(e.conn) || '', plugType: e.plugType || '' } : { comp: '', conn: '', plugType: e.plugType || '' }))
+    });
+    st.cables.push(nc);
+    cables++;
+  });
+  return { ifs, cables };
+}
+/* Duplicazione di uno o più componenti selezionati sulla lavagna, con le loro interfacce e i loro cavi */
+async function duplicateComponents(uids) {
+  const comps = uids.map((u) => idx.comp.get(u)).filter(Boolean);
+  if (!comps.length) return;
+  const set = new Set(comps.map((c) => c.uid));
+  const taken = state.components.map((c) => c.id);
+  const plan = comps.map((c) => { const id = progressiveId(c.id, taken); taken.push(id); return { c, id }; });
+  const ifsAll = state.interfaces.filter((f) => set.has(f.compA) || set.has(f.compB));
+  const cbsAll = state.cables.filter((c) => (c.ends || []).some((e) => set.has(e.comp)));
+  const ifIn = ifsAll.filter((f) => set.has(f.compA) && set.has(f.compB)).length;
+  const cbIn = cbsAll.filter((c) => c.ends.every((e) => set.has(e.comp))).length;
+  const ckIf = h('input', { type: 'checkbox', checked: ifsAll.length > 0, disabled: !ifsAll.length, 'data-dup': 'ifs' });
+  const ckCb = h('input', { type: 'checkbox', checked: cbsAll.length > 0, disabled: !cbsAll.length, 'data-dup': 'cables' });
+  const body = [
+    h('p', null, 'Nuove copie: ', h('b', null, plan.map((x) => x.c.id + ' → ' + x.id).join(', ')), '. Si copiano dati, PN e connettori con il pinout (non gli allegati).'),
+    h('label', { class: 'check-line' }, ckIf, h('span', null, 'Clona le interfacce (' + ifsAll.length + ': ' + ifIn + ' fra i componenti selezionati)')),
+    h('label', { class: 'check-line' }, ckCb, h('span', null, 'Clona i cavi (' + cbsAll.length + ': ' + cbIn + ' fra i componenti selezionati), con nuovi ID W-…')),
+    h('div', { class: 'msg-box info' }, 'Interfacce e cavi fra i componenti selezionati collegano le copie fra loro. Quelli verso altri componenti restano ', h('b', null, 'non collegati'),
+      ' dal lato esterno (sulla lavagna finiscono in un cerchietto «?» da trascinare dove serve): le copie non si agganciano mai ai componenti esistenti.')
+  ];
+  const ok = await showModal({ title: comps.length > 1 ? 'Duplica ' + comps.length + ' componenti' : 'Duplica ' + comps[0].id, body,
+    buttons: [{ label: 'Annulla', value: false }, { label: 'Duplica', value: true, cls: 'primary' }] });
+  if (!ok) return;
+  const opts = { ifs: ckIf.checked, cables: ckCb.checked };
+  // le copie vanno sotto la selezione, con la stessa disposizione relativa
+  let y0 = Infinity, y1 = -Infinity;
+  comps.forEach((c) => { const g = lastGeom && lastGeom.get(c.uid); const y = Number(c.y) || 0; y0 = Math.min(y0, y); y1 = Math.max(y1, y + (g ? g.h : 120)); });
+  const dy = snapV(y1 - y0 + 80);
+  const compMap = new Map(), connMap = new Map(), newUids = [];
+  let n = { ifs: 0, cables: 0 };
+  const done = commit((st) => {
+    plan.forEach(({ c, id }) => {
+      const nc = Object.assign(clone(c), { uid: newUid('c'), id, attachments: [], boardImage: '', x: Number(c.x) || 0, y: (Number(c.y) || 0) + dy });
+      delete nc.boardImageSize;
+      nc.connectors = (c.connectors || []).map((k) => { const nk = Object.assign(clone(k), { uid: newUid('k') }); connMap.set(k.uid, nk.uid); return nk; });
+      compMap.set(c.uid, nc.uid);
+      newUids.push(nc.uid);
+      st.components.push(nc);
+    });
+    n = cloneLinks(st, compMap, connMap, opts);
+  }, null, 'Duplicati ' + plan.map((x) => x.c.id + ' → ' + x.id).join(', '));
+  if (!done) return;
+  setMultiSel(newUids);
+  toast('Duplicati ' + plural(plan.length, 'componente', 'componenti') + ' con ' + plural(n.ifs, 'interfaccia', 'interfacce') + ' e ' + plural(n.cables, 'cavo', 'cavi') +
+    '. I collegamenti verso i componenti non duplicati restano da completare.', 'ok', 7000);
+}
 function openComponentPanel(uid, preset, focusConnUid) {
   const isNew = !uid;
   const src = isNew ? null : idx.comp.get(uid);
@@ -8652,7 +8791,7 @@ function openComponentPanel(uid, preset, focusConnUid) {
           cloneSrc ? h('div', null,
             ck('ifs', 'Clona anche le interfacce di ' + cloneSrc.id, nIf),
             ck('cables', 'Clona anche i cavi di ' + cloneSrc.id + ' (sui connettori corrispondenti, con nuovi ID W-…)', nCb),
-            h('div', { class: 'fld-hint' }, 'Gli ID delle interfacce si aggiornano da soli con il nuovo ID del componente; i cavi clonati portano le interfacce clonate.')) : null));
+            h('div', { class: 'fld-hint' }, 'Le interfacce e i cavi clonati non si collegano ai componenti esistenti: il lato verso gli altri componenti resta «non collegato». Per collegare fra loro più copie, selezionale insieme sulla lavagna e usa «Duplica…» (clic destro).')) : null));
       }
       kids.push(grid, customFieldsSection('component', d),
         h('div', { class: 'sp-section', 'data-field': 'connectors' }, h('h3', null, 'Connettori', h('span', { class: 'count', 'data-conn-count': '' }, '(' + d.connectors.length + ')'), h('span', { class: 'spacer' }),
@@ -8718,22 +8857,9 @@ function openComponentPanel(uid, preset, focusConnUid) {
         if (i >= 0) st.components[i] = clean; else st.components.push(clean);
         applyReqLinks(st, 'component', clean.uid, d._reqs, d._newReqs);
         if (!cl) return;
-        // interfacce clonate: stesso lato remoto, ID ricalcolato automaticamente
-        const ifMap = new Map();
-        if (cl.ifs) st.interfaces.filter((f) => f.compA === cl.src || f.compB === cl.src).forEach((f) => {
-          const nf = Object.assign(clone(f), { uid: newUid('i'), id: '', compA: f.compA === cl.src ? clean.uid : f.compA, compB: f.compB === cl.src ? clean.uid : f.compB });
-          ifMap.set(f.uid, nf.uid);
-          st.interfaces.push(nf);
-          nIf++;
-        });
-        // cavi clonati: l'estremo sul componente originale passa al connettore corrispondente del clone
-        if (cl.cables) st.cables.filter((c) => (c.ends || []).some((e) => e.comp === cl.src)).forEach((c) => {
-          const nc = Object.assign(clone(c), { uid: newUid('w'), id: takeCableId(st), branch: null,
-            ifaceUids: (c.ifaceUids || []).map((u) => ifMap.get(u)).filter(Boolean),
-            ends: c.ends.map((e) => (e.comp === cl.src ? { comp: clean.uid, conn: cl.connMap[e.conn] || '', plugType: e.plugType || '' } : clone(e))) });
-          st.cables.push(nc);
-          nCb++;
-        });
+        // interfacce e cavi clonati: verso gli altri componenti restano non collegati (mai agganciati agli originali)
+        const n = cloneLinks(st, new Map([[cl.src, clean.uid]]), new Map(Object.entries(cl.connMap)), cl);
+        nIf = n.ifs; nCb = n.cables;
       }, (isNew ? 'Componente ' + clean.id + ' creato' : 'Componente ' + clean.id + ' aggiornato')) &&
         (!cl || toast('Clonati da ' + ((idx.comp.get(cl.src) || {}).id || '') + ': ' + plural(nIf, 'interfaccia', 'interfacce') + ' e ' + plural(nCb, 'cavo', 'cavi') + '.', 'ok', 5000) || true);
     }
@@ -9162,7 +9288,8 @@ function openInterfacePanel(uid, preset) {
     return false;
   };
   sortSides(draft);
-  const autoId = (d) => (idx.comp.get(d.compA) && idx.comp.get(d.compB) ? previewIfaceId(d) : '');
+  const autoId = (d) => (idx.comp.get(d.compA) || idx.comp.get(d.compB) ? previewIfaceId(d) : '');
+  const sideOpts = () => compOptions('— non collegato —');
   const ifTitle = (d) => (autoId(d) || '(ID automatico)') + (d.rev ? ' rev ' + d.rev : '');
   draft._reqs = isNew ? [] : (idx.reqsByObj.get(uid) || []).map((r) => r.uid);
   draft._newReqs = [];
@@ -9176,10 +9303,10 @@ function openInterfacePanel(uid, preset) {
     build: (d) => {
       let cASel = null, cBSel = null;
       const onComp = () => {
-        if (sortSides(d)) { fillSelect(cASel, compOptions(), d.compA); fillSelect(cBSel, compOptions(), d.compB); }
+        if (sortSides(d)) { fillSelect(cASel, sideOpts(), d.compA); fillSelect(cBSel, sideOpts(), d.compB); }
       };
-      cASel = selectFor(d, 'compA', compOptions(), null, onComp, { label: 'Nuovo componente…', onAdd: async () => { const r = await quickCreateComponent(); if (r) fillSelect(cBSel, compOptions(), d.compB); return r; } });
-      cBSel = selectFor(d, 'compB', compOptions(), null, onComp, { label: 'Nuovo componente…', onAdd: async () => { const r = await quickCreateComponent(); if (r) fillSelect(cASel, compOptions(), d.compA); return r; } });
+      cASel = selectFor(d, 'compA', sideOpts(), null, onComp, { label: 'Nuovo componente…', onAdd: async () => { const r = await quickCreateComponent(); if (r) fillSelect(cBSel, sideOpts(), d.compB); return r; } });
+      cBSel = selectFor(d, 'compB', sideOpts(), null, onComp, { label: 'Nuovo componente…', onAdd: async () => { const r = await quickCreateComponent(); if (r) fillSelect(cASel, sideOpts(), d.compA); return r; } });
       const subOpts = () => [{ value: '', label: '— non indicato —' }].concat(subtypesOf(d.category));
       const subSel = selectFor(d, 'subtype', subOpts(), null, null, { label: 'Nuovo valore di Livello 2…', onAdd: () => quickCreateSubtype(d.category), listKey: () => 'sub:' + d.category });
       const catHint = h('span');
@@ -9207,9 +9334,9 @@ function openInterfacePanel(uid, preset) {
           fld(helpLabel('Interfaccia Livello 1', 'categoria'), catSel, { required: true, field: 'category', hint: catHint }),
           fld('Interfaccia Livello 2', subSel, { field: 'subtype', hint: 'Voci dei menu: − rimuove, ＋ aggiunge, ⚙ gestisce l’elenco' })),
         h('div', { class: 'form-grid', style: { marginTop: '12px' } },
-          h('div', { class: 'endpoint-box' }, h('h4', null, 'Lato A'), fld('Componente A', cASel, { required: true, field: 'compA' })),
-          h('div', { class: 'endpoint-box' }, h('h4', null, 'Lato B'), fld('Componente B', cBSel, { required: true, field: 'compB' }))),
-        h('div', { class: 'fld-hint', style: { marginTop: '6px' } }, 'Lato A e lato B seguono l’ordine alfabetico degli ID dei componenti.'),
+          h('div', { class: 'endpoint-box' }, h('h4', null, 'Lato A'), fld('Componente A', cASel, { field: 'compA' })),
+          h('div', { class: 'endpoint-box' }, h('h4', null, 'Lato B'), fld('Componente B', cBSel, { field: 'compB' }))),
+        h('div', { class: 'fld-hint', style: { marginTop: '6px' } }, 'Lato A e lato B seguono l’ordine alfabetico degli ID dei componenti. Un lato può restare «non collegato» finché il componente non è noto.'),
         h('div', { class: 'form-grid', style: { marginTop: '12px' } },
           fld('Descrizione dello scambio', textareaFor(d, 'description', { rows: 3, placeholder: 'Dati, segnali o energia scambiati, protocollo, frequenza, formati…' }), { wide: true }),
           fld('Owner', selectFor(d, 'owner', ownerOptions(), null, null, addList('owners')), { field: 'owner' }),
@@ -9264,6 +9391,9 @@ function openInterfacePanel(uid, preset) {
       clean.rev = str(clean.rev).trim();
       clean.custom = cleanCustom(clean.custom, 'interface');
       sortSides(clean);
+      const curF = idx.iface.get(clean.uid), pos = {};
+      ['A', 'B'].forEach((sd) => { const p0 = (curF && curF.pos && curF.pos[sd]) || (d.pos && d.pos[sd]); if (!clean['comp' + sd] && p0) pos[sd] = { x: p0.x, y: p0.y }; });
+      if (Object.keys(pos).length) clean.pos = pos; else delete clean.pos;
       clean.id = previewIfaceId(clean);
       const revNote = !isNew && str(src.rev) !== clean.rev ? ' (rev ' + (src.rev || '—') + ' → ' + (clean.rev || '—') + ')' : '';
       const idNote = !isNew && src.id !== clean.id ? ' (ID ' + src.id + ' → ' + clean.id + ')' : '';
@@ -9313,8 +9443,10 @@ function validateInterface(d) {
   if (d.subtype && !subtypesOf(d.category).includes(d.subtype)) W.push({ m: 'Il Livello 2 “' + d.subtype + '” non è previsto per ' + d.category + '.' });
   if (!d.subtype && subtypesOf(d.category).length) W.push({ f: 'subtype', m: 'Interfaccia Livello 2 non indicata: l’ID conterrà solo il Livello 1.' });
   const cA = idx.comp.get(d.compA), cB = idx.comp.get(d.compB);
-  if (!cA) E.push({ f: 'compA', m: 'Seleziona il componente A.' });
-  if (!cB) E.push({ f: 'compB', m: 'Seleziona il componente B.' });
+  if (!d.compA && !d.compB) E.push({ f: 'compA', m: 'Seleziona almeno un componente (lato A o lato B): l’altro lato può restare non collegato.' });
+  else ['A', 'B'].forEach((sd) => { if (!d['comp' + sd]) W.push({ f: 'comp' + sd, m: 'Lato ' + sd + ' non collegato: l’interfaccia resta da completare.' }); });
+  if (d.compA && !cA) E.push({ f: 'compA', m: 'Il componente A non esiste più: scegline un altro.' });
+  if (d.compB && !cB) E.push({ f: 'compB', m: 'Il componente B non esiste più: scegline un altro.' });
   if (cA && cB && cA.uid === cB.uid) E.push({ f: 'compB', m: 'Lato A e lato B devono essere due componenti diversi.' });
   const cbs = idx.cablesByIface.get(d.uid) || [];
   const mism = cbs.filter((c) => cA && cB && !cableMayCarry(c, d));
@@ -10023,8 +10155,8 @@ const TABLES = {
       { key: 'rev', label: 'Rev', cls: 'nowrap', get: (f) => f.rev || '' },
       { key: 'category', label: 'Livello 1', cls: 'nowrap', get: (f) => f.category, render: (f) => h('span', null, h('span', { class: 'swatch', style: { background: categoryColor(f.category) } }), f.category || '—', levelsKnown(f) ? null : h('span', { class: 'ico-warn', title: 'Livelli non previsti nelle impostazioni: assegna i nuovi livelli', style: { marginLeft: '4px' } }, '!')) },
       { key: 'subtype', label: 'Livello 2', cls: 'nowrap', get: (f) => f.subtype },
-      { key: 'compA', label: 'Comp. A', get: (f) => compIdOf(f.compA) || '', render: (f) => compCell(f.compA) },
-      { key: 'compB', label: 'Comp. B', get: (f) => compIdOf(f.compB) || '', render: (f) => compCell(f.compB) },
+      { key: 'compA', label: 'Comp. A', get: (f) => (f.compA ? compIdOf(f.compA) || '' : 'non collegato'), render: (f) => (f.compA ? compCell(f.compA) : h('span', { class: 'free-end' }, '○ non collegato')) },
+      { key: 'compB', label: 'Comp. B', get: (f) => (f.compB ? compIdOf(f.compB) || '' : 'non collegato'), render: (f) => (f.compB ? compCell(f.compB) : h('span', { class: 'free-end' }, '○ non collegato')) },
       { key: 'description', label: 'Descrizione dello scambio', cls: 'text', get: (f) => f.description },
       { key: 'reqs', label: 'Requisiti', get: (f) => reqIds(f.uid), render: (f) => reqChips(f.uid) },
       { key: 'ncab', label: 'N. cavi', cls: 'num', get: (f) => (idx.cablesByIface.get(f.uid) || []).length, render: (f) => { const n = (idx.cablesByIface.get(f.uid) || []).length; return n ? String(n) : h('span', { class: 'ico-warn', title: 'Nessun cavo' }, '0'); } },
@@ -10706,7 +10838,7 @@ const DASH_GAP = 16;
 const CHECK_STATES = [['error', 'Errore'], ['warning', 'Avviso'], ['info', 'Info'], ['ok', 'OK']];
 const CHECK_CATS = [
   ['ifNoCable', 'Interfacce senza cavi'], ['ifNoReq', 'Interfacce senza requisiti'], ['connNoPin', 'Connettori collegati senza pinout'],
-  ['connNoDir', 'Connettori senza direzione'], ['connNoType', 'Connettori senza tipologia (componente e cavo)'],
+  ['connNoDir', 'Connettori senza direzione'], ['connNoType', 'Connettori senza tipologia (componente e cavo)'], ['ifFree', 'Interfacce con un lato non collegato'],
   ['cblNoConn', 'Cavi con estremi senza connettore'], ['cblFree', 'Cavi penzolanti'], ['cblUnplaced', 'Cavi senza estremi collegati (solo in tabella, non sulla lavagna)'], ['cblNoIf', 'Cavi senza interfaccia'],
   ['reqNotApproved', 'Requisiti non approvati'], ['toVerify', 'Oggetti in stato “Da verificare”'],
   ['connUnused', 'Connettori non cablati'], ['badRef', 'Riferimenti non validi'], ['dupId', 'ID duplicati'], ['pinDup', 'Pin ripetuti nei connettori'], ['missing', 'Campi obbligatori mancanti'],
@@ -11175,9 +11307,11 @@ function normalizeData(raw) {
       const cv = f['comp' + sd] != null ? f['comp' + sd] : f['component' + sd];
       let comp = compRef(cv);
       if (!comp && f['port' + sd]) { const m = portMap.get(str(f['port' + sd])); if (m) comp = out.components.find((c) => c.uid === m.comp); }
-      if (!comp) warnings.push(label + ': componente ' + sd + ' “' + str(cv) + '” non trovato.');
-      return comp ? comp.uid : str(cv);
+      if (!comp && str(cv).trim()) warnings.push(label + ': componente ' + sd + ' “' + str(cv) + '” non trovato: il lato resta non collegato.');
+      return comp ? comp.uid : '';
     };
+    // formato 11: lato non collegato, con la posizione scelta sulla lavagna
+    const posOf = (sd) => { const v = isObj(f.pos) ? f.pos[sd] : null; return isObj(v) && Number.isFinite(Number(v.x)) && Number.isFinite(Number(v.y)) ? { x: Math.round(Number(v.x)), y: Math.round(Number(v.y)) } : null; };
     let category = str(f.category).trim(), subtype = str(f.subtype).trim();
     if (!category && f.type != null && str(f.type).trim()) {
       const m = LEGACY_IF_TYPES[str(f.type).trim()];
@@ -11191,8 +11325,12 @@ function normalizeData(raw) {
       if (nm) description = nm + (description ? ' — ' + description : '');
       if (pr) description += (description ? '\n' : '') + 'Protocollo / standard: ' + pr;
     }
-    out.interfaces.push({ uid: takeUid(f.uid, 'i'), id: str(f.id).trim(), rev: str(f.rev).trim(), custom: customOf(f, 'interface'), compA: side('A'), compB: side('B'),
-      category, subtype, description, owner: pick(f.owner, out.lists.owners, 'Da assegnare'), status: pick(f.status, out.lists.statuses, 'Da verificare') });
+    const nf = { uid: takeUid(f.uid, 'i'), id: str(f.id).trim(), rev: str(f.rev).trim(), custom: customOf(f, 'interface'), compA: side('A'), compB: side('B'),
+      category, subtype, description, owner: pick(f.owner, out.lists.owners, 'Da assegnare'), status: pick(f.status, out.lists.statuses, 'Da verificare') };
+    const pos = {};
+    ['A', 'B'].forEach((sd) => { if (!nf['comp' + sd] && posOf(sd)) pos[sd] = posOf(sd); });
+    if (Object.keys(pos).length) nf.pos = pos;
+    out.interfaces.push(nf);
   });
   // formato 10: "Dati analogici" e "Dati discreti" non sono più valori predefiniti di Livello 2 di Segnale:
   // si tolgono dai progetti precedenti se nessuna interfaccia li usa
@@ -11762,10 +11900,11 @@ function openHelp(topic) {
         ['Un componente può non avere connettori (es. una struttura collegata solo da interfacce meccaniche).'],
         [B('Etichetta'), ': oltre a scriverla puoi sceglierla dall’elenco delle etichette già usate nel progetto (per scrivere sempre allo stesso modo, ad es. “28 VDC IN”); il campo può restare vuoto.'],
         [B('Direzione'), ': un nuovo connettore parte con direzione “non definita”; la Dashboard elenca i ', B('connettori senza direzione'), ' e quelli ', B('senza tipologia'), ' (lato componente e tipo di connettore del cavo), indicando se sono già cablati.'])),
-    S('clonare', 'Clonare un componente con le sue interfacce e i suoi cavi',
-      UL(['Nella scheda di un componente “', B('Duplica…'), '” apre un nuovo componente già compilato; la stessa scelta c’è in “+ Componente”, nella sezione ', B('Clona da un componente esistente'), '.'],
-        ['Si copiano dati, PN e connettori con il pinout; l’ID diventa il successivo libero (RAD1 → RAD2, VCU → VCU-2). Gli allegati non vengono copiati.'],
-        ['Con “Clona anche le interfacce” nascono interfacce uguali verso gli stessi componenti, con l’ID automatico aggiornato; con “Clona anche i cavi” nascono cavi con nuovi ID W-… sui connettori corrispondenti del clone, che portano le interfacce clonate.'],
+    S('clonare', 'Duplicare componenti con le loro interfacce e i loro cavi',
+      UL(['Si copiano dati, PN e connettori con il pinout; l’ID diventa il successivo libero (RAD1 → RAD2, VCU → VCU-2). Gli allegati non vengono copiati.'],
+        [B('Le copie non si collegano mai ai componenti esistenti'), ': interfacce e cavi clonati collegano solo componenti duplicati insieme; verso gli altri componenti il lato (o l’estremo) resta ', B('non collegato'), ' e sulla lavagna finisce in un cerchietto «?» da trascinare dove serve.'],
+        [B('Più componenti insieme'), ': selezionali sulla lavagna (Ctrl + clic o Maiusc + rettangolo), poi clic destro → “', B('Duplica i componenti selezionati…'), '” (oppure ', B('Ctrl+D'), '). Le interfacce e i cavi fra di loro collegano le copie; le copie compaiono sotto la selezione e restano selezionate.'],
+        ['Un solo componente: clic destro sul blocco → “Duplica…”, Ctrl+D, “', B('Duplica…'), '” nella sua scheda, oppure “+ Componente” → ', B('Clona da un componente esistente'), ' (qui puoi modificare i dati prima di crearlo).'],
         ['Tutto si annulla con un solo Ctrl+Z.'])),
     S('categoria', 'Interfaccia Livello 1 e Livello 2',
       P('Ogni interfaccia è classificata su due livelli; le sigle compongono l’ID automatico:'),
@@ -11793,7 +11932,8 @@ function openHelp(topic) {
         ['Sulla lavagna l’estremo non collegato è un ', B('cerchietto con “?”'), ': trascinalo per spostarlo, oppure rilascialo su un connettore per collegarlo (il connettore si evidenzia). Esc annulla il trascinamento; clic destro → posizione automatica.'],
         ['Un cavo ', B('senza alcun estremo collegato'), ' non compare sulla lavagna: lo trovi nella tabella Cavi (la legenda della vista cavi ne indica il numero).'],
         ['Nella tabella Cavi il filtro ', B('Da completare'), ' mostra i cavi penzolanti, quelli senza estremi collegati e quelli senza interfaccia. La Dashboard ne riporta il numero nella casella Cavi, nella scheda “Cavi da completare” (con “Mostra” per aprire la tabella filtrata) e fra i controlli.'],
-        [B('Eliminazioni'), ': eliminando un componente i suoi cavi restano, con l’estremo su quel componente non collegato (vicino a dove si trovava); eliminando un’interfaccia i cavi restano, eventualmente senza interfaccia.'])),
+        [B('Eliminazioni'), ': eliminando un componente i suoi cavi restano, con l’estremo su quel componente non collegato (vicino a dove si trovava); eliminando un’interfaccia i cavi restano, eventualmente senza interfaccia.'],
+        [B('Interfacce con un lato non collegato'), ': anche un’interfaccia può avere il componente A o B “— non collegato —” (per esempio dopo una duplicazione). L’ID mostra “?” al posto del componente mancante (es. SEG.COM:RAD-2.?); nella vista interfacce il lato finisce in un cerchietto «?» che si trascina su un componente per collegarlo. La Dashboard le segnala come avvisi.'])),
     S('stati', 'Stati, cavi alla creazione dell’interfaccia',
       UL(['Nelle schede e nelle tabelle il campo si chiama ', B('Stato componente'), ', ', B('Stato interfaccia'), ' o ', B('Stato cavo'), ' (anche nelle esportazioni).'],
         ['Un cavo può essere ', B('Concordata'), ' in ogni momento; negli stati ', B('Baselined'), ' e ', B('Verified'), ' gli estremi collegati devono avere connettore del componente e tipo di connettore cavo.'],
@@ -12020,8 +12160,8 @@ function setupGlobalHandlers() {
       if (ui.multiSel.length && ui.section === 'board') { ui.multiSel = []; renderBoard(); return; }
       if (drag && drag.type === 'label') { labelPreview = null; drag = null; B.svg.classList.remove('label-move'); renderBoard(); return; }
       if (drag && drag.type === 'fend') {
-        const c = idx.cable.get(drag.uid), e0 = c && c.ends[drag.j];
-        if (e0) { if (drag.pos0) e0.pos = drag.pos0; else delete e0.pos; }
+        const fr = freeEndOf(drag.kind, drag.uid, drag.j);
+        if (fr) fr.setPos(drag.pos0);
         drag = null; B.svg.classList.remove('fend-move'); renderBoard(); return;
       }
       if (panelCtx) { e.preventDefault(); requestClosePanel(); return; }
@@ -12036,6 +12176,11 @@ function setupGlobalHandlers() {
       if (k === 'y' || (k === 'z' && e.shiftKey)) { e.preventDefault(); redo(); return; }
     }
     if (mod && e.key.toLowerCase() === 's' && panelCtx) { e.preventDefault(); panelSave(); return; }
+    // Ctrl+D sulla lavagna: duplica i componenti selezionati
+    if (mod && e.key.toLowerCase() === 'd' && !isTyping(e) && ui.section === 'board' && !panelCtx) {
+      const sel = ui.multiSel.length > 1 ? ui.multiSel.slice() : (ui.selected && ui.selected.kind === 'component' ? [ui.selected.uid] : []);
+      if (sel.length) { e.preventDefault(); duplicateComponents(sel); return; }
+    }
     if (e.key.indexOf('Arrow') === 0 && !mod && !e.altKey && !isTyping(e) && ui.section === 'board' && (ui.selected || ui.multiSel.length > 1)) {
       const step = e.shiftKey ? 10 : 1;
       const dx = e.key === 'ArrowLeft' ? -step : (e.key === 'ArrowRight' ? step : 0), dy = e.key === 'ArrowUp' ? -step : (e.key === 'ArrowDown' ? step : 0);

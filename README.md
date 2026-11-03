@@ -17,12 +17,12 @@ Sostituire o aggiornare il file HTML **non tocca i dati**. Con l'archivio del br
 
 ## Versioni e migrazione dei dati
 
-- `APP.version` è il rilascio dell'applicazione, "Rev X.YY", per esempio `4.01`:
+- `APP.version` è il rilascio dell'applicazione, "Rev X.YY", per esempio `4.02`:
   - **Major** (1.15 → 2.00) per cambiamenti sostanziali, come un nuovo formato dei dati;
   - **Minor** (1.15 → 1.16) per correzioni e miglioramenti.
 
   La numerazione è ripartita da Rev 1.00 dopo il rilascio 3.3.
-- `APP.schema` è la versione del **formato dei dati**, per esempio `10`.
+- `APP.schema` è la versione del **formato dei dati**, per esempio `11`.
 
 Ogni progetto, versione, esportazione e backup registra il formato con cui è stato salvato.
 
@@ -129,6 +129,7 @@ Le verifiche automatiche, in Playwright, coprono:
 - lavagna, instradamento e punti di instradamento, spostamento con mouse e frecce di blocchi, gruppi ed etichette;
 - ID automatici di interfacce (`L1.L2:A.B`, lati in ordine alfabetico, suffissi -2…) e cavi (W-001…, numeri mai riusati), sigle dei livelli modificabili;
 - connettori (tabella nella scheda del componente con etichetta, tipologia, direzione, pinout e riordino a trascinamento; pinout condiviso con l'estremo del cavo), cavi da connettore a connettore con più interfacce, cavi ramificati e punto di diramazione, finestra "Nuovo cavo";
+- duplicazione di più componenti insieme (le copie si collegano solo fra loro, il resto resta non collegato) e interfacce con un lato non collegato;
 - Auto-Rerouting con le etichette poco leggibili e le opzioni sui componenti (fermi, spostamenti minimi, disposizione completa); etichette sempre orizzontali; tasto senza nome (voce suggerita di un elenco) senza errori;
 - lavagna (Rev 4.00): selezione multipla, scorrimento automatico, immagini ridimensionabili, PN nei blocchi, etichette senza riquadro sul percorso, opzioni ID / PN dei cavi, interfacce senza cavi come nella vista interfacce, clonazione di componenti con interfacce e cavi;
 - dashboard personalizzabile (schede spostabili, ridimensionabili, nascondibili), controlli per stato, matrice N² con prima riga e colonna bloccate, connettori senza direzione / tipologia;
@@ -142,7 +143,7 @@ Le verifiche automatiche, in Playwright, coprono:
 - schede e menu a tendina modificabili ("−" per rimuovere una voce, "＋ Aggiungi…"), gestione dei valori in Impostazioni con rinomina propagata agli oggetti;
 - colonne visibili per tabella, campi personalizzati (colonne, filtri, ricerca, ordinamento, CSV), revisione delle interfacce ed esportazione CSV delle interfacce;
 - filtri, allegati e progetti;
-- importazione ed esportazione, backup e migrazione dei dati (dal formato 9: dimensione delle immagini, PN nei blocchi, etichette sul percorso, Livello 2 non usati; dal formato 8: posizione degli estremi non collegati; dal formato 7: funzione dei connettori → etichetta, sigla ELP; dal formato 6: porte nei connettori e finestra di assegnazione dei nuovi livelli e funzioni; cavi del formato 5 con il loro pinout);
+- importazione ed esportazione, backup e migrazione dei dati (dal formato 10: interfacce con un lato non collegato; dal formato 9: dimensione delle immagini, PN nei blocchi, etichette sul percorso, Livello 2 non usati; dal formato 8: posizione degli estremi non collegati; dal formato 7: funzione dei connettori → etichetta, sigla ELP; dal formato 6: porte nei connettori e finestra di assegnazione dei nuovi livelli e funzioni; cavi del formato 5 con il loro pinout);
 - sincronizzazione GitHub, su un server simulato;
 - cartella di lavoro condivisa: due computer simulati sulla stessa cartella (presenza, aggiornamenti, conflitti, copie di conflitto di OneDrive, rinomina dei progetti) e cartelle reali del browser (cartella ricordata, conferma dell'accesso all'avvio).
 
