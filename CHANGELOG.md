@@ -8,6 +8,26 @@ Ogni rilascio dell'applicazione indica il formato dei dati (`schema`) che produc
 
 Ogni rilascio ha in Git il tag `rev-X.YY`. I rilasci precedenti (da 1.0 a 3.3) sono elencati più sotto con la loro numerazione originale.
 
+## Rev 4.01 — formato dati 10
+
+**Correzioni**
+- Scegliere una voce suggerita nell'elenco "Etichetta" dei connettori non provoca più l'errore JavaScript "Cannot read properties of undefined (reading 'indexOf')". Chrome invia in quel momento un evento tastiera senza il nome del tasto, che ora viene ignorato.
+- Zoom ridotto: torna la soluzione precedente, senza ridimensionamento automatico dei testi. Il riquadro ingrandito con ID e nome sui blocchi e l'ingrandimento delle etichette, che disallineavano il testo nei componenti, sono stati tolti.
+
+**Etichette**
+- Le etichette sono sempre orizzontali. Il posizionamento automatico preferisce i tratti orizzontali; sui tratti verticali il testo sta accanto alla linea.
+
+**Auto-Rerouting**
+- Cerca le etichette poco leggibili: sovrapposte a un'altra etichetta, sopra un blocco o attraversate da altre linee.
+- Una finestra permette di scegliere come trattare i componenti:
+  - **Non spostarli**: si ricalcolano percorsi ed etichette;
+  - **Spostamenti minimi**: si crea spazio orizzontale solo dove le etichette si sovrappongono, e la disposizione resta quella dell'utente;
+  - **Disposizione completa**: i componenti vengono ridisposti a colonne secondo i collegamenti, con i gruppi compatti e il più collegato al centro. L'app prova alcune varianti e tiene quella con meno etichette poco leggibili e meno incroci.
+- I percorsi modificati a mano si possono mantenere (non con la disposizione completa).
+- Le etichette spostate a mano che risultano poco leggibili tornano alla posizione automatica.
+- Il riepilogo finale indica le etichette poco leggibili prima e dopo, gli incroci e i componenti spostati. Un solo Ctrl+Z annulla tutto.
+- L'ultima scelta sui componenti resta salvata nel browser.
+
 ## Rev 4.00 — formato dati 10
 
 **Lavagna**

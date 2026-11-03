@@ -400,9 +400,6 @@ table.grid td.act { white-space: nowrap; text-align: right; }
 .comp-pn { font-family: var(--mono); }
 .comp.ext .ext-body { fill: #fff; stroke: #5b6b7d; stroke-width: 1; stroke-dasharray: 4 3; }
 .comp.ext .ext-ref { font: 600 10.5px var(--mono); fill: #2d3a48; }
-.comp-zt rect { fill: #fff; fill-opacity: .94; stroke: #3f4b59; stroke-width: .8; }
-.comp-zt text { font-weight: 700; fill: #16202d; }
-.comp.selected .comp-zt rect { stroke: var(--accent); }
 .img-grip { cursor: nwse-resize; }
 #layerTemp .rubber { fill: rgba(29, 95, 191, .08); stroke: var(--primary); stroke-width: 1; stroke-dasharray: 4 3; vector-effect: non-scaling-stroke; }
 .img-grip-hit { fill: transparent; }
@@ -925,7 +922,7 @@ table.n2 td .chip { margin: 1px; }
       <div class="board-empty" id="boardEmpty" hidden>Nessun componente. Usa “+ Componente” per iniziare.</div>
       <div class="board-tools" id="boardTools" role="toolbar" aria-label="Strumenti di instradamento">
         <span class="bt-title">Instradamento</span>
-        <button type="button" class="btn sm primary" id="btnReroute" title="Ricalcola tutti i percorsi della vista corrente: linee ortogonali, meno incroci e meno piegature. Le modifiche manuali vengono sostituite (Ctrl+Z per annullare).">↻ Auto-Rerouting</button>
+        <button type="button" class="btn sm primary" id="btnReroute" title="Ricalcola i percorsi della vista corrente (linee ortogonali, meno incroci e piegature) e rende leggibili le etichette, spostando a scelta i componenti (Ctrl+Z per annullare).">↻ Auto-Rerouting</button>
         <button type="button" class="btn sm" id="btnBoardUndo">↶ Annulla</button>
         <button type="button" class="btn sm" id="btnBoardRedo">↷ Ripeti</button>
         <span class="tb-sep"></span>
@@ -980,7 +977,7 @@ const APP = {
   format: 'IDV-Interface-Manager',
   projectFormat: 'IDV-Interface-Manager-Project',
   backupFormat: 'IDV-Interface-Manager-Backup',
-  version: '4.00',         // rilascio dell'applicazione (Rev X.YY: major.minor)
+  version: '4.01',         // rilascio dell'applicazione (Rev X.YY: major.minor)
   schema: 10,              // versione del formato dei dati di progetto (vedi normalizeData)
   legacyModelKey: 'idv-interface-manager.model.v1',
   uiKey: 'idv-interface-manager.ui.v1',
@@ -1226,6 +1223,7 @@ const ui = {
   legendMin: false, hintMin: false,   // legenda e descrizione dei comandi della lavagna ridotte a icona
   selected: null,          // {kind, uid}
   multiSel: [],            // selezione multipla di componenti (Ctrl/Maiusc + clic, Maiusc + trascinamento nel vuoto)
+  rerouteComps: 'small',   // Auto-Rerouting: componenti fermi ('none'), spostamenti minimi ('small') o disposizione completa ('full')
   activeWp: null,          // punto di instradamento attivo {key, k}
   filter: { hidden: [], hideComps: false },   // filtro della lavagna: 'C:categoria' / 'S:categoria/sottotipo' nascosti
   cols: {},                // colonne nascoste di ogni tabella: { interfaces: ['owner', 'cf:…'], … }
@@ -1606,7 +1604,7 @@ function saveUi() {
       section: ui.section, mode: ui.mode, zoom: ui.zoom, panX: ui.panX, panY: ui.panY, fitted: ui.fitted,
       showPorts: ui.showPorts, showGroups: ui.showGroups, showLabels: ui.showLabels, legendMin: ui.legendMin, hintMin: ui.hintMin,
       user: prefs.user, filter: ui.filter, cols: ui.cols, colsOn: ui.colsOn, colOrder: ui.colOrder, xcols: ui.xcols,
-      showConnType: ui.showConnType, cableLbl: ui.cableLbl, compPn: ui.compPn, showGrid: ui.showGrid, dash: ui.dash
+      showConnType: ui.showConnType, cableLbl: ui.cableLbl, compPn: ui.compPn, showGrid: ui.showGrid, dash: ui.dash, rerouteComps: ui.rerouteComps
     }));
   } catch (e) { /* preferenze non critiche */ }
 }
@@ -1641,6 +1639,7 @@ function loadUi() {
       else if (u.showCablePn === true) ui.cableLbl = { id: true, pnF: true, pnIdv: true };   // Rev 3.0x: un'unica opzione "PN dei cavi"
       if (isObj(u.compPn)) ui.compPn = { pnF: u.compPn.pnF !== false, pnIdv: u.compPn.pnIdv !== false };
       ui.showGrid = u.showGrid !== false;
+      if (['none', 'small', 'full'].includes(u.rerouteComps)) ui.rerouteComps = u.rerouteComps;
       if (isObj(u.dash)) {
         const ids = (a) => (Array.isArray(a) ? a.filter((x) => typeof x === 'string').slice(0, 40) : []);
         const nums = (o, lo, hi) => { const r = {}; if (isObj(o)) Object.keys(o).forEach((k) => { const v = Number(o[k]); if (Number.isFinite(v) && v >= lo && v <= hi) r[k] = v; }); return r; };
@@ -3936,6 +3935,7 @@ let lastItems = new Map(); // percorsi visualizzati nell'ultimo disegno (chiave 
 let lastRouteStats = { crossings: 0, bends: 0, manual: 0, links: 0 };
 let lastShownComps = null;
 let lastLabelPos = new Map();   // chiave del collegamento → posizione della sua etichetta (anche per le righe dei cartellini)
+let lastLabels = [];     // etichette dell'ultimo disegno (posizione, ingombro, collegamento)
 let lastLabelBoxes = []; // con il filtro "nascondi componenti non coinvolti": componenti disegnati
 let drag = null;         // operazione di trascinamento in corso
 let dragRoute = null;    // percorso in modifica manuale (anteprima durante il trascinamento)
@@ -5019,22 +5019,8 @@ function storedLabel(key) {
   if (labelPreview && labelPreview.mode === ui.mode && labelPreview.lkey === key) return { t: labelPreview.t };
   return (state.labels && state.labels[ui.mode] && state.labels[ui.mode][key]) || null;
 }
-/* Zoom indietro: ID dei componenti ed etichette non scendono sotto una dimensione leggibile a schermo
-   (circa 9,5 px); l'esportazione usa sempre le dimensioni normali */
-let boardExport = false, lastTextScale = '';
-function textScale() {
-  if (boardExport) return 1;
-  const s = 9 / (10 * ui.zoom);   // etichette: almeno 9 px a schermo
-  return s <= 1 ? 1 : Math.ceil(s * 10) / 10;
-}
-/* Titolo ingrandito dei blocchi (ID e nome) quando il nome scenderebbe sotto 9,5 px a schermo: dimensione in unità del disegno, 0 = no */
-function compTitleSize() {
-  if (boardExport || 12.5 * ui.zoom >= 9.5) return 0;
-  return Math.ceil(11 / ui.zoom);
-}
-function zoomTextSig() { return textScale() + '|' + compTitleSize(); }
-/* Punto del percorso a t, con l'orientamento del tratto (le etichette stanno sopra i tratti orizzontali,
-   a sinistra di quelli verticali, ruotate) */
+/* Punto del percorso a t, con l'orientamento del tratto (le etichette, sempre orizzontali, stanno sopra i tratti
+   orizzontali o accanto a quelli verticali) */
 function pathSpot(p, t) {
   const L = polyLength(p) || 1;
   let rest = clamp(t, 0, 1) * L;
@@ -5048,16 +5034,17 @@ function pathSpot(p, t) {
   }
   return { x: p[0].x, y: p[0].y, vert: false };
 }
-/* Etichetta appoggiata al punto: centro e ingombro (le misure lb.w, lb.h sono del testo non ruotato);
+/* Etichetta appoggiata al punto: centro e ingombro (testo sempre orizzontale, largo lb.w e alto lb.h);
    flip = dall'altra parte della linea (sotto / a destra) quando sopra non c'è spazio */
 function labelAt(lb, sp, flip) {
-  const gap = 2.5 * (lb.ts || 1), sg = flip ? -1 : 1;
+  const gap = 2.5, sg = flip ? -1 : 1;
   if (sp.vert) {
-    const x = sp.x - sg * (gap + lb.h / 2);
-    return { x, y: sp.y, ax: sp.x, ay: sp.y, vert: true, box: { x0: x - lb.h / 2, x1: x + lb.h / 2, y0: sp.y - lb.w / 2, y1: sp.y + lb.w / 2 } };
+    // tratto verticale: testo sempre orizzontale, accanto alla linea (a sinistra; flip = a destra)
+    const x = sp.x - sg * (gap + 1 + lb.w / 2);
+    return { x, y: sp.y, ax: sp.x, ay: sp.y, vert: false, onVert: true, box: { x0: x - lb.w / 2, x1: x + lb.w / 2, y0: sp.y - lb.h / 2, y1: sp.y + lb.h / 2 } };
   }
   const y = sp.y - sg * (gap + lb.h / 2);
-  return { x: sp.x, y, ax: sp.x, ay: sp.y, vert: false, box: { x0: sp.x - lb.w / 2, x1: sp.x + lb.w / 2, y0: y - lb.h / 2, y1: y + lb.h / 2 } };
+  return { x: sp.x, y, ax: sp.x, ay: sp.y, vert: false, onVert: false, box: { x0: sp.x - lb.w / 2, x1: sp.x + lb.w / 2, y0: y - lb.h / 2, y1: y + lb.h / 2 } };
 }
 function placeRouteLabels(labels, items, rects, quick) {
   const put = (lb, t, flip) => { const g = labelAt(lb, pathSpot(items[lb.li].pts, t), flip); Object.assign(lb, g, { t, flip: !!flip }); };
@@ -5111,7 +5098,7 @@ function placeRouteLabels(labels, items, rects, quick) {
       [0.5, 0.3, 0.7, 0.15, 0.85, 0.4, 0.6].forEach((f, fi) => [false, true].forEach((flip) => {
         const t = q.t0 + (q.t1 - q.t0) * f;
         const g = labelAt(lb, pathSpot(p, t), flip);
-        let sc = fi * 3 + (flip ? 8 : 0) + (q.vert ? 16 : 0) + (q.len < need ? (need - q.len) * 2 : 0) + (q.k === 0 || q.k === n - 1 ? 5 : 0);
+        let sc = fi * 3 + (flip ? 8 : 0) + (q.vert ? 45 : 0) + (q.len < need ? (need - q.len) * 2 : 0) + (q.k === 0 || q.k === n - 1 ? 5 : 0);
         placed.forEach((b) => { sc += overlap(g.box, b) * 25; });
         rects.forEach((r) => { sc += overlap(g.box, { x0: r.x0 - 3, y0: r.y0 - 3, x1: r.x1 + 3, y1: r.y1 + 3 }) * 6; });
         segs.forEach((sg) => { if (sg.li !== lb.li && segInBox(sg, g.box)) sc += 22; });
@@ -5409,8 +5396,6 @@ function renderBoard() {
   // --- collegamenti ortogonali
   let ls = '';
   const labels = [];
-  const ts = textScale();
-  lastTextScale = zoomTextSig();
   items.forEach((it, li) => {
     const L = it.L;
     const st = sc.linkState(L);
@@ -5446,7 +5431,7 @@ function renderBoard() {
         if (idPart && rest) rest = '  ' + rest;
       }
       if (idPart || rest) labels.push({
-        li, idPart, rest, ts, w: (textW(idPart, F.lblId) + textW(rest, F.label) + 4) * ts, h: 12 * ts,
+        li, idPart, rest, w: textW(idPart, F.lblId) + textW(rest, F.label) + 4, h: 12,
         kind: kindAttr, uid: L.obj.uid, key: it.key, st, bundle: it.bundle, color: lc,
         cls: L.kind === 'interface' ? 'if' : (L.kind === 'cable' ? 'cbl' : (L.noCable ? 'if nocable' : 'ghost'))
       });
@@ -5500,13 +5485,14 @@ function renderBoard() {
   // --- etichette
   placeRouteLabels(labels, items, rects, !!drag && drag.moved);
   lastLabelBoxes = labels.map((lb) => lb.box);
+  lastLabels = labels;
   lastLabelPos = new Map();
   labels.forEach((lb) => lastLabelPos.set(lb.key, { lkey: lb.key, x: lb.x, y: lb.y, ax: lb.ax, ay: lb.ay, t: lb.t, manual: lb.manual }));
   let lbs = '';
   labels.forEach((lb) => {
     // testo senza riquadro sopra la linea (a sinistra e ruotato sui tratti verticali), con alone bianco
-    const w0 = lb.w / ts, h0 = lb.h / ts;
-    const tr = 'translate(' + r1(lb.x) + ',' + r1(lb.y) + ')' + (lb.vert ? ' rotate(-90)' : '') + (ts !== 1 ? ' scale(' + ts + ')' : '');
+    const w0 = lb.w, h0 = lb.h;
+    const tr = 'translate(' + r1(lb.x) + ',' + r1(lb.y) + ')';
     lbs += '<g class="lbl ' + lb.cls + ' ' + lb.st + (lb.manual ? ' manual' : '') + '"' + (lb.color ? ' style="--lc:' + esc(lb.color) + '"' : '') + ' data-link="' + lb.kind + '" data-uid="' + esc(lb.uid) + '" data-key="' + esc(lb.key) + '" data-lkey="' + esc(lb.key) + '" transform="' + tr + '">' +
       '<rect class="lbl-hit" x="' + r1(-w0 / 2) + '" y="' + r1(-h0 / 2) + '" width="' + r1(w0) + '" height="' + r1(h0) + '"/>' +
       '<text x="' + r1(-w0 / 2 + 2) + '" y="' + r1(h0 / 2 - 2.6) + '"><tspan class="lbl-id">' + esc(lb.idPart) + '</tspan><tspan class="lbl-rest">' + esc(lb.rest) + '</tspan></text></g>';
@@ -5613,14 +5599,6 @@ function compSvg(c, g, hlPorts) {
   s += '<g class="comp-idb"><rect x="' + (w - g.idW - 8) + '" y="9" width="' + g.idW + '" height="17" rx="1.5"/>' +
     '<text x="' + (w - 8 - g.idW / 2) + '" y="21.3" text-anchor="middle">' + esc(c.id || '?') + '</text></g>';
   const nAtt = (c.attachments || []).length;
-  const fs = compTitleSize();
-  if (fs) {
-    // zoom ridotto: ID e nome del componente in un riquadro sopra l'intestazione, leggibili a schermo
-    const font = '700 ' + fs + 'px ' + FONT_STACK, bh = Math.max(H, fs * 1.55);
-    const txt = fitText((c.id || '?') + '  ' + (c.name || ''), font, w - 12);
-    s += '<g class="comp-zt"><rect x="0" y="0" width="' + w + '" height="' + r1(bh) + '" rx="2"/>' +
-      '<text x="' + r1(w / 2) + '" y="' + r1(bh / 2 + fs * 0.36) + '" text-anchor="middle" style="font-size:' + fs + 'px">' + esc(txt) + '</text></g>';
-  }
   s += '<text class="comp-meta" x="10" y="37.5">' + esc(fitText(c.supplier || '', F.meta, w - 24 - (nAtt ? 34 : 0))) + '</text>';
   if (g.pn) s += '<text class="comp-meta comp-pn" x="10" y="50.5">' + esc(g.pn) + '</text>';
   if (nAtt) {
@@ -5759,8 +5737,6 @@ function applyView() {
   B.dotsMinorG.style.display = ui.zoom < 0.45 ? 'none' : '';
   byId('zoomLabel').textContent = Math.round(ui.zoom * 100) + '%';
   if (B.handles && B.handles.firstChild) renderHandles();
-  // testi con dimensione minima a schermo: si ridisegna quando cambia il fattore di ingrandimento
-  if (zoomTextSig() !== lastTextScale) scheduleBoardRender();
 }
 function contentBounds() {
   const geom = lastGeom || geomMap(ui.showPorts);
@@ -5860,33 +5836,341 @@ const snapV = (v) => Math.round(v / BG.SNAP) * BG.SNAP;
 
 /* ---------- Comandi di instradamento ---------- */
 function modeLabel(mode) { return mode === 'interfaces' ? 'vista interfacce' : 'vista cavi'; }
+/* ---------- Auto-Rerouting con ottimizzazione della leggibilità ----------
+   Etichette poco leggibili: sovrapposte a un'altra etichetta, sopra un blocco o attraversate da linee di altri collegamenti.
+   A scelta i componenti restano fermi, si spostano il minimo per creare spazio dove servono le etichette, oppure
+   vengono ridisposti da zero (a colonne secondo i collegamenti, gruppi compatti); poi si ricalcolano i percorsi. */
+function labelConflicts() {
+  const L = lastLabels || [], out = [];
+  const rects = lastGeom ? linkRects(lastGeom).filter((r) => !r.node) : [];
+  const ov = (a, b) => Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0) > 0.5 && Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0) > 0.5;
+  const inner = (b) => ({ x0: b.x0 + 1, x1: b.x1 - 1, y0: b.y0 + 1, y1: b.y1 - 1 });
+  const segHit = (a, b, bx) => Math.max(a.x, b.x) >= bx.x0 && Math.min(a.x, b.x) <= bx.x1 && Math.max(a.y, b.y) >= bx.y0 && Math.min(a.y, b.y) <= bx.y1;
+  L.forEach((lb, i) => {
+    if (!lb.box) return;
+    const why = [];
+    if (L.some((o, j) => j !== i && o.box && ov(lb.box, o.box))) why.push('label');
+    if (rects.some((r) => ov(lb.box, r))) why.push('block');
+    const bx = inner(lb.box);
+    let cross = false;
+    lastItems.forEach((it) => {
+      if (cross || it.key === lb.key) return;
+      for (let k = 0; k < it.pts.length - 1 && !cross; k++) if (segHit(it.pts[k], it.pts[k + 1], bx)) cross = true;
+    });
+    if (cross) why.push('line');
+    if (why.length) out.push({ lb, why });
+  });
+  return out;
+}
+/* Percorsi della vista ricalcolati da zero (mantenendo, a scelta, quelli manuali) */
+function rerouteView(mode, keepManual) {
+  const cur = (state.routing && state.routing[mode]) || {};
+  const res = computeRoutes(mode, geomMap(true), { full: true, keepManual, stored: cur });
+  const out = {};
+  res.links.forEach((L) => { const r = res.routes.get(L.key); if (r) out[L.key] = serializeRoute(r); });
+  state.routing = state.routing || {};
+  state.routing[mode] = out;
+  transientCache = { sig: null, res: null };
+}
+/* Spazio inserito lungo una linea: tutto ciò che sta oltre (a destra per 'x', sotto per 'y') si sposta di "amount" */
+function insertSpace(axis, at, amount) {
+  const geom = geomMap(true);
+  let n = 0;
+  state.components.forEach((c) => {
+    const g = geom.get(c.uid);
+    if (!g || (axis === 'x' ? g.x : g.y) < at) return;
+    if (axis === 'x') c.x = (Number(c.x) || 0) + amount; else c.y = (Number(c.y) || 0) + amount;
+    n++;
+  });
+  // punti di diramazione ed estremi non collegati spostati a mano
+  const mv = (p) => { if (p && (axis === 'x' ? p.x : p.y) >= at) { if (axis === 'x') p.x += amount; else p.y += amount; } };
+  state.cables.forEach((c) => { mv(c.branch); (c.ends || []).forEach((e) => mv(e.pos)); });
+  return n;
+}
+/* Tagli da eseguire per le etichette in conflitto: spazio orizzontale nel canale dove si trova l'etichetta, così i
+   tratti orizzontali si allungano e le etichette possono spostarsi lì (lo spazio verticale allungherebbe troppo lo
+   schema); i tagli vicini si uniscono */
+function spaceCuts(conf) {
+  const cuts = [];
+  conf.forEach(({ lb }) => {
+    const at = lb.ax, amount = clamp(Math.ceil((lb.w * 0.5 + 20) / 10) * 10, 40, 160);
+    const near = cuts.find((q) => Math.abs(q.at - at) < 60);
+    if (near) near.amount = Math.max(near.amount, amount); else cuts.push({ axis: 'x', at, amount });
+  });
+  // al massimo tre tagli a ogni passo, i più ampi
+  return cuts.sort((a, b) => b.amount - a.amount).slice(0, 3);
+}
+/* Disposizione completa: unità (gruppi con i loro componenti, componenti senza gruppo) a colonne secondo i collegamenti;
+   dentro ogni gruppo i componenti su una griglia; canali larghi abbastanza per linee ed etichette */
+function autoLayout(mode, variant) {
+  const vr = variant || { mask: 0, mirror: false };
+  const geom = geomMap(true);
+  const comps = state.components.filter((c) => geom.has(c.uid));
+  if (!comps.length) return { moved: 0, k: 0 };
+  let ox = Infinity, oy = Infinity;
+  comps.forEach((c) => { ox = Math.min(ox, Number(c.x) || 0); oy = Math.min(oy, Number(c.y) || 0); });
+  // pesi dei collegamenti fra componenti nella vista corrente (i cavi collegano tutti i loro estremi)
+  const w = new Map();
+  const addW = (a, b) => { if (!a || !b || a === b) return; const k = a < b ? a + '|' + b : b + '|' + a; w.set(k, (w.get(k) || 0) + 1); };
+  if (mode === 'interfaces') state.interfaces.forEach((f) => addW(f.compA, f.compB));
+  else {
+    state.cables.forEach((c) => { const cs = [...new Set((c.ends || []).map((e) => e.comp).filter((u) => geom.has(u)))]; for (let i = 0; i < cs.length; i++) for (let j = i + 1; j < cs.length; j++) addW(cs[i], cs[j]); });
+    state.interfaces.forEach((f) => { if (!(idx.cablesByIface.get(f.uid) || []).length) addW(f.compA, f.compB); });
+  }
+  const deg = new Map();
+  w.forEach((v, k) => k.split('|').forEach((u) => deg.set(u, (deg.get(u) || 0) + v)));
+  // unità
+  const units = [], unitOf = new Map();
+  state.groups.forEach((g) => {
+    const ms = (idx.compsByGroup.get(g.uid) || []).filter((c) => geom.has(c.uid));
+    if (!ms.length) return;
+    const u = { id: 'g:' + g.uid, comps: ms, group: true };
+    units.push(u); ms.forEach((c) => unitOf.set(c.uid, u));
+  });
+  comps.forEach((c) => { if (!unitOf.has(c.uid)) { const u = { id: 'c:' + c.uid, comps: [c], group: false }; units.push(u); unitOf.set(c.uid, u); } });
+  // disposizione interna: componenti più collegati per primi, su una griglia di colonne
+  const GX = 150, GY = 54, PAD = 30, BAND = 20;
+  units.forEach((u) => {
+    u.comps.sort((a, b) => (deg.get(b.uid) || 0) - (deg.get(a.uid) || 0) || cmpNat(a.id, b.id));
+    const n = u.comps.length, cols = n <= 3 ? 1 : Math.ceil(Math.sqrt(n / 1.5));
+    const rows = Math.ceil(n / cols), colW = [], rowH = [];
+    u.comps.forEach((c, i) => { const g = geom.get(c.uid), cc = Math.floor(i / rows), rr = i % rows; colW[cc] = Math.max(colW[cc] || 0, g.w); rowH[rr] = Math.max(rowH[rr] || 0, g.h); });
+    u.rel = new Map();
+    u.comps.forEach((c, i) => {
+      const cc = Math.floor(i / rows), rr = i % rows;
+      const x = colW.slice(0, cc).reduce((t, v) => t + v + GX, 0), y = rowH.slice(0, rr).reduce((t, v) => t + v + GY, 0);
+      u.rel.set(c.uid, { x: x + (u.group ? PAD : 0), y: y + (u.group ? PAD + BAND : 0) });
+    });
+    u.w = colW.reduce((t, v) => t + v, 0) + GX * (colW.length - 1) + (u.group ? 2 * PAD : 0);
+    u.h = rowH.reduce((t, v) => t + v, 0) + GY * (rowH.length - 1) + (u.group ? 2 * PAD + BAND : 0);
+  });
+  // collegamenti fra unità
+  const uw = new Map(), uadj = new Map(units.map((u) => [u.id, new Map()]));
+  w.forEach((v, k) => {
+    const [a, b] = k.split('|'), ua = unitOf.get(a), ub = unitOf.get(b);
+    if (!ua || !ub || ua === ub) return;
+    uadj.get(ua.id).set(ub.id, (uadj.get(ua.id).get(ub.id) || 0) + v);
+    uadj.get(ub.id).set(ua.id, (uadj.get(ub.id).get(ua.id) || 0) + v);
+  });
+  units.forEach((u) => { uw.set(u.id, [...uadj.get(u.id).values()].reduce((t, v) => t + v, 0)); });
+  // colonne: l'unità più collegata al centro; i vicini a sinistra o a destra secondo i loro legami reciproci,
+  // le unità più lontane dalla parte da cui sono raggiunte (colonna = ± distanza); le parti scollegate in fondo a destra
+  const col = new Map(), byId = new Map(units.map((u) => [u.id, u]));
+  const wOf = (a, b) => uadj.get(a).get(b) || 0;
+  let shift = 0, kRoot = 0, first = true;
+  const rest = () => units.filter((u) => !col.has(u.id)).sort((a, b) => uw.get(b.id) - uw.get(a.id) || cmpNat(a.id, b.id));
+  while (rest().length) {
+    const root = rest()[0], side = new Map([[root.id, 0]]), comp = [root.id];
+    col.set(root.id, 0);
+    const L = new Set(), R = new Set();
+    // vicini diretti: lato con più legami (a parità, il lato con meno unità); la variante può invertire i primi
+    const nb = [...uadj.get(root.id).entries()].sort((a, b) => b[1] - a[1] || cmpNat(a[0], b[0])).map(([vid]) => vid).filter((vid) => !col.has(vid));
+    if (first) kRoot = nb.length;
+    nb.forEach((vid, i) => {
+      const aff = (S) => [...S].reduce((t, x) => t + wOf(vid, x), 0);
+      let toL = aff(L) > aff(R) || (aff(L) === aff(R) && L.size < R.size);
+      if (first && i < 3 && (vr.mask >> i) & 1) toL = !toL;
+      (toL ? L : R).add(vid);
+      side.set(vid, toL ? -1 : 1);
+      col.set(vid, toL ? -1 : 1);
+      comp.push(vid);
+    });
+    first = false;
+    const q = comp.slice(1);
+    while (q.length) {
+      const id = q.shift();
+      [...uadj.get(id).entries()].sort((a, b) => b[1] - a[1]).forEach(([vid]) => {
+        if (col.has(vid)) return;
+        side.set(vid, side.get(id));
+        col.set(vid, col.get(id) + side.get(id));
+        comp.push(vid); q.push(vid);
+      });
+    }
+    // un'unità si sposta di una colonna verso l'esterno se così i suoi collegamenti si accorciano
+    for (let pass = 0; pass < 3; pass++) comp.forEach((id) => {
+      if (id === root.id) return;
+      const cost = (c) => [...uadj.get(id).entries()].reduce((t, [v, wt]) => t + wt * Math.abs(c - col.get(v)), 0);
+      const c0 = col.get(id), c1 = c0 + side.get(id);
+      if (cost(c1) < cost(c0)) col.set(id, c1);
+    });
+    // schema specchiato (variante); la parte collegata va a destra di quelle già disposte
+    if (vr.mirror) comp.forEach((id) => col.set(id, -col.get(id)));
+    const minC = Math.min(...comp.map((id) => col.get(id)));
+    comp.forEach((id) => col.set(id, col.get(id) - minC + shift));
+    shift = Math.max(...comp.map((id) => col.get(id))) + 1;
+  }
+  const nCols = Math.max(...col.values()) + 1;
+  const byCol = Array.from({ length: nCols }, () => []);
+  units.forEach((u) => byCol[col.get(u.id)].push(u));
+  // ordine nelle colonne: baricentro dei vicini (alcune passate avanti e indietro)
+  const pos = new Map();
+  byCol.forEach((list) => list.forEach((u, i) => pos.set(u.id, i)));
+  const bary = (u) => {
+    let t = 0, n = 0;
+    uadj.get(u.id).forEach((v, vid) => { if (vid !== u.id && col.get(vid) !== col.get(u.id)) { t += pos.get(vid) * v; n += v; } });
+    return n ? t / n : pos.get(u.id);
+  };
+  for (let pass = 0; pass < 8; pass++) {
+    const order = pass % 2 ? byCol.slice().reverse() : byCol;
+    order.forEach((list) => { list.sort((a, b) => bary(a) - bary(b)); list.forEach((u, i) => pos.set(u.id, i)); });
+  }
+  // canali fra le colonne: spazio per le linee che li attraversano e per le etichette più lunghe della vista
+  const lblW = Math.max(60, ...(lastLabels || []).map((lb) => lb.w || 0));
+  const across = (ci) => { let n = 0; units.forEach((u) => { if (col.get(u.id) <= ci) uadj.get(u.id).forEach((v, vid) => { if (col.get(vid) > ci) n += v; }); }); return n; };
+  let x = ox;
+  const colX = [];
+  byCol.forEach((list, ci) => {
+    const cw = Math.max(...list.map((u) => u.w));
+    colX[ci] = { x, w: cw };
+    x += cw + clamp(Math.round(100 + lblW * 0.7 + 9 * across(ci)), 170, 460);
+  });
+  // altezza: ogni unità si allinea al baricentro dei suoi vicini (linee il più possibile diritte), senza sovrapporsi
+  const gapY = (u) => 70 + 6 * uw.get(u.id);
+  byCol.forEach((list, ci) => {
+    let y = oy;
+    list.forEach((u) => { u.x = colX[ci].x + (colX[ci].w - u.w) / 2; u.y = y; y += u.h + gapY(u); });
+  });
+  for (let pass = 0; pass < 6; pass++) {
+    byCol.forEach((list) => {
+      const want = list.map((u) => {
+        let t = 0, n = 0;
+        uadj.get(u.id).forEach((v, vid) => { const o = byId.get(vid); if (o && col.get(vid) !== col.get(u.id)) { t += (o.y + o.h / 2) * v; n += v; } });
+        return n ? t / n - u.h / 2 : u.y;
+      });
+      // dall'alto in basso: posizione desiderata, almeno sotto l'unità precedente
+      let minY = oy;
+      list.forEach((u, i) => { u.y = Math.max(minY, want[i]); minY = u.y + u.h + gapY(u); });
+    });
+  }
+  const topY = Math.min(...units.map((u) => u.y));
+  units.forEach((u) => { u.y += oy - topY; });
+  let moved = 0;
+  units.forEach((u) => u.comps.forEach((c) => {
+    const r = u.rel.get(c.uid), nx = snapV(u.x + r.x), ny = snapV(u.y + r.y);
+    if (nx !== Number(c.x) || ny !== Number(c.y)) moved++;
+    c.x = nx; c.y = ny;
+  }));
+  // diramazioni ed estremi non collegati tornano alla posizione automatica
+  state.cables.forEach((c) => { c.branch = null; (c.ends || []).forEach((e) => { delete e.pos; }); });
+  return { moved, k: kRoot };
+}
+/* Disposizione completa: si provano alcune varianti (lati dei vicini dell'unità principale, schema specchiato),
+   ciascuna con i percorsi ricalcolati, e si tiene la più leggibile (etichette, incroci, piegature) */
+async function bestLayout(mode, deadline) {
+  const base = snapshot();
+  const score = () => labelConflicts().length * 8 + lastRouteStats.crossings * 2 + lastRouteStats.bends * 0.1;
+  const tryV = (v) => { state = JSON.parse(base); rebuildIndex(); const r = autoLayout(mode, v); rerouteView(mode, false); renderBoard(); return { r, sc: score(), st: snapshot() }; };
+  let best = tryV({ mask: 0, mirror: false });
+  const masks = Array.from({ length: 1 << Math.min(3, best.r.k) }, (_, i) => i);
+  for (const m of masks) {
+    for (const mirror of [false, true]) {
+      if ((m === 0 && !mirror) || performance.now() > deadline) continue;
+      const t = tryV({ mask: m, mirror });
+      if (t.sc < best.sc) best = t;
+      await new Promise((res) => setTimeout(res, 0));
+    }
+  }
+  state = JSON.parse(best.st);
+  rebuildIndex();
+  renderBoard();
+}
+/* Etichette spostate a mano che risultano poco leggibili: tornano alla posizione automatica */
+function resetConflictingLabels(mode) {
+  const lp = state.labels && state.labels[mode];
+  if (!lp) return 0;
+  let n = 0;
+  labelConflicts().forEach(({ lb }) => { if (lp[lb.key]) { delete lp[lb.key]; n++; } });
+  return n;
+}
+async function rerouteDialog(mode, nManual, nConf) {
+  const radio = (name, value, checked, label, hint) => h('label', { class: 'check-line', style: { marginTop: '6px' } },
+    h('input', { type: 'radio', name, value, checked }), h('span', null, h('b', null, label), hint ? h('span', { class: 'muted small' }, ' · ' + hint) : null));
+  const comps = ui.rerouteComps || 'small';
+  const body = [
+    h('p', null, 'Ricalcola i percorsi della ' + modeLabel(mode) + ' e riorganizza lo schema per rendere leggibili le etichette. ',
+      nConf ? h('b', null, plural(nConf, 'etichetta poco leggibile', 'etichette poco leggibili')) : 'Nessuna etichetta poco leggibile', nConf ? ' adesso (sovrapposte, sopra un blocco o attraversate da linee).' : ' adesso.'),
+    h('h4', { class: 'set-title' }, 'Componenti'),
+    radio('rr-comps', 'none', comps === 'none', 'Non spostarli', 'si ricalcolano solo percorsi ed etichette'),
+    radio('rr-comps', 'small', comps === 'small', 'Spostamenti minimi', 'si crea spazio solo dove le etichette si sovrappongono; la disposizione resta la tua'),
+    radio('rr-comps', 'full', comps === 'full', 'Disposizione completa', 'tutti i componenti ridisposti a colonne secondo i collegamenti, gruppi compatti')
+  ];
+  if (nManual) {
+    body.push(h('h4', { class: 'set-title' }, 'Percorsi modificati a mano (' + nManual + ')'),
+      radio('rr-man', 'keep', true, 'Mantienili', 'gli altri percorsi li evitano; con la disposizione completa vengono ricalcolati'),
+      radio('rr-man', 'all', false, 'Ricalcola anche quelli', null));
+  }
+  body.push(h('p', { class: 'muted small' }, 'Si applica alla vista corrente; se i componenti si spostano, l’altra vista si aggiorna da sola. Un solo Ctrl+Z annulla tutto.'));
+  const r = await showModal({
+    title: 'Auto-Rerouting — ' + modeLabel(mode), body,
+    buttons: [{ label: 'Annulla', value: null }, { label: 'Avvia', cls: 'primary', value: () => ({
+      comps: (qs('#modalBody input[name="rr-comps"]:checked') || {}).value || 'none',
+      keepManual: !!nManual && (qs('#modalBody input[name="rr-man"]:checked') || {}).value === 'keep'
+    }) }]
+  });
+  return r || null;
+}
 async function autoReroute() {
   if (!ui.showPorts) { ui.showPorts = true; saveUi(); }
   const mode = ui.mode;
   renderBoard();
   const cur = (state.routing && state.routing[mode]) || {};
   const nManual = Object.keys(cur).filter((k) => cur[k] && cur[k].manual).length;
-  let keepManual = false;
-  if (nManual) {
-    const ch = await showModal({
-      title: 'Auto-Rerouting',
-      body: [h('p', null, 'Nella ' + modeLabel(mode) + (nManual === 1 ? ' c’è 1 percorso modificato' : ' ci sono ' + nManual + ' percorsi modificati') + ' a mano.'),
-        h('p', { class: 'muted' }, 'Puoi ricalcolare solo i percorsi automatici (quelli manuali restano dove sono e gli altri li evitano) oppure ricalcolare tutto. In ogni caso Ctrl+Z annulla l’operazione.')],
-      buttons: [{ label: 'Annulla', value: null }, { label: 'Ricalcola tutti', value: 'all' }, { label: 'Mantieni i percorsi manuali', value: 'keep', cls: 'primary' }]
-    });
-    if (!ch) return;
-    keepManual = ch === 'keep';
-  }
-  const before = lastRouteStats.crossings, beforeBends = lastRouteStats.bends;
-  const res = computeRoutes(mode, geomMap(true), { full: true, keepManual, stored: cur });
-  const out = {};
-  res.links.forEach((L) => { const r = res.routes.get(L.key); if (r) out[L.key] = serializeRoute(r); });
-  if (JSON.stringify(out) === JSON.stringify(cur)) {
-    toast('Percorsi già ottimizzati: nessuna modifica (' + plural(before, 'incrocio', 'incroci') + ').', 'info');
+  const before = { conf: labelConflicts().length, cross: lastRouteStats.crossings, bends: lastRouteStats.bends };
+  const opts = await rerouteDialog(mode, nManual, before.conf);
+  if (!opts) return;
+  ui.rerouteComps = opts.comps;
+  saveUi();
+  const snap = snapshot();
+  const pos0 = new Map(state.components.map((c) => [c.uid, (Number(c.x) || 0) + ',' + (Number(c.y) || 0)]));
+  const busy = h('div', { class: 'toast info' }, 'Ottimizzazione dello schema in corso…');
+  byId('toasts').appendChild(busy);
+  await new Promise((res) => setTimeout(res, 30));
+  try {
+    const keep = opts.keepManual && opts.comps !== 'full';
+    if (opts.comps === 'full') await bestLayout(mode, performance.now() + 6000);
+    else rerouteView(mode, keep);
+    renderBoard();
+    resetConflictingLabels(mode);
+    renderBoard();
+    if (opts.comps !== 'none') {
+      // spazio dove le etichette restano poco leggibili, finché migliora (al massimo 6 passi o 8 secondi)
+      const t0 = performance.now();
+      let best = labelConflicts().length;
+      for (let it = 0; it < 6 && best > 0 && performance.now() - t0 < 8000; it++) {
+        const save = snapshot();
+        spaceCuts(labelConflicts()).forEach((q) => insertSpace(q.axis, q.at, q.amount));
+        rerouteView(mode, keep);
+        renderBoard();
+        resetConflictingLabels(mode);
+        renderBoard();
+        const n = labelConflicts().length;
+        if (n >= best) { state = JSON.parse(save); rebuildIndex(); renderBoard(); break; }
+        best = n;
+        await new Promise((res) => setTimeout(res, 0));
+      }
+    }
+  } catch (err) {
+    state = JSON.parse(snap);
+    rebuildIndex();
+    busy.remove();
+    renderBoard();
+    reportError(err);
     return;
   }
-  commit((st) => { st.routing = st.routing || {}; st.routing[mode] = out; }, null, 'Auto-Rerouting (' + modeLabel(mode) + ')');
-  toast('Auto-Rerouting completato: incroci ' + before + ' → ' + lastRouteStats.crossings + ', piegature ' + beforeBends + ' → ' + lastRouteStats.bends + '. Ctrl+Z per annullare.', 'ok', 5000);
+  busy.remove();
+  if (snapshot() === snap) {
+    renderBoard();
+    toast('Percorsi già ottimizzati: nessuna modifica (' + plural(before.conf, 'etichetta poco leggibile', 'etichette poco leggibili') + ', ' + plural(before.cross, 'incrocio', 'incroci') + ').', 'info', 5000);
+    return;
+  }
+  const nMoved = state.components.filter((c) => pos0.get(c.uid) !== (Number(c.x) || 0) + ',' + (Number(c.y) || 0)).length;
+  pushHistory(snap, 'Auto-Rerouting (' + modeLabel(mode) + ')' + (nMoved ? ', ' + plural(nMoved, 'componente spostato', 'componenti spostati') : ''));
+  state.meta.modified = new Date().toISOString();
+  afterChange();
+  if (opts.comps === 'full') fitView();
+  const after = labelConflicts().length;
+  toast('Auto-Rerouting completato: etichette poco leggibili ' + before.conf + ' → ' + after + ' · incroci ' + before.cross + ' → ' + lastRouteStats.crossings +
+    (nMoved ? ' · ' + plural(nMoved, 'componente spostato', 'componenti spostati') : '') + '. Ctrl+Z per annullare.', 'ok', 7000);
 }
 function resetRoute(key, modeArg) {
   const mode = modeArg || ui.mode;
@@ -6020,10 +6304,9 @@ function extGeom(c, showPorts) {
 async function buildSheet(sh) {
   const sel = ui.selected, msel = ui.multiSel;
   ui.selected = null; ui.multiSel = [];
-  boardExport = true;   // dimensioni normali dei testi, indipendenti dallo zoom
   // solo alcuni gruppi: si disegna uno schema ridotto (provvisorio, non salvato) con i riferimenti esterni
   const real = state, sub = (sh.groups || []).length ? exportSubsetState(sh.groups) : null;
-  if ((sh.groups || []).length && !sub) { boardExport = false; ui.selected = sel; ui.multiSel = msel; toast('I gruppi scelti non contengono componenti.', 'warn'); return null; }
+  if ((sh.groups || []).length && !sub) { ui.selected = sel; ui.multiSel = msel; toast('I gruppi scelti non contengono componenti.', 'warn'); return null; }
   let bb = null, svg = null;
   try {
     if (sub) { state = sub; rebuildIndex(); }
@@ -6032,7 +6315,6 @@ async function buildSheet(sh) {
     svg = bb ? B.svg.cloneNode(true) : null;
   } finally {
     if (sub) { state = real; rebuildIndex(); }
-    boardExport = false;
     ui.selected = sel; ui.multiSel = msel;
     renderBoard();
   }
@@ -11550,13 +11832,14 @@ function openHelp(topic) {
         [B('Nuovo collegamento'), ': nella vista interfacce trascina dal quadratino sul lato di un componente fino a un altro componente (basta rilasciare sul blocco); nella vista cavi trascina da un connettore a un altro. ',
           'Se la destinazione è lontana, porta il puntatore vicino al bordo della lavagna: la vista scorre da sola nella direzione del movimento, senza dover ridurre lo zoom.'],
         [B('Spostamento di precisione con la tastiera'), ': seleziona un elemento con un clic e usa le ', B('frecce'), ' (1 unità per pressione, ', B('Maiusc + freccia'), ' 10 unità). Funziona per blocchi, gruppi, etichette dei collegamenti, punti di instradamento e punti di diramazione dei cavi.'],
-        [B('Etichette'), ': testo senza riquadro appoggiato alla sua linea (sopra i tratti orizzontali, ruotato lungo quelli verticali), con un alone bianco. Trascinandola (o con le frecce, a linea selezionata) scorre solo lungo il percorso. Clic destro sull’etichetta → “Ripristina posizione automatica dell’etichetta”.'],
-        [B('Zoom ridotto'), ': ID e nome dei componenti ed etichette non scendono sotto una dimensione leggibile a schermo; l’esportazione usa sempre le dimensioni normali.'],
+        [B('Etichette'), ': testo orizzontale senza riquadro appoggiato alla sua linea (sopra i tratti orizzontali, di preferenza; accanto a quelli verticali), con un alone bianco. Trascinandola (o con le frecce, a linea selezionata) scorre solo lungo il percorso. Clic destro sull’etichetta → “Ripristina posizione automatica dell’etichetta”.'],
         [B('Blocchi'), ': le righe dei connettori riportano ID, tipologia, etichetta e direzione per intero (il blocco si allarga quanto serve). Sotto il nome compaiono PN fornitore e PN IDV del componente. Se nella scheda del componente scegli “Sulla lavagna: Immagine…”, la foto allegata compare nel blocco sopra i connettori: con il componente selezionato, trascina l’angolo dell’immagine per ridimensionarla (doppio clic: dimensione predefinita).'],
         [B('Filtro ▾ → Mostra nei blocchi'), ': PN fornitore e PN IDV dei componenti (scelta salvata nel progetto). ', B('Mostra nella vista cavi'), ': “Tipologia dei connettori” scrive la tipologia del connettore del componente fuori dal blocco, sopra il cavo collegato; ', B('ID, PN fornitore e PN IDV del cavo'), ' si attivano uno per uno. Le opzioni valgono anche nell’esportazione.'],
         [B('Vista cavi'), ': le interfacce senza cavi sono disegnate nella stessa posizione della vista interfacce (il percorso si modifica lì).'],
         [B('Punti della griglia'), ': si nascondono da Impostazioni → Generale (preferenza di questo browser), utile per distinguere le linee tratteggiate.'],
-        [B('Auto-Rerouting'), ' ricalcola i percorsi della vista corrente minimizzando incroci e piegature; se ci sono percorsi modificati a mano puoi scegliere di mantenerli.'],
+        [B('Auto-Rerouting'), ' ricalcola i percorsi della vista corrente minimizzando incroci e piegature e cerca le ', B('etichette poco leggibili'), ' (sovrapposte, sopra un blocco o attraversate da altre linee). Nella finestra scegli se i componenti ',
+          B('restano fermi'), ', si spostano con ', B('spostamenti minimi'), ' (si crea spazio solo dove servono le etichette, la disposizione resta la tua) oppure con una ', B('disposizione completa'),
+          ' (componenti ridisposti a colonne secondo i collegamenti, gruppi compatti: l’app prova alcune varianti e tiene la più leggibile). Se ci sono percorsi modificati a mano puoi mantenerli. Alla fine un riepilogo indica le etichette poco leggibili prima e dopo; un solo Ctrl+Z annulla tutto.'],
         ['La legenda (in basso a sinistra) e la descrizione dei comandi (in basso a destra) si riducono con il pulsante “–” e si riaprono con “Legenda” / “ⓘ Comandi”.'],
         ['Annulla / Ripeti: Ctrl+Z / Ctrl+Y (anche per ogni modifica ai percorsi). Canc elimina l’oggetto selezionato.'])),
     S('percorsi', 'Percorso sulla lavagna: automatico o manuale',
@@ -11725,6 +12008,8 @@ function setupGlobalHandlers() {
     openObject(el.dataset.open.slice(0, i), el.dataset.open.slice(i + 1));
   }, true);
   document.addEventListener('keydown', (e) => {
+    // Chrome invia un keydown senza "key" quando si sceglie una voce suggerita di un campo con elenco (datalist)
+    if (typeof e.key !== 'string') return;
     if (listPopoverKey(e)) return;
     if (e.key === 'Escape' && colsPop) { closeColumnsPopover(); return; }
     if (e.key === 'Escape') {
@@ -11823,7 +12108,7 @@ window.IDV = {
   get state() { return state; }, get issues() { return issues; }, ui,
   get routeStats() { return Object.assign({}, lastRouteStats); },
   get routes() { return [...lastItems.values()].map((it) => ({ key: it.key, id: it.L.obj.id, kind: it.L.kind, sA: it.sA, sB: it.sB, manual: it.manual, pts: it.pts.map((q) => [q.x, q.y]) })); },
-  get labels() { return [...lastLabelPos.entries()].map(([key, p]) => ({ key, lkey: p.lkey, x: p.x, y: p.y, manual: !!p.manual })); },
+  get labels() { return [...lastLabelPos.entries()].map(([key, p]) => ({ key, lkey: p.lkey, x: p.x, y: p.y, ax: p.ax, ay: p.ay, manual: !!p.manual })); },
   get history() { return { past: history.past.map((e) => e.label), future: history.future.map((e) => e.label) }; },
   get project() { return project ? { id: project.id, name: state.meta.name, storage: Store.mode, workFolder: Store.mode === 'folder' ? Store.name : null, folder: project.folder, github: project.github, log: project.log.slice(-50), pending: !!project.pending, conflict: saveConflict } : null; },
   version: APP.version, schema: APP.schema,

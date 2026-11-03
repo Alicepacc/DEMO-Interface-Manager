@@ -17,7 +17,7 @@ Sostituire o aggiornare il file HTML **non tocca i dati**. Con l'archivio del br
 
 ## Versioni e migrazione dei dati
 
-- `APP.version` è il rilascio dell'applicazione, "Rev X.YY", per esempio `4.00`:
+- `APP.version` è il rilascio dell'applicazione, "Rev X.YY", per esempio `4.01`:
   - **Major** (1.15 → 2.00) per cambiamenti sostanziali, come un nuovo formato dei dati;
   - **Minor** (1.15 → 1.16) per correzioni e miglioramenti.
 
@@ -129,7 +129,8 @@ Le verifiche automatiche, in Playwright, coprono:
 - lavagna, instradamento e punti di instradamento, spostamento con mouse e frecce di blocchi, gruppi ed etichette;
 - ID automatici di interfacce (`L1.L2:A.B`, lati in ordine alfabetico, suffissi -2…) e cavi (W-001…, numeri mai riusati), sigle dei livelli modificabili;
 - connettori (tabella nella scheda del componente con etichetta, tipologia, direzione, pinout e riordino a trascinamento; pinout condiviso con l'estremo del cavo), cavi da connettore a connettore con più interfacce, cavi ramificati e punto di diramazione, finestra "Nuovo cavo";
-- lavagna (Rev 4.00): selezione multipla, scorrimento automatico, immagini ridimensionabili, PN nei blocchi, etichette senza riquadro sul percorso, opzioni ID / PN dei cavi, testi minimi con lo zoom, interfacce senza cavi come nella vista interfacce, clonazione di componenti con interfacce e cavi;
+- Auto-Rerouting con le etichette poco leggibili e le opzioni sui componenti (fermi, spostamenti minimi, disposizione completa); etichette sempre orizzontali; tasto senza nome (voce suggerita di un elenco) senza errori;
+- lavagna (Rev 4.00): selezione multipla, scorrimento automatico, immagini ridimensionabili, PN nei blocchi, etichette senza riquadro sul percorso, opzioni ID / PN dei cavi, interfacce senza cavi come nella vista interfacce, clonazione di componenti con interfacce e cavi;
 - dashboard personalizzabile (schede spostabili, ridimensionabili, nascondibili), controlli per stato, matrice N² con prima riga e colonna bloccate, connettori senza direzione / tipologia;
 - esportazione di alcuni gruppi con i riferimenti esterni e font incorporati (Inter, JetBrains Mono) identici su schermo, SVG e PDF;
 - cavi penzolanti e senza interfaccia: estremo non collegato trascinato su un connettore, cavo creato rilasciando nel vuoto, "Crea senza interfaccia", filtro "Da completare", Dashboard, eliminazioni che lasciano i cavi;
